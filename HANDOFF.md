@@ -1,5 +1,14 @@
 # Current handoff
 
+## Minimal live deployment — complete 2026-11-05
+
+The constrained qxy.se bridge built and deployed exact clean commit
+`a83d5619d52748b1a1815e75429252881d009ccd` to `https://math.qxy.se/` under
+receipt `20261105T092004-7af86f0b7a92`. The root, `/colored-matroids/`, and
+`/colored-matroids/intro.htm` each returned HTTP 200 with expected titles.
+This was an additive upload; no stale-file pruning or unrelated remote change
+was performed. Source ownership is released.
+
 ## Initial build system and colored-matroid outline — ready
 
 Ownership is released. The repository vendors the SymCat Lua/Pandoc toolchain
