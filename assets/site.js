@@ -204,6 +204,39 @@
     }
   }
 
+  function updateDesktopTOCButton() {
+    var button = document.getElementById('tocCollapseButton');
+    if (!button) return;
+
+    var collapsed = document.documentElement.classList.contains('toc-collapsed');
+    var label = collapsed ? 'Show contents' : 'Hide contents';
+    button.setAttribute('aria-expanded', String(!collapsed));
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label);
+  }
+
+  function initDesktopTOC() {
+    var button = document.getElementById('tocCollapseButton');
+    if (!button) return;
+
+    var root = document.documentElement;
+    var saved = getStoredPreference('math-texts-toc');
+    root.classList.toggle('toc-collapsed', saved === 'collapsed');
+    updateDesktopTOCButton();
+
+    button.addEventListener('click', function () {
+      var collapsed = root.classList.toggle('toc-collapsed');
+      setStoredPreference('math-texts-toc', collapsed ? 'collapsed' : 'expanded');
+      updateDesktopTOCButton();
+    });
+
+    window.addEventListener('storage', function (event) {
+      if (event.key !== 'math-texts-toc') return;
+      root.classList.toggle('toc-collapsed', event.newValue === 'collapsed');
+      updateDesktopTOCButton();
+    });
+  }
+
   // Wire up TOC list items to close sidebar on click (delegation safe)
   function initTOCListeners() {
     var tocList = document.getElementById("tocLinkList"); // Ensure your UL has this ID or use "#tocContainer"
@@ -456,6 +489,7 @@
     initHeaderAnchors();
     initFamilyIndexTable();
     initDarkMode();
+    initDesktopTOC();
 
     var btn = document.getElementById("tocButton");
     if (btn) {

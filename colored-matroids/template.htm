@@ -21,6 +21,8 @@
       var themePreference = localStorage.getItem('math-texts-theme');
       if (themePreference === 'dark') document.documentElement.classList.add('dark');
       if (themePreference === 'light') document.documentElement.classList.add('light');
+      var tocPreference = localStorage.getItem('math-texts-toc');
+      if (tocPreference === 'collapsed') document.documentElement.classList.add('toc-collapsed');
     } catch (e) {}
   </script>
   <script type="application/ld+json">
@@ -42,7 +44,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;700&display=swap">
   <link rel="icon" href="./icons/favicon.png">
   <style><!--STYLE--></style>
-  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./style.css?v=5">
   <style>
     :root {
       --c-brand: light-dark(#31596a, #9bc8d8);
@@ -98,7 +100,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js"></script>
   <script defer src="./tex-init.js"></script>
-  <script defer src="./site.js?v=3"></script>
+  <script defer src="./site.js?v=4"></script>
 </head>
 <body class="book-project <!--BODYCLASS-->">
   <header id="doc-title" role="banner">
@@ -114,6 +116,16 @@
 
   <div id="doc-all" class="<!--LAYOUTCLASS-->">
     <aside id="tocContainer">
+      <button type="button" id="tocCollapseButton" class="toc-collapse-button"
+        aria-controls="tocLinkList" aria-expanded="true" aria-label="Hide contents"
+        title="Hide contents">
+        <span class="toc-collapse-label">Contents</span>
+        <svg class="toc-collapse-icon" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
       <nav aria-label="Page contents">
         <ul id="tocLinkList"><!--SIDELINKS--></ul>
         <div id="tocPad"></div>

@@ -423,6 +423,8 @@
   /* ==========================================================================
       SIDEBAR (TOC) STYLING
      ========================================================================== */
+  .toc-collapse-button { display: none; }
+
   #tocContainer nav ul { list-style: none; padding: 0; margin: 0; }
   #tocContainer li { margin: 0; }
 
@@ -481,6 +483,39 @@
   .dateMod::before { content: "Last updated: "; margin-right: 0.3em; }
 
   @media (min-width: 901px) {
+    .toc-collapse-button {
+      appearance: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      margin: 0 0 0.6rem;
+      padding: 0.35rem 0.45rem;
+      border: 0;
+      border-radius: 0.3rem;
+      background: transparent;
+      color: var(--c-text-sub);
+      font: 600 0.78rem/1.2 system-ui, sans-serif;
+      cursor: pointer;
+    }
+
+    .toc-collapse-button:hover {
+      color: var(--c-brand);
+      background: var(--c-bg-surface);
+    }
+
+    .toc-collapse-button:focus-visible {
+      outline: 2px solid var(--c-brand);
+      outline-offset: 2px;
+    }
+
+    .toc-collapse-icon {
+      width: 1rem;
+      height: 1rem;
+      flex: 0 0 auto;
+    }
+
     #doc-all.has-text-width {
       --reading-width: calc(84ch + 4.8rem + 2px);
       grid-template-columns: minmax(1rem, 1fr) minmax(14rem, 20rem)
@@ -490,6 +525,35 @@
     .has-text-width #doc-main { grid-column: 3; }
     .has-text-width #tocContainer {
       grid-column: 2;
+    }
+
+    :root.toc-collapsed #doc-all.has-text-width {
+      grid-template-columns: minmax(1rem, 1fr) 3rem
+        minmax(0, var(--reading-width)) minmax(1rem, 1fr);
+    }
+
+    :root.toc-collapsed .has-text-width #tocContainer {
+      padding: 0.45rem;
+      overflow: hidden;
+    }
+
+    :root.toc-collapsed #tocContainer nav {
+      display: none;
+    }
+
+    :root.toc-collapsed .toc-collapse-button {
+      justify-content: center;
+      margin: 0;
+      min-height: 2rem;
+      padding: 0.3rem;
+    }
+
+    :root.toc-collapsed .toc-collapse-label {
+      display: none;
+    }
+
+    :root.toc-collapsed .toc-collapse-icon {
+      transform: rotate(180deg);
     }
   }
 
