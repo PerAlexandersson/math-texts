@@ -28,8 +28,6 @@
   --c-link-dark:   light-dark(hsl(var(--hue-link), 90%, 35%), hsl(214, 80%, 64%));
   --c-defin:       light-dark(hsl(var(--hue-link), 80%, 45%), hsl(214, 95%, 81%));
 
-  /* Theorem-like environments */
-  --math-env-bar:  light-dark(hsl(var(--hue-neutral), 20%, 85%), hsl(var(--hue-brand), 30%, 32%));
   --math-accent:   light-dark(hsl(var(--hue-link), 80%, 50%), hsl(214, 90%, 76%));
   --c-exchange:    light-dark(hsl(44, 95%, 86%), hsl(42, 45%, 24%));
 
@@ -50,9 +48,6 @@
   --c-rule:        light-dark(hsl(var(--hue-neutral), 15%, 20%), hsl(var(--hue-paper), 6%, 62%));
   --c-tableau-border: light-dark(hsl(215, 20%, 20%), hsl(var(--hue-paper), 8%, 76%));
   --header-border: 1px solid var(--c-border);
-
-  /* Theorem-like environments sit on a faint raised panel in dark mode */
-  --c-env-bg:      light-dark(hsl(0, 0%, 100%), hsl(var(--hue-ink), 8%, 14.5%));
 
   /* Topic cards: blue frame in light mode, quiet frame with a blue edge in dark */
   --c-card-border: light-dark(var(--c-link), hsl(var(--hue-ink), 8%, 24%));
@@ -732,15 +727,17 @@
   }
   .figure p, .ytabs p { display: contents; margin: 0; }
 
-  /* Theorem env Details */
+  /* Theorem-like environments */
   div.env, details.env {
-    border-left: 4px solid var(--math-env-bar); padding: 0.5em 0.5em 0.5em 1em;
-    background: var(--c-env-bg); margin: 1.5em 0;
-    border-radius: 0 6px 6px 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    margin: 0;
+    border-radius: 0;
   }
   details.env > summary {
     color: var(--math-accent); font-weight: bold; cursor: pointer;
-    list-style: none; margin-bottom: 0.5em; position: relative; padding-right: 2em;
+    list-style: none; position: relative; padding-right: 2em;
   }
   details.env > summary::-webkit-details-marker { display: none; }
   details.env > summary::after {
@@ -749,6 +746,7 @@
     border-bottom: 2px solid var(--math-accent); transform: rotate(-45deg); transition: transform 0.2s ease;
   }
   details.env[open] > summary::after { transform: rotate(45deg); top: 0.3em; }
+  details.env.proof > p { font-style: italic; }
 
   /* Biblio & Lists */
   #bibliography ol { list-style: none; margin: 0; padding: 0; }

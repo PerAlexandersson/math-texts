@@ -151,9 +151,10 @@ local function make_env_div(baseIn, opt_text, body_tex, starred)
   local blocks = pandoc.List({ head_para })
   blocks:extend(body_blocks)
 
-  -- classes: env, base, (optional) collapsible
+  -- Proofs are folded by default; a starred theorem-like environment is also
+  -- collapsible.
   local classes = { "env", base }
-  if starred then classes[#classes + 1] = "collapsible" end
+  if starred or base == "proof" then classes[#classes + 1] = "collapsible" end
 
   return pandoc.Div(blocks, pandoc.Attr("", classes))
 end
