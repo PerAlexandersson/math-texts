@@ -20,7 +20,7 @@ project's chapter files. The repository root contains the site-wide landing
 page, Make configuration, and HTML template. Shared Lua build tooling lives in
 `scripts/`, while browser CSS, JavaScript, icons, and images live in `assets/`.
 The build reads the shared `bibliography.bib` from a sibling checkout of
-`symmetricfunctions.com`; this repository does not maintain a second copy.
+`symmetricfunctions.com`.
 
 The initial colored-matroid outline is:
 
@@ -53,11 +53,6 @@ when a different external output directory is needed. The complete site is
 written to `$BUILD_ROOT/www`.
 
 The rendering pipeline is adapted from
-[`symmetricfunctions.com`](https://github.com/PerAlexandersson/symmetricfunctions.com)
-at revision `8681eba774d7204ce0981b6eb666495aba7c500e`. It retains the
-preprocessor, Pandoc gatherer, Lua renderer, bibliography support, cross-page
-references, and HTML safeguards, with a separate template and
-parameterized domain, project path, and source links.
+[`symmetricfunctions.com`](https://github.com/PerAlexandersson/symmetricfunctions.com).
 
-GitHub Actions builds the site and uploads a review artifact. Deployment is a
-separate step.
+GitHub Actions builds the site and uploads a review artifact.
