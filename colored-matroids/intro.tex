@@ -93,6 +93,52 @@ Switching the cycle interchanges $u$ and $v$. The same happens for either of
 the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
 \end{example}
 
+\begin{example}[A 3-matroid on eight elements]
+Let $E=[8]$, with quotas $(r_A,r_B,r_C)=(3,3,2)$. On the positions
+$\{1,2,3\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, on
+$\{4,5,6\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, and on
+$\{7,8\}$ choose either $\mathtt{AB}$ or $\mathtt{BA}$. Taking all eight
+choices gives the following family. The second column records each word as
+the ordered partition $(B(u,A),B(u,B),B(u,C))$.
+\[
+\begin{array}{c|c}
+\text{word}&(B(u,A),B(u,B),B(u,C))\\ \hline
+\mathtt{ABCABCAB}&(\{1,4,7\},\{2,5,8\},\{3,6\})\\
+\mathtt{ABCABCBA}&(\{1,4,8\},\{2,5,7\},\{3,6\})\\
+\mathtt{ABCBCAAB}&(\{1,6,7\},\{2,4,8\},\{3,5\})\\
+\mathtt{ABCBCABA}&(\{1,6,8\},\{2,4,7\},\{3,5\})\\
+\mathtt{BCAABCAB}&(\{3,4,7\},\{1,5,8\},\{2,6\})\\
+\mathtt{BCAABCBA}&(\{3,4,8\},\{1,5,7\},\{2,6\})\\
+\mathtt{BCABCAAB}&(\{3,6,7\},\{1,4,8\},\{2,5\})\\
+\mathtt{BCABCABA}&(\{3,6,8\},\{1,4,7\},\{2,5\})
+\end{array}
+\]
+
+This family satisfies symmetric cycle exchange. Indeed, a position where two
+words differ belongs to one of the three displayed blocks. On a three-position
+block the disagreement arcs form the cycle $A\to B\to C\to A$ or its reverse;
+on the last block they form the two-cycle $A\to B\to A$. Switching that block
+in both words changes one allowed choice into the other, so both resulting
+words remain in the family.
+
+Here are three exchanges in this family.
+\begin{itemize}
+\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCAABCAB}$ differ on
+positions $1,2,3$. Switching the cycle through any of these positions
+interchanges the two words.
+\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCABCAAB}$ differ on the
+first two blocks. If position $1$ is prescribed, we switch positions
+$1,2,3$ and obtain $\mathtt{BCAABCAB}$ and $\mathtt{ABCBCAAB}$. If position
+$4$ is prescribed, we instead switch positions $4,5,6$ and obtain the same
+two words in the opposite order.
+\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCABCABA}$ differ on all
+three blocks. For the prescribed position $7$, switching positions $7,8$
+gives $\mathtt{ABCABCBA}$ and $\mathtt{BCABCAAB}$. For the prescribed
+position $1$, switching positions $1,2,3$ gives $\mathtt{BCAABCAB}$ and
+$\mathtt{ABCBCABA}$.
+\end{itemize}
+\end{example}
+
 \begin{example}[A switch inside a larger family]
 Consider the fixed-quota coloring family
 \[
