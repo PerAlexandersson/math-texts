@@ -1,7 +1,66 @@
 \metatitle{Introduction to colored matroids}
-\metadescription{Fixed-quota colorings, disagreement cycles, and the symmetric cycle-exchange axiom.}
+\metadescription{Matroid basis exchange, ordered set partitions, and cyclic exchange for colored matroids.}
 
-\section[intro]{Words with fixed quotas}
+\section[basisExchange]{Basis exchange with two colors}
+
+\begin{definition}[Matroid bases]
+A matroid $M$ on a finite ground set $E$ may be specified by a nonempty
+equicardinal family $\mathcal B(M)$ of \defin{bases} satisfying basis
+exchange: for $B,C\in\mathcal B(M)$ and $e\in B\setminus C$, there is an
+$f\in C\setminus B$ such that
+\[
+ (B\setminus\{e\})\cup\{f\}\in\mathcal B(M).
+\]
+The \defin{dual matroid} $M^*$ has bases
+\[
+ \mathcal B(M^*)=\{E\setminus B:B\in\mathcal B(M)\}.
+\]
+\end{definition}
+
+\begin{example}[The seven-cycle]
+Let $E=[7]$ be the edge set of a cycle with seven edges. The bases of its
+graphic matroid are the spanning trees
+\[
+ \mathcal B(M)=\{E\setminus\{i\}:i\in E\}.
+\]
+Each basis $B$ gives an ordered partition $(B,E\setminus B)$. Color the first
+part $A$ and the second part $B$, and list the colors in the order
+$1,2,\dots,7$. The seven bases and the corresponding words are
+\[
+\begin{array}{c|c}
+\text{word}&(A\text{-class},B\text{-class})\\ \hline
+\mathtt{BAAAAAA}&(\{2,3,4,5,6,7\},\{1\})\\
+\mathtt{ABAAAAA}&(\{1,3,4,5,6,7\},\{2\})\\
+\mathtt{AABAAAA}&(\{1,2,4,5,6,7\},\{3\})\\
+\mathtt{AAABAAA}&(\{1,2,3,5,6,7\},\{4\})\\
+\mathtt{AAAABAA}&(\{1,2,3,4,6,7\},\{5\})\\
+\mathtt{AAAAABA}&(\{1,2,3,4,5,7\},\{6\})\\
+\mathtt{AAAAAAB}&(\{1,2,3,4,5,6\},\{7\})
+\end{array}
+\]
+The $A$-classes are the bases of $M$, while the singleton $B$-classes are the
+bases of $M^*$.
+
+Take
+\[
+ u=\mathtt{BAAAAAA},\qquad v=\mathtt{AAABAAA}.
+\]
+The $A$-class of $u$ contains $4$ but not $1$, and the $A$-class of $v$
+contains $1$ but not $4$. Basis exchange swaps these two elements. In the
+colored words, position $4$ changes from $A$ to $B$, while position $1$
+changes from $B$ to $A$. These two changes form the color cycle
+\[
+ A\longrightarrow B\longrightarrow A.
+\]
+Switching positions $1$ and $4$ in both words interchanges $u$ and $v$.
+Thus, in this example, basis exchange appears as a two-color cycle exchange.
+\end{example}
+
+With two colors, every change from $A$ to $B$ must be matched by a change from
+$B$ to $A$. With more colors, the compensating changes may pass through
+several colors before returning to the first one.
+
+\section[coloredMatroids]{Colored matroids}
 
 Let $E$ be a finite set of positions, let $[k]=\{1,\dots,k\}$ be a set of
 colors, and fix nonnegative integers $r_1,\dots,r_k$ whose sum is $|E|$.
@@ -9,21 +68,28 @@ A \defin{word} is a map $u:E\to[k]$. We write
 \[
  B(u,c)=u^{-1}(c)
 \]
-for the positions carrying color $c$. A \defin{fixed-quota coloring family} is
-a nonempty collection $\mathcal F$ of words such that
+for the positions carrying color $c$. The tuple
+\[
+ (B(u,1),\dots,B(u,k))
+\]
+is an ordered set partition of $E$. Conversely, every ordered set partition
+with part sizes $r_1,\dots,r_k$ determines a word.
+
+A \defin{fixed-quota coloring family} is a nonempty collection $\mathcal F$
+of words such that
 \[
  |B(u,c)|=r_c
  \qquad\text{for every }u\in\mathcal F\text{ and }c\in[k].
 \]
 When $E=[n]$, we display a word by listing its colors in position order. Thus
-$\mathtt{ABAC}$ denotes the map with values $A,B,A,C$ at positions
-$1,2,3,4$.
+$\mathtt{ABAC}$ denotes the ordered partition
+$(\{1,3\},\{2\},\{4\})$ for the ordered colors $(A,B,C)$.
 
-Ordinary matroid bases are recovered by looking at one color fiber. The
-colored object retains all fibers simultaneously, so compatible exchanges
-must remember how several colors move around a cycle.
+\subsection[cyclicExchange]{Cyclic exchange}
 
-\section[disagreementGraph]{The disagreement graph}
+Basis exchange replaces one element of a basis by another. For several color
+classes, changing one position may force further changes in other classes.
+The disagreement graph records how these changes fit together.
 
 Fix two words $u,v\in\mathcal F$. Their \defin{disagreement graph}
 $D(u,v)$ is the directed multigraph whose vertices are the colors. For each
@@ -43,41 +109,69 @@ Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so a
 switch automatically preserves the quotas. The real condition is that both
 resulting words remain in the chosen family $\mathcal F$.
 
-\section[symmetricCycleExchange]{Symmetric cycle exchange}
+\begin{definition}[Colored matroids]
+A \defin{colored matroid} is a fixed-quota coloring family $\mathcal F$
+satisfying \defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and
+every position $e$ with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$
+lies on a simple color cycle such that switching its positions in both words
+gives two words in $\mathcal F$.
 
-\begin{definition}[Symmetric cycle exchange]
-An \defin{SCE family} is a fixed-quota coloring family $\mathcal F$ satisfying
-\defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and every
-position $e$ with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$ lies on a
-simple color cycle such that switching its positions in both words gives two
-words in $\mathcal F$.
+This generalizes symmetric basis exchange by allowing the compensating
+changes to follow a simple cycle of colors.
 \end{definition}
 
 The position $e$ is prescribed: it is not enough that some switch works. The
 condition is also symmetric: both resulting words must belong to $\mathcal F$.
+For two colors, the cycle can only be $A\to B\to A$, and we recover ordinary
+matroid exchange. For more colors, one exchange may move entries through a
+longer color cycle.
 
 With three colors, a simple color cycle has length two or three. Thus an
 exchange may be an ordinary swap between two colors, or it may move three
 colors cyclically.
 
-\section[exchangeExamples]{Examples of colored exchange}
+\begin{proposition}[Two colors]
+Let $\mathcal F$ be a fixed-quota coloring family with colors $A$ and $B$.
+Then $\mathcal F$ is a colored matroid if and only if there is a matroid $M$
+on $E$ such that
+\[
+ \mathcal F
+ =\{u:E\to\{A,B\}:B(u,A)\in\mathcal B(M)\}.
+\]
+Under this correspondence, the color-$A$ classes are the bases of $M$, and
+the color-$B$ classes are the bases of $M^*$.
+\end{proposition}
 
-\begin{example}[A two-color exchange]
-Let $\mathcal F$ be the family of all words on four positions with two $A$'s and two
-$B$'s. Take
+\begin{proof}
+Suppose first that $\mathcal F$ is a colored matroid. Take
+$u,v\in\mathcal F$ and $e\in B(u,A)\setminus B(v,A)$. With two colors, a
+simple color cycle through the arc at $e$ must be a two-cycle. Its other arc
+is labeled by some $f\in B(v,A)\setminus B(u,A)$. Switching the two positions
+gives a word in $\mathcal F$ whose color-$A$ class is
 \[
- u=\mathtt{AABB},\qquad v=\mathtt{BBAA}.
+ (B(u,A)\setminus\{e\})\cup\{f\}.
 \]
-At positions $1$ and $3$, the disagreement arcs are respectively
-$A\to B$ and $B\to A$. Switching this two-cycle gives
+Thus the color-$A$ classes satisfy basis exchange. They all have cardinality
+$r_A$, so they are the bases of a matroid $M$. Since
+$B(u,B)=E\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
+
+Conversely, let $M$ be a matroid on $E$ and form $\mathcal F$ by assigning
+color $A$ to the elements of a basis and color $B$ to the remaining elements.
+Take $u,v\in\mathcal F$ and a position $e$ where they disagree. After
+interchanging $u$ and $v$ if needed, we may assume that
+$e\in B(u,A)\setminus B(v,A)$. The symmetric basis-exchange theorem gives an
+$f\in B(v,A)\setminus B(u,A)$ such that both
 \[
- u'=\mathtt{BAAB},\qquad v'=\mathtt{ABBA}.
+ (B(u,A)\setminus\{e\})\cup\{f\}
+ \qquad\text{and}\qquad
+ (B(v,A)\setminus\{f\})\cup\{e\}
 \]
-Both resulting words have the required quotas. More generally, with two colors
-in the full fixed-quota coloring family, every prescribed disagreement can be
-paired with a reverse disagreement. This is the two-color form of symmetric
-exchange.
-\end{example}
+are bases of $M$. The positions $e,f$ form a simple color two-cycle, and
+switching them in both words gives two words in $\mathcal F$. Hence
+$\mathcal F$ is a colored matroid.
+\end{proof}
+
+\subsection[exchangeExamples]{Examples with three or more colors}
 
 \begin{example}[A three-color cycle]
 Consider
@@ -167,56 +261,3 @@ form the simple color cycle
 The only possible switch interchanges the two words, and its cycle contains
 every prescribed disagreement.
 \end{example}
-
-\section[twoColors]{The two-color case}
-
-Recall that a nonempty equicardinal family of subsets of $E$ is the family of
-bases of a matroid if it satisfies basis exchange: for bases $B,C$ and
-$e\in B\setminus C$, there is an $f\in C\setminus B$ such that
-$B-e+f$ is a basis. We write $\mathcal B(M)$ for the bases of a matroid $M$.
-The dual matroid $M^*$ has bases
-\[
- \mathcal B(M^*)=\{E\setminus B:B\in\mathcal B(M)\}.
-\]
-
-\begin{proposition}
-Let $\mathcal F$ be a fixed-quota coloring family with colors $A$ and $B$.
-Then $\mathcal F$ is an SCE family if and only if there is a matroid $M$ on
-$E$ such that
-\[
- \mathcal F
- =\{u:E\to\{A,B\}:B(u,A)\in\mathcal B(M)\}.
-\]
-Under this correspondence, the color-$A$ classes are the bases of $M$, and
-the color-$B$ classes are the bases of $M^*$.
-\end{proposition}
-
-\begin{proof}
-Suppose first that $\mathcal F$ is an SCE family. Take $u,v\in\mathcal F$ and
-$e\in B(u,A)\setminus B(v,A)$. With two colors, a simple color cycle through
-the arc at $e$ must be a two-cycle. Its other arc is labeled by some
-$f\in B(v,A)\setminus B(u,A)$. Switching the two positions gives a word in
-$\mathcal F$ whose color-$A$ class is
-\[
- B(u,A)-e+f.
-\]
-Thus the color-$A$ classes satisfy basis exchange. They all have cardinality
-$r_A$, so they are the bases of a matroid $M$. Since
-$B(u,B)=E\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
-
-Conversely, let $M$ be a matroid on $E$ and form $\mathcal F$ by assigning
-color $A$ to the elements of a basis and color $B$ to the remaining elements.
-Take
-$u,v\in\mathcal F$ and a position $e$ where they disagree. After interchanging
-$u$ and $v$ if needed, we may assume that
-$e\in B(u,A)\setminus B(v,A)$. The symmetric basis-exchange theorem gives an
-$f\in B(v,A)\setminus B(u,A)$ such that both
-\[
- B(u,A)-e+f
- \qquad\text{and}\qquad
- B(v,A)-f+e
-\]
-are bases of $M$. The positions $e,f$ form a simple color two-cycle, and
-switching them in both words gives two words in $\mathcal F$. Hence
-$\mathcal F$ is an SCE family.
-\end{proof}
