@@ -4,9 +4,9 @@ direct sums of colored matroids.}
 
 \section[operations]{Operations and minors}
 
-The usual matroid operations have direct analogues for colored matroids.
-Loops and coloops are considered one color at a time, while deletion and
-contraction act on a position together with a specified color.
+The usual matroid operations extend to colored matroids. We define loops and
+coloops one color at a time, while deletion and contraction involve both a
+position and a color.
 
 \subsection[loopsAndColoops]{Loops and coloops}
 
@@ -61,9 +61,8 @@ the two words agree there, and the position does not occur in an exchange.
 
 \subsection[deletionAndContraction]{Deletion and contraction}
 
-Deleting a position without specifying its color gives branches with different
-quota vectors. The minor operations are therefore indexed by a position-color
-pair $(e,c)$.
+Removing a position without fixing its color would give words with different
+quota vectors. We therefore define minors for a position-color pair $(e,c)$.
 
 \begin{definition}[Deletion and contraction]
 The \defin{deletion of $(e,c)$} is
@@ -88,7 +87,7 @@ then $\mathcal F/(e,c)$ is empty and
 $\mathcal F\setminus(e,c)=\mathcal F$. If $e$ is a coloop of color $c$,
 then $\mathcal F\setminus(e,c)$ is empty.
 
-\begin{proposition}[Assignment minors]
+\begin{proposition}[Closure under deletion and contraction]
 Every nonempty deletion or contraction of a colored matroid is a colored
 matroid.
 \end{proposition}
@@ -116,37 +115,6 @@ For example,
  =\{\mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
 \]
 \end{example}
-
-The deletion--contraction identity is most transparent for the polynomial
-that records every position and its color.
-
-\begin{definition}[Assignment enumerator]
-The \defin{assignment enumerator} of $\mathcal F$ is
-\[
- Z_{\mathcal F}(\mathbf z)
- \coloneqq
- \sum_{u\in\mathcal F}\prod_{e\in E}z_{e,u(e)}.
-\]
-\end{definition}
-
-\begin{proposition}[Deletion--contraction]
-For every position $e$ and color $c$,
-\[
- Z_{\mathcal F}
- =z_{e,c}Z_{\mathcal F/(e,c)}
-  +Z_{\mathcal F\setminus(e,c)}.
-\]
-Splitting according to all possible colors at $e$ gives
-\[
- Z_{\mathcal F}
- =\sum_c z_{e,c}Z_{\mathcal F/(e,c)}.
-\]
-\end{proposition}
-
-\begin{proof}
-Separate the words according to whether $u(e)=c$. More generally, each word
-belongs to exactly one branch determined by its color at $e$.
-\end{proof}
 
 \begin{proposition}[Ordinary matroid minors]
 Suppose $\mathcal F$ has two colors, with color-$1$ classes the bases of a
@@ -185,23 +153,17 @@ only if both factors are colored matroids. For every color $c$,
  =M(\mathcal F_1,c)\oplus M(\mathcal F_2,c).
 \]
 On the right, the bases are the unions of one basis from each projection.
-Moreover,
-\[
- Z_{\mathcal F_1\oplus\mathcal F_2}
- =Z_{\mathcal F_1}Z_{\mathcal F_2}.
-\]
 \end{proposition}
 
 \begin{proof}
-For the forward construction, a prescribed disagreement belongs to one
-factor. Apply symmetric cycle exchange there and leave the other factor
-unchanged.
+Suppose first that both factors are colored matroids. A prescribed
+disagreement belongs to one factor. Apply symmetric cycle exchange there and
+leave the other factor unchanged.
 
 Conversely, fix a word in one factor and compare two words that differ only
 in the other factor. Every exchange between them stays in the positions where
 they differ, and therefore gives the required exchange in that factor. The
-statements about color projections and assignment enumerators follow directly
-from the definition.
+statement about color projections follows from the definition.
 \end{proof}
 
 \begin{example}
