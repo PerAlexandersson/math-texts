@@ -1,6 +1,6 @@
 \metatitle{Ultra-log-concavity for rigid width-three posets}
-\metadescription{A three-color matroid encoding and Lean proof of
-ultra-log-concavity for P-Eulerian polynomials of rigid width-three posets.}
+\metadescription{A three-color matroid encoding of ultra-log-concavity for
+P-Eulerian polynomials of rigid width-three posets.}
 
 \section[widthThreeLogConcavity]{Ultra-log-concavity for rigid width-three posets}
 
@@ -11,9 +11,9 @@ labeled width-two posets \cite{Stembridge2007NeggersStanleyCounter}, while
 ultra-log-concavity holds in width two by the rook-matroid construction of
 Alexandersson and Jal \cite{AlexanderssonJal2024x}.
 
-Here we record a formalized extension to a class of width-three posets. The
-proof encodes linear extensions by three-color words whose two hidden color
-classes are bases of transversal matroids. Rigidity makes this encoding exact.
+Here we record an extension to a class of width-three posets. The proof encodes
+linear extensions by three-color words whose two hidden color classes are bases
+of transversal matroids. Rigidity makes this encoding exact.
 
 \subsection[posetEulerianPolynomials]{$P$-Eulerian polynomials}
 
@@ -164,15 +164,3 @@ remaining variables equal to $s$, we obtain
 This polynomial is Lorentzian. The bivariate characterization of Lorentzian
 polynomials gives ultra-log-concavity of order $n-h$ and no internal zeros.
 \end{proof}
-
-\subsection[leanFormalization]{Lean formalization}
-
-Erik Barkeling supplied a Lean 4 formalization of the theorem and its
-supporting construction. The main declarations are:
-\begin{itemize}
-\item \texttt{ColoredMatroids.WidthThree.isUlc\_of\_natural};
-\item \texttt{Choice.isRigid\_of\_closedForm};
-\item \texttt{Choice.marginal\_familyU\_mem\_L};
-\item \texttt{Choice.isDescentEncoding\_familyU};
-\item \texttt{Choice.isUlc\_of\_isRigid}.
-\end{itemize}
