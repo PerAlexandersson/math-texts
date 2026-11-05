@@ -87,28 +87,23 @@ basis and its complement, we divide it into an ordered list of $k$ color
 classes. Their sizes remain fixed, but no single class determines all the
 others. The exchange rule must therefore move several colors compatibly.
 
-Let $E$ be a finite set of positions, let $[k]=\{1,\dots,k\}$ be a set of
-colors, and fix nonnegative integers $r_1,\dots,r_k$ whose sum is $|E|$.
-A \defin{word} is a map $u:E\to[k]$. We write
+Fix colors $1,\dots,k$ and nonnegative integers $r_1,\dots,r_k$ with sum $n$.
+We represent an ordered partition of $[n]$ by a word $u=u_1\cdots u_n$ that
+is a permutation of
 \[
- B(u,c)=u^{-1}(c)
+ 1^{r_1}2^{r_2}\cdots k^{r_k}.
+\]
+The letters are the colors, and we write
+\[
+ B(u,c)=\{i:u_i=c\}
 \]
 for the positions carrying color $c$. The tuple
 \[
  (B(u,1),\dots,B(u,k))
 \]
-is an ordered set partition of $E$. Conversely, every ordered set partition
-with part sizes $r_1,\dots,r_k$ determines a word.
-
-A \defin{fixed-quota coloring family} is a nonempty collection $\mathcal F$
-of words such that
-\[
- |B(u,c)|=r_c
- \qquad\text{for every }u\in\mathcal F\text{ and }c\in[k].
-\]
-When $E=[n]$, we display a word by listing its colors in position order. Thus
-$\mathtt{ABAC}$ denotes the ordered partition
-$(\{1,3\},\{2\},\{4\})$ for the ordered colors $(A,B,C)$.
+is the corresponding ordered set partition of $[n]$. For example,
+$\mathtt{ABAC}$ represents $(\{1,3\},\{2\},\{4\})$ for the ordered colors
+$(A,B,C)$. These words play the role of bases.
 
 \subsection[cyclicExchange]{Cyclic exchange}
 
@@ -116,36 +111,37 @@ Basis exchange replaces one element of a basis by another. For several color
 classes, changing one position may force further changes in other classes.
 The disagreement graph records how these changes fit together.
 
-Fix two words $u,v\in\mathcal F$. Their \defin{disagreement graph}
+Fix two such words $u,v$. Their \defin{disagreement graph}
 $D(u,v)$ is the directed multigraph whose vertices are the colors. For each
-position $e$ at which $u(e)\ne v(e)$, it has an arc
+position $i$ at which $u_i\ne v_i$, it has an arc
 \[
- u(e)\longrightarrow v(e)
+ u_i\longrightarrow v_i
 \]
-labeled by $e$. The quota conditions imply that every vertex has equal
-indegree and outdegree.
+labeled by $i$. Since each color occurs equally often in $u$ and $v$, every
+vertex has equal indegree and outdegree.
 
 A \defin{simple color cycle} is a directed cycle in $D(u,v)$ that visits each
 of its colors once. Switching its positions means replacing the entries of
 one word by those of the other there. Entries outside the cycle are left
 unchanged. We denote the two resulting words by $u'$ and $v'$.
 
-Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so a
-switch automatically preserves the quotas. The real condition is that both
-resulting words remain in the chosen family $\mathcal F$.
+Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so the
+resulting words are again permutations of $1^{r_1}\cdots k^{r_k}$. The real
+condition is that both remain in the chosen family $\mathcal F$.
 
 \begin{definition}[Colored matroids]
-A \defin{colored matroid} is a fixed-quota coloring family $\mathcal F$
-satisfying \defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and
-every position $e$ with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$
-lies on a simple color cycle such that switching its positions in both words
-gives two words in $\mathcal F$.
+A \defin{colored matroid} is a nonempty family $\mathcal F$ of words, each a
+permutation of $1^{r_1}\cdots k^{r_k}$, satisfying
+\defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and every
+position $i$ with $u_i\ne v_i$, the arc of $D(u,v)$ labeled by $i$ lies on a
+simple color cycle such that switching its positions in both words gives two
+words in $\mathcal F$.
 
 This generalizes symmetric basis exchange by allowing the compensating
 changes to follow a simple cycle of colors.
 \end{definition}
 
-The position $e$ is prescribed: it is not enough that some switch works. The
+The position $i$ is prescribed: it is not enough that some switch works. The
 condition is also symmetric: both resulting words must belong to $\mathcal F$.
 For two colors, the cycle can only be $A\to B\to A$, and we recover ordinary
 matroid exchange. For more colors, one exchange may move entries through a
@@ -156,12 +152,12 @@ exchange may be an ordinary swap between two colors, or it may move three
 colors cyclically.
 
 \begin{proposition}[Two colors]
-Let $\mathcal F$ be a fixed-quota coloring family with colors $A$ and $B$.
-Then $\mathcal F$ is a colored matroid if and only if there is a matroid $M$
-on $E$ such that
+Let $\mathcal F$ be a nonempty family of words with $r$ letters $A$ and
+$n-r$ letters $B$. Then $\mathcal F$ is a colored matroid if and only if there
+is a rank-$r$ matroid $M$ on $[n]$ such that
 \[
  \mathcal F
- =\{u:E\to\{A,B\}:B(u,A)\in\mathcal B(M)\}.
+ =\{u\in\{A,B\}^n:B(u,A)\in\mathcal B(M)\}.
 \]
 Under this correspondence, the color-$A$ classes are the bases of $M$, and
 the color-$B$ classes are the bases of $M^*$.
@@ -177,10 +173,10 @@ gives a word in $\mathcal F$ whose color-$A$ class is
  (B(u,A)\setminus\{e\})\cup\{f\}.
 \]
 Thus the color-$A$ classes satisfy basis exchange. They all have cardinality
-$r_A$, so they are the bases of a matroid $M$. Since
-$B(u,B)=E\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
+$r$, so they are the bases of a matroid $M$. Since
+$B(u,B)=[n]\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
 
-Conversely, let $M$ be a matroid on $E$ and form $\mathcal F$ by assigning
+Conversely, let $M$ be a matroid on $[n]$ and form $\mathcal F$ by assigning
 color $A$ to the elements of a basis and color $B$ to the remaining elements.
 Take $u,v\in\mathcal F$ and a position $e$ where they disagree. After
 interchanging $u$ and $v$ if needed, we may assume that
@@ -213,7 +209,7 @@ the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
 \end{example}
 
 \begin{example}[A 3-matroid on eight elements]
-Let $E=[8]$, with quotas $(r_A,r_B,r_C)=(3,3,2)$. On the positions
+Let $E=[8]$, and consider permutations of $A^3B^3C^2$. On the positions
 $\{1,2,3\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, on
 $\{4,5,6\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, and on
 $\{7,8\}$ choose either $\mathtt{AB}$ or $\mathtt{BA}$. Taking all eight
@@ -272,7 +268,7 @@ $\mathtt{ABCBCABA}$.
 \end{example}
 
 \begin{example}[A switch inside a larger family]
-Consider the fixed-quota coloring family
+Consider the family
 \[
  \mathcal F=\{\mathtt{AABC},\mathtt{ABAC},\mathtt{ACBA},
  \mathtt{BAAC},\mathtt{CABA},\mathtt{BCAA},\mathtt{CBAA}\}.
