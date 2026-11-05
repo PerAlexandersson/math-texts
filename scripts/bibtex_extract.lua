@@ -4,8 +4,8 @@
 -- This companion extractor preserves source BibTeX entries for copy/download
 -- controls in the rendered bibliography.
 
-local file_reading = dofile("file_reading.lua")
-local utils = dofile("utils.lua")
+local file_reading = dofile("scripts/file_reading.lua")
+local utils = dofile("scripts/utils.lua")
 
 local trim = utils.trim
 local print_error = utils.print_error

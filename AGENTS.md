@@ -4,8 +4,9 @@ This is a public repository for the texts served from `math.qxy.se`.
 
 - Keep content projects flat: one top-level directory per project, with an
   `index.tex` and sibling chapter files.
-- Keep shared build tooling and assets at the repository root. Add a project
-  to `PUBLISHED_PROJECTS` only when it has a buildable `index.tex`.
+- Keep shared Lua build tooling in `scripts/` and browser assets in `assets/`;
+  keep the Make configuration and HTML template at the repository root. Add a
+  project to `PUBLISHED_PROJECTS` only when it has a buildable `index.tex`.
 - Treat all tracked content and history as public. Never copy raw research
   evidence, private correspondence, credentials, or unpublished working-tree
   material here.

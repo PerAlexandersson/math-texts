@@ -16,7 +16,7 @@ local function run(command)
 end
 
 local fixture = "tests/fixtures/preprocess.tex"
-local ok, output = run("lua preprocess.lua " .. fixture .. " < " .. fixture)
+local ok, output = run("lua scripts/preprocess.lua " .. fixture .. " < " .. fixture)
 if not ok then fail("preprocess fixture command failed:\n" .. output) end
 
 local protected_comment =
@@ -72,7 +72,7 @@ if not output:match(
   fail("multi-optional citation was not annotated")
 end
 
-local figure_to_html = dofile("figure_to_html.lua")
+local figure_to_html = dofile("scripts/figure_to_html.lua")
 local table_html, table_err = figure_to_html.transform_tex_snippet(
   [[\begin{rawtabular}{l}A &amp; B <raw>\\\end{rawtabular}]])
 if table_err then
@@ -85,8 +85,8 @@ end
 
 local unsupported = "tests/fixtures/unsupported-cite.tex"
 local unsupported_ok, unsupported_output = run(
-  "lua preprocess.lua " .. unsupported .. " < " .. unsupported ..
-  " | pandoc --from=latex+raw_tex --to=json --lua-filter=gather.lua " ..
+  "lua scripts/preprocess.lua " .. unsupported .. " < " .. unsupported ..
+  " | pandoc --from=latex+raw_tex --to=json --lua-filter=scripts/gather.lua " ..
   "--fail-if-warnings -o /dev/null")
 if unsupported_ok then
   fail("unsupported citation mode unexpectedly succeeded")

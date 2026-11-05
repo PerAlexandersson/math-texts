@@ -10,7 +10,7 @@
 -- Usage: lua preprocess.lua [source.tex] < in.tex > out.pre.tex
 -- ============================================================================
 
-local utils = dofile("utils.lua")
+local utils = dofile("scripts/utils.lua")
 local trim = utils.trim
 local print_warn = utils.print_warn
 

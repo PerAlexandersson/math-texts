@@ -6,8 +6,8 @@
 
 -- ========== DEPENDENCIES ==========
 
-local file_reading      = dofile("file_reading.lua")
-local utils             = dofile("utils.lua")
+local file_reading      = dofile("scripts/file_reading.lua")
+local utils             = dofile("scripts/utils.lua")
 local ascii_fold_string = utils.ascii_fold_string
 local html_escape       = utils.html_escape
 local print_error       = utils.print_error

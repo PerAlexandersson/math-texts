@@ -1,8 +1,8 @@
 -- Read family JSON and emit an HTML table for symmetric function families.
 
-local utils             = dofile("utils.lua")
-local bibhandler        = dofile("bibhandler.lua")
-local relation_registry = dofile("relation_registry.lua")
+local utils             = dofile("scripts/utils.lua")
+local bibhandler        = dofile("scripts/bibhandler.lua")
+local relation_registry = dofile("scripts/relation_registry.lua")
 
 local trim         = utils.trim
 local html_escape  = utils.html_escape

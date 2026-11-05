@@ -45,8 +45,8 @@ local function gather(body, with_meta)
       or "\\metatitle{Safeguard case}\n\\metadescription{Safeguard case.}\n\n"
   local path = write("case" .. case_count .. ".tex", header .. body .. "\n")
   local json = path:gsub("%.tex$", ".json")
-  local ok, output = run("lua preprocess.lua " .. shell_quote(path) .. " < " .. shell_quote(path) ..
-      " | pandoc --from=" .. reader .. " --to=json --lua-filter=gather.lua" ..
+  local ok, output = run("lua scripts/preprocess.lua " .. shell_quote(path) .. " < " .. shell_quote(path) ..
+      " | pandoc --from=" .. reader .. " --to=json --lua-filter=scripts/gather.lua" ..
       " --fail-if-warnings -o " .. shell_quote(json))
   return ok, output, json
 end
@@ -116,7 +116,7 @@ local pre_src = write("preprocess.tex", table.concat({
   "\\begin{tabular}[t]{ll} a & b \\end{tabular}",
   "Text with \\medskip inline.",
 }, "\n") .. "\n")
-local pre_ok, pre_out = run("lua preprocess.lua " .. shell_quote(pre_src) .. " < " .. shell_quote(pre_src))
+local pre_ok, pre_out = run("lua scripts/preprocess.lua " .. shell_quote(pre_src) .. " < " .. shell_quote(pre_src))
 if not pre_ok then fail("preprocess failed:\n" .. pre_out) end
 if not contains(pre_out, "b < c and $d \\lt{} e.$") then
   fail("\\\\[2pt] was treated as display math")
@@ -136,7 +136,7 @@ end
 
 -- ===== Table splitting ======================================================
 
-local fig = dofile("figure_to_html.lua")
+local fig = dofile("scripts/figure_to_html.lua")
 local rows = fig.split_rows([[a & b \\ \begin{pmatrix}1\\2\end{pmatrix} & c \\[2pt] d & $x\\y$ \\]])
 if #rows ~= 3 or not contains(rows[2], "\\begin{pmatrix}1\\\\2\\end{pmatrix}")
     or contains(rows[3], "[2pt]") then
@@ -160,7 +160,7 @@ end
 
 local bib_ok, bib_out = run("REFS_JSON=tests/fixtures/bibliography.json " ..
     "BIBTEX_JSON=tests/fixtures/bibtex-entries.json lua -e " .. shell_quote([[
-local bib = dofile("bibhandler.lua")
+local bib = dofile("scripts/bibhandler.lua")
 for _, key in ipairs({ "BrandenA", "BrandenB", "Bjorner", "Many" }) do
   print("base " .. key .. "=" .. tostring(bib.get_bibliography_label(key)))
 end
@@ -193,7 +193,7 @@ local page = write("dup.json", [=[{"pandoc-api-version":[1,23,1],"meta":{},"bloc
   {"t":"Div","c":[["same",[],[["data-source-loc","x.tex:1"]]],[]]},
   {"t":"Div","c":[["same",[],[]],[]]}]}]=])
 local render_ok, render_out = run("LABELS_JSON=" .. shell_quote(labels) ..
-    " lua render.lua " .. shell_quote(page))
+    " lua scripts/render.lua " .. shell_quote(page))
 if render_ok or not contains(render_out, "id 'same' occurs 2 times") then
   fail("duplicate id was not rejected:\n" .. render_out)
 end
@@ -208,7 +208,7 @@ for _, name in ipairs({ "LABELS_JSON", "POLYDATA_JSON", "TODOS_JSON", "SITEMAP_X
   outputs[#outputs + 1] = name .. "=" .. shell_quote(scratch .. "/out-" .. name:lower())
 end
 local merged_ok, merged_out = run(table.concat(outputs, " ") .. " WWW_DIR=" ..
-    shell_quote(scratch) .. " lua merge_meta.lua " .. shell_quote(merge_json))
+    shell_quote(scratch) .. " lua scripts/merge_meta.lua " .. shell_quote(merge_json))
 if merged_ok or not contains(merged_out, "has no bibliography key") then
   fail("relation without a bibliography key was accepted:\n" .. merged_out)
 end

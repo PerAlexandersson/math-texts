@@ -10,7 +10,7 @@ local pandoc      = pandoc
 ---@diagnostic disable-next-line: undefined-field
 local g_json      = _G.json
 
-local utils       = dofile("utils.lua")
+local utils       = dofile("scripts/utils.lua")
 local print_warn  = utils.print_warn
 local print_error = utils.print_error
 

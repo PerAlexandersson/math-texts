@@ -18,8 +18,8 @@
 -- DEPENDENCIES
 -- =============================================================================
 
-local file_reading = dofile("file_reading.lua")
-local utils        = dofile("utils.lua")
+local file_reading = dofile("scripts/file_reading.lua")
+local utils        = dofile("scripts/utils.lua")
 
 local file_exists  = file_reading.file_exists
 local read_file    = file_reading.read_file

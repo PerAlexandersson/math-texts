@@ -1,5 +1,26 @@
 # Current handoff
 
+## Script layout and width-control first paint — ready 2026-11-05
+
+Ownership released. All shared Lua executables/modules now live in `scripts/`;
+Make dependencies, test helpers, the relation-graph source link, project guide,
+and README use the new paths. The root retains the Make/configuration files and
+`template.htm`.
+
+Reading-page classification and `has-text-width` are now rendered into the
+initial HTML. The width button is static template markup, non-reading pages hide
+it from first paint, and the early head script applies a saved narrow preference
+before CSS renders. `site.js` now binds behavior without injecting the control
+or changing the desktop grid after `DOMContentLoaded`. Asset cache keys are at
+version 2 so old JS cannot run against the new markup.
+
+`make site-check Q=1 LUA=lua5.4 BUILD_ROOT=/tmp/math-texts-layout-check`,
+`git diff --check`, and the repository symlink scan pass. Chrome screenshots at
+1440x1100 verified the article and project-index layouts; a 390x844 article
+check verified the mobile control order and content. Raw and post-JS article
+HTML both contain `reading-document`, `has-text-width`, and the static control.
+Deployment has not been requested or performed for this checkpoint.
+
 ## Minimal live deployment — complete 2026-11-05
 
 The constrained qxy.se bridge built and deployed exact clean commit

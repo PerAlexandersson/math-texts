@@ -145,6 +145,24 @@ end
 for _, path in ipairs(files) do
   local text = read_file(path)
   if text then
+    if not path:match("/goto%.htm$") then
+      local body_class = text:match('<body class="([^"]*)">')
+      local layout_class = text:match('<div id="doc%-all" class="([^"]*)">')
+      local reading_document = body_class
+          and body_class:match("%f[%w]reading%-document%f[%W]") ~= nil
+      local reading_layout = layout_class
+          and layout_class:match("%f[%w]has%-text%-width%f[%W]") ~= nil
+      if not body_class then
+        report(path, 1, "body is missing its render-time page class", "<body>")
+      elseif reading_document ~= reading_layout then
+        report(path, 1, "reading page and initial width layout disagree",
+          "body=" .. body_class .. ", layout=" .. tostring(layout_class))
+      end
+      if not text:find('id="text-width-toggle"', 1, true) then
+        report(path, 1, "static text-width control is missing", "text-width-toggle")
+      end
+    end
+
     local lineno = 0
     for line in (text .. "\n"):gmatch("([^\n]*)\n") do
       lineno = lineno + 1
@@ -315,7 +333,7 @@ end
 
 -- The public label and keyword feeds point at existing anchors and carry
 -- plain text (no leftover TeX or source-location markers).
-local file_reading = dofile("file_reading.lua")
+local file_reading = dofile("scripts/file_reading.lua")
 local page_cache = {}
 local function anchor_exists(href)
   local page_name, fragment = href:match("^([^#]+)#?(.*)$")

@@ -1,6 +1,6 @@
 -- Registry for structured relation rows inside polydata blocks.
 
-local utils = dofile("utils.lua")
+local utils = dofile("scripts/utils.lua")
 local trim = utils.trim
 
 local M = {}

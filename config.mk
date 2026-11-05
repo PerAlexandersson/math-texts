@@ -14,6 +14,7 @@ WWW_DIR ?= $(BUILD_ROOT)/www/$(PROJECT)
 endif
 
 ASSETS_DIR ?= assets
+SCRIPTS_DIR ?= scripts
 TEMP_DIR ?= $(BUILD_ROOT)/temp/$(PROJECT)
 
 TEMPLATE ?= template.htm
@@ -32,21 +33,22 @@ PAGEFIND ?= npx --yes pagefind@1.5.2
 READER ?= latex+raw_tex-auto_identifiers
 
 # === SCRIPTS ===
-PREPROC_LUA    = preprocess.lua
-GATHER_LUA     = gather.lua
-RENDER_LUA     = render.lua
-MERGE_META_LUA = merge_meta.lua
-RELATION_GRAPH_LUA = relation_graph.lua
+PREPROC_LUA    = $(SCRIPTS_DIR)/preprocess.lua
+GATHER_LUA     = $(SCRIPTS_DIR)/gather.lua
+RENDER_LUA     = $(SCRIPTS_DIR)/render.lua
+MERGE_META_LUA = $(SCRIPTS_DIR)/merge_meta.lua
+RELATION_GRAPH_LUA = $(SCRIPTS_DIR)/relation_graph.lua
+TEX_TO_SVG_LUA = $(SCRIPTS_DIR)/tex_to_svg.lua
 
 # === LUA LIBRARY DEPENDENCIES ===
-UTILS_LUA          = utils.lua
-FILE_READING_LUA   = file_reading.lua
-BIBHANDLER_LUA     = bibhandler.lua
-BIB_MATH_FILTER    = bib_math_filter.lua
-BIBTEX_EXTRACT_LUA = bibtex_extract.lua
-FIG_TO_HTML_LUA    = figure_to_html.lua
-POLY_TO_HTML_LUA   = polydata_to_html.lua
-RELATION_REGISTRY_LUA = relation_registry.lua
+UTILS_LUA          = $(SCRIPTS_DIR)/utils.lua
+FILE_READING_LUA   = $(SCRIPTS_DIR)/file_reading.lua
+BIBHANDLER_LUA     = $(SCRIPTS_DIR)/bibhandler.lua
+BIB_MATH_FILTER    = $(SCRIPTS_DIR)/bib_math_filter.lua
+BIBTEX_EXTRACT_LUA = $(SCRIPTS_DIR)/bibtex_extract.lua
+FIG_TO_HTML_LUA    = $(SCRIPTS_DIR)/figure_to_html.lua
+POLY_TO_HTML_LUA   = $(SCRIPTS_DIR)/polydata_to_html.lua
+RELATION_REGISTRY_LUA = $(SCRIPTS_DIR)/relation_registry.lua
 
 PREPROC_DEPS    = $(PREPROC_LUA) $(UTILS_LUA)
 GATHER_DEPS     = $(GATHER_LUA) $(UTILS_LUA) $(FILE_READING_LUA) $(BIBHANDLER_LUA) $(RELATION_REGISTRY_LUA) $(FIG_TO_HTML_LUA)
@@ -80,7 +82,7 @@ PAGEFIND_STAMP := $(TEMP_DIR)/pagefind.stamp
 PAGEFIND_ENTRY := $(WWW_DIR)/_pagefind/pagefind-entry.json
 
 # === EXPORTS FOR SCRIPTS ===
-export PROJECT SRC_DIR ASSETS_DIR TEMP_DIR WWW_DIR SITE_PATH SITE_BASE_URL
+export PROJECT SRC_DIR ASSETS_DIR SCRIPTS_DIR TEMP_DIR WWW_DIR SITE_PATH SITE_BASE_URL
 export SOURCE_REPOSITORY SOURCE_BRANCH ENABLE_RELATION_GRAPH
 export TEMPLATE REFS_JSON BIBTEX_JSON LABELS_JSON POLYDATA_JSON TODOS_JSON SITEMAP_XML
 export RELATION_GRAPH_HTML RELATION_GRAPH_JSON

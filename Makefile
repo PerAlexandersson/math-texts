@@ -116,7 +116,7 @@ $(REFS_JSON): $(BIBFILE) $(BIB_MATH_FILTER) | $(TEMP_DIR)/.created
 	@# Only arXiv identifiers (2101.00001v2, math/0606360) become arXiv URLs.
 	@sed -E 's/[Ee][Pp][Rr][Ii][Nn][Tt][[:space:]]*=[[:space:]]*\{([Aa][Rr][Xx][Ii][Vv]:)?([0-9]{4}\.[0-9]{4,5}(v[0-9]+)?|[a-z-]+(\.[A-Z]{2})?\/[0-9]{7}(v[0-9]+)?)\}/url = {https:\/\/arxiv.org\/abs\/\2}/g' $(BIBFILE) > $(TEMP_DIR)/bibfile_processed.bib
 	@$(PANDOC) -f biblatex -t csljson $(TEMP_DIR)/bibfile_processed.bib \
-	  --lua-filter=bib_math_filter.lua --fail-if-warnings -o $@.tmp && mv $@.tmp $@
+	  --lua-filter=$(BIB_MATH_FILTER) --fail-if-warnings -o $@.tmp && mv $@.tmp $@
 
 $(BIBTEX_JSON): $(BIBFILE) $(BIBTEX_EXTRACT_LUA) $(FILE_READING_LUA) $(UTILS_LUA) | $(TEMP_DIR)/.created
 	$(LOG) "Generating $@"
@@ -242,7 +242,7 @@ $(COPY_ASSETS_STAMP): $(ASSET_FILES) $(WWW_DIR)/.created | $(TEMP_DIR)/.created
 # make svg FORCE=1 regenerates every figure regardless of timestamps.
 svg:
 	$(LOG) "Generating SVG assets..."
-	@$(LUA) tex_to_svg.lua $(if $(filter-out 0,$(FORCE)),--force)
+	@$(LUA) $(TEX_TO_SVG_LUA) $(if $(filter-out 0,$(FORCE)),--force)
 	$(MAKE) copy-assets Q=$(Q)
 
 # === UNITTEST ===
@@ -269,7 +269,7 @@ $(TEST_JSON_CHECK): tests/check_json_determinism.lua $(FILE_READING_LUA) $(UTILS
 	@$(LUA) tests/check_json_determinism.lua
 	@touch $@
 
-$(TEST_BACKEND_CHECK): tests/check_backend.py tests/fixtures/svg_runner.lua tex_to_svg.lua $(RENDER_DEPS) $(MERGE_META_DEPS) $(GATHER_DEPS) $(PREPROC_DEPS) $(BIBTEX_EXTRACT_LUA) $(BIB_MATH_FILTER) $(TEMPLATE) Makefile config.mk config_test.mk | $(TEST_META_DIR)/.created
+$(TEST_BACKEND_CHECK): tests/check_backend.py tests/fixtures/svg_runner.lua $(TEX_TO_SVG_LUA) $(RENDER_DEPS) $(MERGE_META_DEPS) $(GATHER_DEPS) $(PREPROC_DEPS) $(BIBTEX_EXTRACT_LUA) $(BIB_MATH_FILTER) $(TEMPLATE) Makefile config.mk config_test.mk | $(TEST_META_DIR)/.created
 	$(LOG) "Checking backend failure handling and build dependencies ..."
 	@python3 tests/check_backend.py
 	@touch $@

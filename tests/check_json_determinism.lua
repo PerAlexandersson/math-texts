@@ -1,4 +1,4 @@
-local file_reading = dofile("file_reading.lua")
+local file_reading = dofile("scripts/file_reading.lua")
 
 local function fail(message)
   io.stderr:write("[ERROR] json-determinism: " .. message .. "\n")
@@ -30,7 +30,8 @@ if not alpha_at or not middle_at or not zeta_at or
 end
 
 -- Lists stay JSON arrays when empty (the relation graph script iterates them).
-local empty_graph = file_reading.json_encode(dofile("relation_graph.lua").build_graph({}), false)
+local empty_graph = file_reading.json_encode(
+  dofile("scripts/relation_graph.lua").build_graph({}), false)
 for _, field in ipairs({ "nodes", "edges", "references" }) do
   if not empty_graph:find('"' .. field .. '":[]', 1, true) then
     fail("empty " .. field .. " list was not encoded as an array: " .. empty_graph)

@@ -19,7 +19,7 @@
 
 -- ========== DEPENDENCIES ==========
 
-local utils          = dofile("utils.lua")
+local utils          = dofile("scripts/utils.lua")
 local trim           = utils.trim
 local print_info     = utils.print_info
 local print_error    = utils.print_error
@@ -28,13 +28,13 @@ local table_size     = utils.table_size
 local html_escape    = utils.html_escape
 local format_iso_date = utils.format_iso_date
 
-local file_reading   = dofile("file_reading.lua")
+local file_reading   = dofile("scripts/file_reading.lua")
 local json_encode    = file_reading.json_encode
 local json_array     = file_reading.json_array
 local load_json_file = file_reading.load_json_file
-local bibhandler     = dofile("bibhandler.lua")
-local relation_registry = dofile("relation_registry.lua")
-local relation_graph = dofile("relation_graph.lua")
+local bibhandler     = dofile("scripts/bibhandler.lua")
+local relation_registry = dofile("scripts/relation_registry.lua")
+local relation_graph = dofile("scripts/relation_graph.lua")
 
 
 -- ========== CONFIGURATION ==========

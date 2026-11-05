@@ -1,4 +1,4 @@
-local file_reading = dofile("file_reading.lua")
+local file_reading = dofile("scripts/file_reading.lua")
 
 local function fail(message)
   io.stderr:write("[ERROR] unittest: " .. message .. "\n")

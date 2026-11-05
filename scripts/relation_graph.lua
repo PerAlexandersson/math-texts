@@ -1,9 +1,9 @@
 -- Generate an interactive relation graph from polydata relation rows.
 
-local utils             = dofile("utils.lua")
-local file_reading      = dofile("file_reading.lua")
-local bibhandler        = dofile("bibhandler.lua")
-local relation_registry = dofile("relation_registry.lua")
+local utils             = dofile("scripts/utils.lua")
+local file_reading      = dofile("scripts/file_reading.lua")
+local bibhandler        = dofile("scripts/bibhandler.lua")
+local relation_registry = dofile("scripts/relation_registry.lua")
 
 local trim        = utils.trim
 
@@ -288,15 +288,17 @@ function M.render_page(graph, options)
     DESCRIPTION = "Interactive graph of structured relations between polynomial families.",
     CANONICAL = (SITE_PATH ~= "" and (SITE_PATH .. "/") or "") .. GRAPH_HTML,
     ROBOTS = "index, follow",
+    BODYCLASS = "relation-graph-document",
+    LAYOUTCLASS = "",
     STYLE = "",
     LASTMOD = format_lastmod_html(options.timestamp),
-    EDITLINK = string.format('<a class="editLink" href="%s/blob/%s/relation_graph.lua" target="_blank" rel="noopener">Improve this page</a>', SOURCE_REPOSITORY, SOURCE_BRANCH),
+    EDITLINK = string.format('<a class="editLink" href="%s/blob/%s/scripts/relation_graph.lua" target="_blank" rel="noopener">Improve this page</a>', SOURCE_REPOSITORY, SOURCE_BRANCH),
     MAIN = render_main(graph),
     SIDELINKS = render_side_links(#graph.references > 0),
     REFERENCES = references_html
   })
 
-  return (html:gsub("<body>", '<body class="relation-graph-document">', 1))
+  return html
 end
 
 return M

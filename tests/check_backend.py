@@ -40,7 +40,7 @@ class BackendChecks(unittest.TestCase):
         return page, labels
 
     def assert_render_fails(self, page, diagnostic):
-        result = self.run_command("lua", "render.lua", str(page))
+        result = self.run_command("lua", "scripts/render.lua", str(page))
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn(diagnostic, result.stderr)
         self.assertEqual(result.stdout, "", "failed render emitted HTML")
@@ -70,7 +70,7 @@ class BackendChecks(unittest.TestCase):
 
     def test_empty_valid_page(self):
         page, _ = self.render_fixture({"meta": {}, "blocks": []})
-        result = self.run_command("lua", "render.lua", str(page))
+        result = self.run_command("lua", "scripts/render.lua", str(page))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("<title>Untitled", result.stdout)
 

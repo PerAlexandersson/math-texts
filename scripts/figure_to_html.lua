@@ -1,7 +1,7 @@
 -- Convert ytableau/youngtab/array/tabular to HTML using CSS Grid with explicit positioning
 -- Simplified approach: one container span + positioned cell spans
 
-local utils = dofile("utils.lua")
+local utils = dofile("scripts/utils.lua")
 local trim = utils.trim
 local rtrim = utils.rtrim
 local html_escape = utils.html_escape

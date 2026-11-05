@@ -1,7 +1,7 @@
 -- Exercise the real SVG driver without touching sources, assets or compilers.
 local mode = assert(arg[1])
 local real_dofile = dofile
-local files = real_dofile("file_reading.lua")
+local files = real_dofile("scripts/file_reading.lua")
 local converted = false
 files.read_file = function()
   if mode == "source-read" then return nil end
@@ -13,7 +13,7 @@ files.file_exists = function(path)
   return converted and path:match("^temp/svg%-tex/.*%.svg$") ~= nil
 end
 dofile = function(path)
-  if path == "file_reading.lua" then return files end
+  if path == "scripts/file_reading.lua" then return files end
   return real_dofile(path)
 end
 io.popen = function(command)
@@ -59,4 +59,4 @@ os.execute = function(command)
   return true, "exit", 0
 end
 arg = {}
-real_dofile("tex_to_svg.lua")
+real_dofile("scripts/tex_to_svg.lua")

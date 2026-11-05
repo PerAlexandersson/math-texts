@@ -7,7 +7,7 @@ local PANDOC_STATE = PANDOC_STATE
 local pandoc = pandoc
 
 
-local utils = dofile("utils.lua")
+local utils = dofile("scripts/utils.lua")
 local trim = utils.trim
 local normalize_url = utils.normalize_url
 local capitalize_first = utils.capitalize_first
@@ -19,13 +19,13 @@ local print_warn = utils.print_warn
 local print_error = utils.print_error
 local has_errors = utils.has_errors
 
-local figure_to_html = dofile("figure_to_html.lua")
+local figure_to_html = dofile("scripts/figure_to_html.lua")
 
 
-local bib = dofile("bibhandler.lua")
+local bib = dofile("scripts/bibhandler.lua")
 local get_bibliography_label = bib.get_bibliography_label
 local get_bibliography_tooltip = bib.get_bibliography_tooltip
-local relation_registry = dofile("relation_registry.lua")
+local relation_registry = dofile("scripts/relation_registry.lua")
 
 -- Derive current input filename/stem
 local _INPUT = (PANDOC_STATE and PANDOC_STATE.input_files and PANDOC_STATE.input_files[1]) or "(stdin)"

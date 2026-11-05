@@ -17,8 +17,9 @@ top-level URL. The initial projects are:
 
 Each published project is a top-level directory. Its `index.tex` links to the
 project's chapter files. The repository root contains the site-wide landing
-page and bibliography; shared Lua, CSS, JavaScript, and template files power
-every project.
+page, bibliography, Make configuration, and HTML template. Shared Lua build
+tooling lives in `scripts/`, while browser CSS, JavaScript, icons, and images
+live in `assets/`.
 
 The initial colored-matroid outline is:
 
@@ -57,5 +58,5 @@ references, Pagefind search, and HTML safeguards, with a separate template and
 parameterized domain, project path, and source links.
 
 GitHub Actions builds and checks the site and uploads a review artifact. It
-does not deploy the site; Pages and the `math.qxy.se` DNS connection remain a
-separate step.
+does not deploy the site; publication to `math.qxy.se` uses the separately
+registered constrained deployment bridge.
