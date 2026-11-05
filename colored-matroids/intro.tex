@@ -9,8 +9,8 @@ A \defin{word} is a map $u:E\to[k]$. We write
 \[
  B(u,c)=u^{-1}(c)
 \]
-for the positions carrying color $c$. A \defin{fixed-quota family} is a
-nonempty collection $\mathcal F$ of words such that
+for the positions carrying color $c$. A \defin{fixed-quota coloring family} is
+a nonempty collection $\mathcal F$ of words such that
 \[
  |B(u,c)|=r_c
  \qquad\text{for every }u\in\mathcal F\text{ and }c\in[k].
@@ -35,26 +35,26 @@ labeled by $e$. The quota conditions imply that every vertex has equal
 indegree and outdegree.
 
 A \defin{simple color cycle} is a directed cycle in $D(u,v)$ that visits each
-of its colors once. To \defin{switch} such a cycle, we exchange the entries of
-$u$ and $v$ at all positions labeling its arcs. Entries outside the cycle are
-left unchanged. We denote the two resulting words by $u'$ and $v'$.
+of its colors once. Switching its positions means replacing the entries of
+one word by those of the other there. Entries outside the cycle are left
+unchanged. We denote the two resulting words by $u'$ and $v'$.
 
 Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so a
-cycle switch automatically preserves the quotas. The real condition is that
-both new words remain in the chosen family $\mathcal F$.
+switch automatically preserves the quotas. The real condition is that both
+resulting words remain in the chosen family $\mathcal F$.
 
 \section[symmetricCycleExchange]{Symmetric cycle exchange}
 
 \begin{definition}[Symmetric cycle exchange]
-A fixed-quota family $\mathcal F$ satisfies \defin{symmetric cycle exchange}
-if the following holds. For every $u,v\in\mathcal F$ and every position $e$
-with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$ lies on a simple color
-cycle whose switch produces two words $u',v'\in\mathcal F$.
+An \defin{SCE family} is a fixed-quota coloring family $\mathcal F$ satisfying
+\defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and every
+position $e$ with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$ lies on a
+simple color cycle such that switching its positions in both words gives two
+words in $\mathcal F$.
 \end{definition}
 
 The position $e$ is prescribed: it is not enough that some switch works. The
-condition is also symmetric in the two offspring. Both $u'$ and $v'$ must
-belong to $\mathcal F$.
+condition is also symmetric: both resulting words must belong to $\mathcal F$.
 
 With three colors, a simple color cycle has length two or three. Thus an
 exchange may be an ordinary swap between two colors, or it may move three
@@ -73,9 +73,10 @@ $A\to B$ and $B\to A$. Switching this two-cycle gives
 \[
  u'=\mathtt{BAAB},\qquad v'=\mathtt{ABBA}.
 \]
-Both offspring have the required quotas. More generally, with two colors in
-the full fixed-quota family, every prescribed disagreement can be paired with
-a reverse disagreement. This is the two-color form of symmetric exchange.
+Both resulting words have the required quotas. More generally, with two colors
+in the full fixed-quota coloring family, every prescribed disagreement can be
+paired with a reverse disagreement. This is the two-color form of symmetric
+exchange.
 \end{example}
 
 \begin{example}[A three-color cycle]
@@ -92,8 +93,8 @@ Switching the cycle interchanges $u$ and $v$. The same happens for either of
 the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
 \end{example}
 
-\begin{example}[The offspring need not be the parents]
-Consider the fixed-quota family
+\begin{example}[A switch inside a larger family]
+Consider the fixed-quota coloring family
 \[
  \mathcal F=\{\mathtt{AABC},\mathtt{ABAC},\mathtt{ACBA},
  \mathtt{BAAC},\mathtt{CABA},\mathtt{BCAA},\mathtt{CBAA}\}.
@@ -104,7 +105,7 @@ $3$ form the two-cycle $B\to A\to B$. Switching those positions gives
  u'=\mathtt{ACBA},\qquad v'=\mathtt{BAAC},
 \]
 which are again members of $\mathcal F$. Unlike the previous example, the
-offspring are different from both parents.
+resulting words are different from the original two words.
 \end{example}
 
 \begin{example}[A four-color cycle]
