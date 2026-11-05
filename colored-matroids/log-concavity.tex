@@ -12,8 +12,8 @@ ultra-log-concavity holds in width two by the rook-matroid construction of
 Alexandersson and Jal \cite{AlexanderssonJal2024x}.
 
 Here we record an extension to a class of width-three posets. The proof encodes
-linear extensions by three-color words whose two hidden color classes are bases
-of transversal matroids. Rigidity makes this encoding exact.
+linear extensions by three-color words whose color-$1$ and color-$2$ classes
+are bases of transversal matroids. Rigidity makes this encoding exact.
 
 \subsection[posetEulerianPolynomials]{$P$-Eulerian polynomials}
 
@@ -94,7 +94,7 @@ is independent of $k\in K_x$.
 
 Since $P$ is covered by the three chains $Z,X,Y$, it has width at most three.
 
-\subsection[fullThreeColorFamilies]{Full three-color matroid families}
+\subsection[threeColorEncoding]{A three-color encoding}
 
 For a word $u:E\to\{0,1,2\}$, write
 \[
@@ -106,20 +106,20 @@ Let $M_1$ and $M_2$ be matroids on $E$. Consider the family
  \{u:E\longrightarrow\{0,1,2\}:
  B(u,1)\in\mathcal B(M_1),\ B(u,2)\in\mathcal B(M_2)\}.
 \]
-The remaining positions have color $0$. Its target quota is
+The remaining positions have color $0$. Put
 \[
  R=|E|-\operatorname{rk}(M_1)-\operatorname{rk}(M_2),
 \]
-and its \defin{target marginal} is
+and define the generating polynomial
 \[
  Q_{\mathcal F}(\mathbf x)\coloneqq
  \sum_{u\in\mathcal F(M_1,M_2)}
  \prod_{e\in B(u,0)}x_e.
 \]
 
-\begin{proposition}[Lorentzian target marginal]
-The polynomial $Q_{\mathcal F}$ is Lorentzian and homogeneous of degree $R$,
-or it is zero.
+\begin{proposition}[Lorentzian generating polynomial]
+If $\mathcal F(M_1,M_2)$ is nonempty, then $Q_{\mathcal F}$ is Lorentzian and
+homogeneous of degree $R$.
 \end{proposition}
 
 \begin{proof}
@@ -131,9 +131,6 @@ can be written as a product of operators $\partial_{x_e}+\partial_{z_e}$
 followed by the specialization $\mathbf z=0$. These operations preserve
 Lorentzianity by the Brändén--Huh theory \cite{BrandenHuh2020}.
 \end{proof}
-
-This Lorentzian statement uses the full choice of the two hidden matroid bases;
-it does not require symmetric cycle exchange.
 
 \subsection[rigidWidthThreeTheorem]{The theorem}
 
@@ -150,11 +147,11 @@ zeros.
 
 \begin{proof}
 The chains $X$ and $Y$ give two transversal matroids on a common set of
-positions. A linear extension of $P$ determines a word in the resulting full
-three-color family, with target quota $n-h$. The rigidity conditions say that
-the interval assigned to a position is independent of the intermediate linear
-extension; consequently this map is a bijection, and the number of descents is
-the number of marked color-$0$ positions.
+positions. A linear extension of $P$ determines a word in the corresponding
+family $\mathcal F(M_1,M_2)$, whose color-$0$ class has size $n-h$. The
+rigidity conditions say that the interval assigned to a position is independent
+of the intermediate linear extension; consequently this map is a bijection,
+and the number of descents is the number of marked color-$0$ positions.
 
 After setting the marked variables of $Q_{\mathcal F}$ equal to $t$ and the
 remaining variables equal to $s$, we obtain
