@@ -53,8 +53,8 @@ the Color B column, are the rank-four bases of $M^*$.
 Take $u=\mathtt{ABABABB}$ and $v=\mathtt{BABABAB}$.
 The Color A set of $u$ contains $1$ but not $2$, while the Color A set of $v$
 contains $2$ but not $1$. Exchanging these two elements gives the bases
-$\{2,3,5\}$ and $\{1,4,6\}$. In the colored words, the arcs at positions
-$1$ and $2$ form the cycle
+$\{2,3,5\}$ and $\{1,4,6\}$. In the colored words, the pairs at positions
+$1$ and $2$ are $(A,B)$ and $(B,A)$, forming the cycle
 \[
  A\longrightarrow B\longrightarrow A.
 \]
@@ -87,11 +87,12 @@ basis and its complement, we divide it into an ordered list of $k$ color
 classes. Their sizes remain fixed, but no single class determines all the
 others. The exchange rule must therefore move several colors compatibly.
 
-Fix colors $1,\dots,k$ and nonnegative integers $r_1,\dots,r_k$ with sum $n$.
-We represent an ordered partition of $[n]$ by a word $u=u_1\cdots u_n$ that
+Fix colors $1,\dotsc,k$ and nonnegative integers $r_1,\dotsc,r_k$ with sum
+$n$. We represent an ordered partition of $[n]$ by a word
+$u=u_1\dotsm u_n$ that
 is a permutation of
 \[
- 1^{r_1}2^{r_2}\cdots k^{r_k}.
+ 1^{r_1}2^{r_2}\dotsm k^{r_k}.
 \]
 The letters are the colors, and we write
 \[
@@ -99,7 +100,7 @@ The letters are the colors, and we write
 \]
 for the positions carrying color $c$. The tuple
 \[
- (B(u,1),\dots,B(u,k))
+ (B(u,1),\dotsc,B(u,k))
 \]
 is the corresponding ordered set partition of $[n]$. For example,
 $\mathtt{ABAC}$ represents $(\{1,3\},\{2\},\{4\})$ for the ordered colors
@@ -109,47 +110,60 @@ $(A,B,C)$. These words play the role of bases.
 
 Basis exchange replaces one element of a basis by another. For several color
 classes, changing one position may force further changes in other classes.
-The disagreement graph records how these changes fit together.
-
-Fix two such words $u,v$. Their \defin{disagreement graph}
-$D(u,v)$ is the directed multigraph whose vertices are the colors. For each
-position $i$ at which $u_i\ne v_i$, it has an arc
+Consider the following two words with four colors:
 \[
- u_i\longrightarrow v_i
+ u=\mathtt{ABCDAB},\qquad v=\mathtt{BCDABA}.
 \]
-labeled by $i$. Since each color occurs equally often in $u$ and $v$, every
-vertex has equal indegree and outdegree.
+In positions $1,2,3,4$, the pairs of letters are
+\[
+ (A,B),\qquad(B,C),\qquad(C,D),\qquad(D,A).
+\]
+They follow the cycle $A\to B\to C\to D\to A$. Interchanging the entries of
+$u$ and $v$ in these four positions gives the last two rows below.
+\begin{array}{c|cccccc}
+\text{position}&*(exchange)1&*(exchange)2&*(exchange)3&*(exchange)4&5&6\\
+\midrule
+u&*(exchange)A&*(exchange)B&*(exchange)C&*(exchange)D&A&B\\
+v&*(exchange)B&*(exchange)C&*(exchange)D&*(exchange)A&B&A\\
+\midrule
+u'&*(exchange)B&*(exchange)C&*(exchange)D&*(exchange)A&A&B\\
+v'&*(exchange)A&*(exchange)B&*(exchange)C&*(exchange)D&B&A
+\end{array}
+Thus $u'=\mathtt{BCDAAB}$ and $v'=\mathtt{ABCDBA}$.
 
-A \defin{simple color cycle} is a directed cycle in $D(u,v)$ that visits each
-of its colors once. Switching its positions means replacing the entries of
-one word by those of the other there. Entries outside the cycle are left
-unchanged. We denote the two resulting words by $u'$ and $v'$.
-
-Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so the
-resulting words are again permutations of $1^{r_1}\cdots k^{r_k}$. The real
-condition is that both remain in the chosen family $\mathcal F$.
+\begin{definition}[Cyclic exchange]
+In general, let $u,v$ be two permutations of
+$1^{r_1}\dotsm k^{r_k}$. A \defin{cyclic exchange} consists of distinct
+positions $i_1,\dotsc,i_m$, where $m\geq 2$, and distinct colors
+$c_1,\dotsc,c_m$ such that
+\[
+\begin{aligned}
+ (u_{i_1},v_{i_1})&=(c_1,c_2),\\
+ (u_{i_2},v_{i_2})&=(c_2,c_3),\\
+ &\ \vdots\\
+ (u_{i_m},v_{i_m})&=(c_m,c_1).
+\end{aligned}
+\]
+We interchange $u_{i_j}$ and $v_{i_j}$ for every $j$, leaving all other
+positions unchanged. The resulting words are again permutations of
+$1^{r_1}\dotsm k^{r_k}$.
+\end{definition}
 
 \begin{definition}[Colored matroids]
 A \defin{colored matroid} is a nonempty family $\mathcal F$ of words, each a
-permutation of $1^{r_1}\cdots k^{r_k}$, satisfying
+permutation of $1^{r_1}\dotsm k^{r_k}$, satisfying
 \defin{symmetric cycle exchange}: for every $u,v\in\mathcal F$ and every
-position $i$ with $u_i\ne v_i$, the arc of $D(u,v)$ labeled by $i$ lies on a
-simple color cycle such that switching its positions in both words gives two
-words in $\mathcal F$.
+position $i$ with $u_i\ne v_i$, there is a cyclic exchange containing $i$
+such that both resulting words belong to $\mathcal F$.
 
 This generalizes symmetric basis exchange by allowing the compensating
-changes to follow a simple cycle of colors.
+changes to pass through several colors.
 \end{definition}
 
-The position $i$ is prescribed: it is not enough that some switch works. The
-condition is also symmetric: both resulting words must belong to $\mathcal F$.
-For two colors, the cycle can only be $A\to B\to A$, and we recover ordinary
-matroid exchange. For more colors, one exchange may move entries through a
-longer color cycle.
-
-With three colors, a simple color cycle has length two or three. Thus an
-exchange may be an ordinary swap between two colors, or it may move three
-colors cyclically.
+The condition is imposed at every position where the two words differ, and
+both resulting words must belong to $\mathcal F$. With two colors, a cyclic
+exchange uses two positions and recovers ordinary matroid exchange. With three
+colors, it uses either two or three positions.
 
 \begin{proposition}[Two colors]
 Let $\mathcal F$ be a nonempty family of words with $r$ letters $A$ and
@@ -166,9 +180,9 @@ the color-$B$ classes are the bases of $M^*$.
 \begin{proof}
 Suppose first that $\mathcal F$ is a colored matroid. Take
 $u,v\in\mathcal F$ and $e\in B(u,A)\setminus B(v,A)$. With two colors, a
-simple color cycle through the arc at $e$ must be a two-cycle. Its other arc
-is labeled by some $f\in B(v,A)\setminus B(u,A)$. Switching the two positions
-gives a word in $\mathcal F$ whose color-$A$ class is
+cyclic exchange containing $e$ uses one further position
+$f\in B(v,A)\setminus B(u,A)$. The resulting word in $\mathcal F$ has
+color-$A$ class
 \[
  (B(u,A)\setminus\{e\})\cup\{f\}.
 \]
@@ -187,9 +201,8 @@ $f\in B(v,A)\setminus B(u,A)$ such that both
  \qquad\text{and}\qquad
  (B(v,A)\setminus\{f\})\cup\{e\}
 \]
-are bases of $M$. The positions $e,f$ form a simple color two-cycle, and
-switching them in both words gives two words in $\mathcal F$. Hence
-$\mathcal F$ is a colored matroid.
+are bases of $M$. Exchanging positions $e$ and $f$ between the two words gives
+two words in $\mathcal F$. Hence $\mathcal F$ is a colored matroid.
 \end{proof}
 
 \subsection[exchangeExamples]{Examples with three or more colors}
@@ -199,13 +212,13 @@ Consider
 \[
  \mathcal F=\{\mathtt{ABC},\mathtt{BCA},\mathtt{CAB}\}.
 \]
-For $u=\mathtt{ABC}$ and $v=\mathtt{BCA}$, the three positions label the
-cycle
+For $u=\mathtt{ABC}$ and $v=\mathtt{BCA}$, the pairs at the three positions
+are $(A,B),(B,C),(C,A)$, and hence form the cyclic exchange
 \[
  A\longrightarrow B\longrightarrow C\longrightarrow A.
 \]
-Switching the cycle interchanges $u$ and $v$. The same happens for either of
-the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
+Exchanging these positions interchanges $u$ and $v$. The same happens for
+either of the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
 \end{example}
 
 \begin{example}[A 3-matroid on eight elements]
@@ -229,16 +242,17 @@ ordered partition.
 \end{array}
 \]
 
-This family satisfies symmetric cycle exchange. Indeed, a position where two
-words differ belongs to one of the three displayed blocks. On a three-position
-block the disagreement arcs form the cycle $A\to B\to C\to A$ or its reverse;
-on the last block they form the two-cycle $A\to B\to A$. Switching that block
-in both words changes one allowed choice into the other, so both resulting
-words remain in the family.
+This family satisfies symmetric cycle exchange. A position where two words
+differ belongs to one of the three displayed blocks. On a three-position
+block, the pairs of letters form the cycle $A\to B\to C\to A$ or its reverse;
+on the last block they form $A\to B\to A$. Exchanging the positions in that
+block changes one allowed choice into the other, so both resulting words
+remain in the family.
 
 Here is one exchange in full. Take $u=\mathtt{ABCABCAB}$ and
-$v=\mathtt{BCABCAAB}$, and prescribe position $1$. The arcs at positions
-$1,2,3$ form a three-cycle. Switching the highlighted positions gives
+$v=\mathtt{BCABCAAB}$, and prescribe position $1$. At positions $1,2,3$ the
+pairs of letters form a three-cycle. Interchanging the highlighted columns
+gives
 \begin{array}{c|cccccccc}
 \text{position}&*(exchange)1&*(exchange)2&*(exchange)3&4&5&6&7&8\\
 \midrule
@@ -254,7 +268,7 @@ to $\mathcal F$.
 Here are three other exchanges in this family.
 \begin{itemize}
 \item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCAABCAB}$ differ on
-positions $1,2,3$. Switching the cycle through any of these positions
+positions $1,2,3$. The cyclic exchange using these positions
 interchanges the two words.
 \item For the two words in the displayed exchange, if position $4$ is
 prescribed, we switch positions $4,5,6$ and obtain the same two resulting
@@ -273,25 +287,11 @@ Consider the family
  \mathcal F=\{\mathtt{AABC},\mathtt{ABAC},\mathtt{ACBA},
  \mathtt{BAAC},\mathtt{CABA},\mathtt{BCAA},\mathtt{CBAA}\}.
 \]
-Take $u=\mathtt{BCAA}$ and $v=\mathtt{AABC}$. The arcs at positions $1$ and
-$3$ form the two-cycle $B\to A\to B$. Switching those positions gives
+Take $u=\mathtt{BCAA}$ and $v=\mathtt{AABC}$. At positions $1$ and $3$, the
+pairs of letters are $(B,A)$ and $(A,B)$. Interchanging those positions gives
 \[
  u'=\mathtt{ACBA},\qquad v'=\mathtt{BAAC},
 \]
 which are again members of $\mathcal F$. Unlike the previous example, the
 resulting words are different from the original two words.
-\end{example}
-
-\begin{example}[A four-color cycle]
-The family
-\[
- \mathcal F=\{\mathtt{ABCD},\mathtt{BCDA}\}
-\]
-satisfies symmetric cycle exchange. Between its two words, all four positions
-form the simple color cycle
-\[
- A\longrightarrow B\longrightarrow C\longrightarrow D\longrightarrow A.
-\]
-The only possible switch interchanges the two words, and its cycle contains
-every prescribed disagreement.
 \end{example}
