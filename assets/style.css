@@ -746,7 +746,23 @@
     border-bottom: 2px solid var(--math-accent); transform: rotate(-45deg); transition: transform 0.2s ease;
   }
   details.env[open] > summary::after { transform: rotate(45deg); top: 0.3em; }
-  details.env.proof > p { font-style: italic; }
+  div.env.theorem,
+  div.env.proposition,
+  div.env.lemma,
+  div.env.corollary,
+  details.env.theorem,
+  details.env.proposition,
+  details.env.lemma,
+  details.env.corollary { font-style: italic; }
+  div.env.theorem > p:first-child,
+  div.env.proposition > p:first-child,
+  div.env.lemma > p:first-child,
+  div.env.corollary > p:first-child,
+  details.env.theorem > summary,
+  details.env.proposition > summary,
+  details.env.lemma > summary,
+  details.env.corollary > summary { font-style: normal; }
+  details.env.proof { font-style: normal; }
 
   /* Biblio & Lists */
   #bibliography ol { list-style: none; margin: 0; padding: 0; }
