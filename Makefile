@@ -11,7 +11,7 @@ ifeq ($(abspath $(WWW_DIR)),/)
 $(error WWW_DIR must not be the filesystem root)
 endif
 
-.PHONY: all site site-check clean-site gather meta bib render copy-assets svg clean search
+.PHONY: all site site-check clean-site gather meta bib render copy-assets svg clean
 .DELETE_ON_ERROR:
 .SECONDARY: $(PRE_TEX)
 
@@ -29,10 +29,10 @@ else
 endif
 
 # Default target.  With FILE=page.tex only that page is gathered and rendered,
-# against the existing site metadata; the merge and search index are skipped.
+# against the existing site metadata; the merge is skipped.
 FILE ?=
 ifeq ($(strip $(FILE)),)
-all: gather meta render copy-assets search
+all: gather meta render copy-assets
 else
 all: gather render copy-assets
 endif
@@ -197,38 +197,3 @@ svg:
 .PHONY: clean
 clean:
 	@rm -rf $(TEMP_DIR) $(WWW_DIR)
-
-# === SEARCH INDEX (pagefind) ===
-.PHONY: search
-search: $(PAGEFIND_STAMP) $(PAGEFIND_ENTRY)
-
-SEARCH_INPUTS := $(HTML_FILES) $(GOTO_HTML) $(COPY_ASSETS_STAMP)
-ifneq ($(ENABLE_RELATION_GRAPH),0)
-SEARCH_INPUTS += $(RELATION_GRAPH_HTML)
-endif
-
-$(PAGEFIND_STAMP) $(PAGEFIND_ENTRY) &: $(SEARCH_INPUTS) | $(TEMP_DIR)/.created
-	$(LOG) "Building search index with pagefind..."
-	@www_dir="$(strip $(WWW_DIR))"; \
-	if [[ -z "$$www_dir" || "$$www_dir" == "/" ]]; then \
-	  echo "[ERROR] Refusing Pagefind cleanup with unsafe WWW_DIR='$$www_dir'" >&2; \
-	  exit 2; \
-	fi; \
-	pagefind_dir="$${www_dir%/}/_pagefind"; \
-	staging_dir="$(TEMP_DIR)/_pagefind.new"; \
-	rm -rf -- "$$staging_dir"; \
-	if [[ "$(Q)" != "0" ]]; then \
-	  $(PAGEFIND) --site "$$www_dir" --output-path "$$staging_dir" --glob "**/*.htm" > "$(TEMP_DIR)/pagefind.log" 2>&1 || { \
-	    cat "$(TEMP_DIR)/pagefind.log" >&2; \
-	    exit 1; \
-	  }; \
-	else \
-	  $(PAGEFIND) --site "$$www_dir" --output-path "$$staging_dir" --glob "**/*.htm"; \
-	fi; \
-	if [[ ! -f "$$staging_dir/pagefind-entry.json" ]]; then \
-	  echo "[ERROR] Pagefind did not create $$staging_dir/pagefind-entry.json" >&2; \
-	  exit 1; \
-	fi; \
-	rm -rf -- "$$pagefind_dir"; \
-	mv -- "$$staging_dir" "$$pagefind_dir"; \
-	touch "$(PAGEFIND_STAMP)"

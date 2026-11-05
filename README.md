@@ -4,8 +4,8 @@ This repository contains the sources for mathematical notes and course texts
 intended for `math.qxy.se`.
 
 The site is intended as a collection of independently organized projects
-sharing one publishing system, visual language, bibliography infrastructure,
-and search interface. Each project occupies one top-level directory and one
+sharing one publishing system, visual language, and bibliography
+infrastructure. Each project occupies one top-level directory and one
 top-level URL. The initial projects are:
 
 - `/colored-matroids/` for the evolving theory of colored matroids and its
@@ -29,8 +29,7 @@ colored-matroids/
 ├── index.tex
 ├── intro.tex
 ├── polytope.tex
-├── rank.tex
-└── search.tex
+└── rank.tex
 ```
 
 `symfun/` and `mm2001dm/` remain tracked placeholders until their source texts
@@ -38,7 +37,7 @@ are added.
 
 ## Building
 
-The build requires Lua 5.4, Pandoc, `jq`, and Node's `npx`:
+The build requires Lua 5.4, Pandoc, and `jq`:
 
 ```sh
 make site
@@ -57,7 +56,7 @@ The rendering pipeline is adapted from
 [`symmetricfunctions.com`](https://github.com/PerAlexandersson/symmetricfunctions.com)
 at revision `8681eba774d7204ce0981b6eb666495aba7c500e`. It retains the
 preprocessor, Pandoc gatherer, Lua renderer, bibliography support, cross-page
-references, Pagefind search, and HTML safeguards, with a separate template and
+references, and HTML safeguards, with a separate template and
 parameterized domain, project path, and source links.
 
 GitHub Actions builds the site and uploads a review artifact. Deployment is a

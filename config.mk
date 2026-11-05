@@ -29,7 +29,6 @@ ENABLE_RELATION_GRAPH ?= 0
 # === TOOLS ===
 PANDOC ?= pandoc
 LUA ?= lua
-PAGEFIND ?= npx --yes pagefind@1.5.2
 # Sections must have explicit labels, so Pandoc's automatic ids are off.
 READER ?= latex+raw_tex-auto_identifiers
 
@@ -79,8 +78,6 @@ RELATION_GRAPH_HTML := $(WWW_DIR)/polynomial-relations.htm
 RELATION_GRAPH_JSON := $(WWW_DIR)/polynomial-relations.json
 COPY_ASSETS_STAMP := $(TEMP_DIR)/copy-assets.stamp
 META_STAMP := $(TEMP_DIR)/meta.stamp
-PAGEFIND_STAMP := $(TEMP_DIR)/pagefind.stamp
-PAGEFIND_ENTRY := $(WWW_DIR)/_pagefind/pagefind-entry.json
 
 # === EXPORTS FOR SCRIPTS ===
 export PROJECT SRC_DIR ASSETS_DIR SCRIPTS_DIR TEMP_DIR WWW_DIR SITE_PATH SITE_BASE_URL

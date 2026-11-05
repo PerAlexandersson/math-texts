@@ -72,10 +72,9 @@
 
   function initTextWidth() {
     var main = document.getElementById('doc-main');
-    var meta = document.getElementById('page-meta');
     var button = document.getElementById('text-width-toggle');
     var root = document.documentElement;
-    if (!main || !meta || !button ||
+    if (!main || !button ||
         !document.body.classList.contains('reading-document')) return;
 
     var key = 'math-texts-width';
@@ -86,15 +85,6 @@
         setStoredPreference(key, savedWidth);
       }
     }
-    var editLink = meta.querySelector('.editLink');
-    if (editLink) {
-      var editFooter = document.createElement('div');
-      editFooter.id = 'page-edit-footer';
-      editFooter.setAttribute('data-pagefind-ignore', '');
-      editFooter.appendChild(editLink);
-      main.appendChild(editFooter);
-    }
-
     function applyWidth(narrow) {
       root.classList.toggle('text-width-narrow', narrow);
       button.setAttribute('aria-pressed', String(narrow));
