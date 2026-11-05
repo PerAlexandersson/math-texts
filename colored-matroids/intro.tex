@@ -1,7 +1,13 @@
 \metatitle{Introduction to colored matroids}
 \metadescription{Matroid basis exchange, ordered set partitions, and cyclic exchange for colored matroids.}
 
-\section[basisExchange]{Basis exchange with two colors}
+\section[introduction]{Introduction}
+
+We describe colored matroids as families of words satisfying cyclic exchange.
+We begin with classical matroids, where two-color words are indicator vectors
+of bases, and then pass to words with any number of colors.
+
+\subsection[classicalMatroids]{Classical matroids}
 
 \begin{definition}[Matroid bases]
 A matroid $M$ on a finite ground set $E$ may be specified by a nonempty
@@ -209,22 +215,36 @@ two words in $\mathcal F$. Hence $\mathcal F$ is a colored matroid.
 
 \subsection[exchangeExamples]{Examples with three or more colors}
 
-\begin{example}[A three-color cycle]
-Consider
+\begin{example}[A 3-matroid on five elements]
+Consider the family
 \[
- \mathcal F=\{\mathtt{ABC},\mathtt{BCA},\mathtt{CAB}\}.
+ \mathcal F=\{\mathtt{ABCAB},\mathtt{ABCBA},
+               \mathtt{BCAAB},\mathtt{BCABA}\}.
 \]
-For $u=\mathtt{ABC}$ and $v=\mathtt{BCA}$, the pairs at the three positions
-are $(A,B),(B,C),(C,A)$, and hence form the cyclic exchange
-\[
- A\longrightarrow B\longrightarrow C\longrightarrow A.
-\]
-Exchanging these positions interchanges $u$ and $v$. The same happens for
-either of the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
+Each word is obtained by choosing either $\mathtt{ABC}$ or $\mathtt{BCA}$ in
+positions $1,2,3$, and independently choosing either $\mathtt{AB}$ or
+$\mathtt{BA}$ in positions $4,5$. A disagreement belongs to one of these two
+blocks, and exchanging that block produces two words in $\mathcal F$. Hence
+$\mathcal F$ is a 3-matroid.
+
+Take $u=\mathtt{ABCAB}$ and $v=\mathtt{BCABA}$. The words differ on both
+blocks. For the prescribed position $1$, exchange positions $1,2,3$:
+\begin{array}{c|ccccc}
+\text{position}&*(exchange)1&*(exchange)2&*(exchange)3&4&5\\
+\midrule
+u&*(exchange)A&*(exchange)B&*(exchange)C&A&B\\
+v&*(exchange)B&*(exchange)C&*(exchange)A&B&A\\
+\midrule
+u'&*(exchange)B&*(exchange)C&*(exchange)A&A&B\\
+v'&*(exchange)A&*(exchange)B&*(exchange)C&B&A
+\end{array}
+Thus $u'=\mathtt{BCAAB}$ and $v'=\mathtt{ABCBA}$; neither is one of the two
+original words.
 \end{example}
 
 \begin{example}[A 3-matroid on eight elements]
-Let $E=[8]$, and consider permutations of $A^3B^3C^2$. On the positions
+The same block construction gives a larger example. Let $E=[8]$, and consider
+permutations of $A^3B^3C^2$. On the positions
 $\{1,2,3\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, on
 $\{4,5,6\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, and on
 $\{7,8\}$ choose either $\mathtt{AB}$ or $\mathtt{BA}$. Taking all eight
@@ -267,11 +287,8 @@ v'&*(exchange)A&*(exchange)B&*(exchange)C&B&C&A&A&B
 Thus $u'=\mathtt{BCAABCAB}$ and $v'=\mathtt{ABCBCAAB}$, both of which belong
 to $\mathcal F$.
 
-Here are three other exchanges in this family.
+Here are two other exchanges in this family.
 \begin{itemize}
-\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCAABCAB}$ differ on
-positions $1,2,3$. The cyclic exchange using these positions
-interchanges the two words.
 \item For the two words in the displayed exchange, if position $4$ is
 prescribed, we switch positions $4,5,6$ and obtain the same two resulting
 words in the opposite order.
