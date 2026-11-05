@@ -732,7 +732,8 @@ local custom_css= get_meta(meta, "custom_css", "")
 -- Render body
 local collect_header, toc_items = create_toc_collector()
 local html_body = render_blocks_html(pandoc_doc.blocks or {}, collect_header)
-local is_reading_document = not html_body:find("topic-card-grid", 1, true)
+local is_reading_document = filestem ~= "index"
+    and not html_body:find("topic-card-grid", 1, true)
     and not html_body:find('id="polynomialIndex"', 1, true)
 local has_citations = (citations and #citations > 0)
 if has_citations then

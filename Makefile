@@ -42,29 +42,28 @@ endif
 quiet:
 	$(MAKE) all Q=1
 
-# Build the root landing pages and every currently published project. Future
-# project directories join the public build only when added here.
+# Build the static root redirect and every currently published project.
 PUBLISHED_PROJECTS := colored-matroids
 
 .PHONY: root-site project-sites index-aliases
 site: index-aliases
 
 root-site: clean-site
-	$(MAKE) all PROJECT=root SRC_DIR=. SITE_PATH= \
-	  TEMP_DIR=$(BUILD_ROOT)/temp/root WWW_DIR=$(BUILD_ROOT)/www \
-	  ENABLE_RELATION_GRAPH=0 Q=$(Q)
+	@mkdir -p "$(BUILD_ROOT)/www"
+	@cp index.htm "$(BUILD_ROOT)/www/index.htm"
+	@cp index.htm "$(BUILD_ROOT)/www/index.html"
 
 project-sites: root-site
 	@for project in $(PUBLISHED_PROJECTS); do \
 	  $(MAKE) all PROJECT="$$project" SRC_DIR="$$project" SITE_PATH="$$project" \
+	    TEMPLATE="$$project/template.htm" \
 	    TEMP_DIR="$(BUILD_ROOT)/temp/$$project" WWW_DIR="$(BUILD_ROOT)/www/$$project" \
 	    ENABLE_RELATION_GRAPH=0 Q=$(Q); \
 	done
 
-# GitHub Pages and most static servers use index.html for directory requests;
-# the source toolchain continues to emit SymCat-compatible .htm pages.
+# Static servers use index.html for directory requests; the source toolchain
+# continues to emit .htm pages.
 index-aliases: project-sites
-	@cp $(BUILD_ROOT)/www/index.htm $(BUILD_ROOT)/www/index.html
 	@for project in $(PUBLISHED_PROJECTS); do \
 	  cp "$(BUILD_ROOT)/www/$$project/index.htm" \
 	     "$(BUILD_ROOT)/www/$$project/index.html"; \

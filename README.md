@@ -15,10 +15,10 @@ top-level URL. The initial projects are:
 
 ## Source layout
 
-Each published project is a top-level directory. Its `index.tex` links to the
-project's chapter files. The repository root contains the site-wide landing
-page, Make configuration, and HTML template. Shared Lua build tooling lives in
-`scripts/`, while browser CSS, JavaScript, icons, and images live in `assets/`.
+Each published project is a top-level directory with its own `index.tex`,
+chapter files, and `template.htm`. The repository root contains the redirect
+page and Make configuration. Shared Lua build tooling lives in `scripts/`,
+while browser CSS, JavaScript, icons, and images live in `assets/`.
 The build reads the shared `bibliography.bib` from a sibling checkout of
 `symmetricfunctions.com`.
 
@@ -29,7 +29,8 @@ colored-matroids/
 ├── index.tex
 ├── intro.tex
 ├── polytope.tex
-└── rank.tex
+├── rank.tex
+└── template.htm
 ```
 
 `symfun/` and `mm2001dm/` remain tracked placeholders until their source texts

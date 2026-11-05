@@ -17,7 +17,7 @@ ASSETS_DIR ?= assets
 SCRIPTS_DIR ?= scripts
 TEMP_DIR ?= $(BUILD_ROOT)/temp/$(PROJECT)
 
-TEMPLATE ?= template.htm
+TEMPLATE ?= $(PROJECT)/template.htm
 SYMCAT_DIR ?= ../symmetricfunctions.com
 BIBFILE ?= $(SYMCAT_DIR)/bibliography.bib
 
