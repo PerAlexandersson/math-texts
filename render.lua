@@ -1,0 +1,786 @@
+-- Pure Lua renderer for Pandoc JSON → template HTML
+--
+-- This module converts Pandoc's JSON AST into HTML, handling:
+-- - Internal link resolution via site-wide label map
+-- - Bibliography insertion from .bib data
+-- - LaTeX table environments (ytableau, tabular, etc.) → HTML tables
+-- - File existence validation for images
+-- - Table of contents generation from headers
+-- - Lazy template placeholder evaluation
+-- - A final check that no element id occurs twice on the page
+-- - Injection of custom CSS variables defined in LaTeX
+
+-- ========== DEPENDENCIES ==========
+
+local bibhandler   = dofile("bibhandler.lua")
+local file_reading = dofile("file_reading.lua")
+local fig_to_html  = dofile("figure_to_html.lua")
+local poly_to_html = dofile("polydata_to_html.lua")
+
+local utils        = dofile("utils.lua")
+local html_escape  = utils.html_escape
+local slugify      = utils.slugify
+local print_error  = utils.print_error
+local has_errors   = utils.has_errors
+local get_error_count = utils.get_error_count
+
+local transform_tex_snippet = fig_to_html.transform_tex_snippet
+
+
+-- ========== CONFIGURATION ==========
+
+local TEMP_DIR      = os.getenv("TEMP_DIR") or "temp"
+local REFS_JSON     = os.getenv("REFS_JSON") or (TEMP_DIR .. "/bibliography.json")
+local BIBTEX_JSON   = os.getenv("BIBTEX_JSON") or (TEMP_DIR .. "/bibtex-entries.json")
+local LABELS_JSON   = os.getenv("LABELS_JSON") or (TEMP_DIR .. "/site-labels.json")
+local POLYDATA_JSON = os.getenv("POLYDATA_JSON") or (TEMP_DIR .. "/site-polydata.json")
+local TEMPLATE      = os.getenv("TEMPLATE") or "template.htm"
+local ASSETS_DIR    = os.getenv("ASSETS_DIR") or "assets"
+local SOURCE_TS     = os.getenv("SOURCE_TS") or tostring(os.time())
+local SITE_PATH     = (os.getenv("SITE_PATH") or ""):gsub("^/+", ""):gsub("/+$", "")
+local SOURCE_REPOSITORY = (os.getenv("SOURCE_REPOSITORY") or
+  "https://github.com/PerAlexandersson/math-texts"):gsub("/+$", "")
+local SOURCE_BRANCH = os.getenv("SOURCE_BRANCH") or "main"
+local SOURCE_DIR    = os.getenv("SRC_DIR") or "colored-matroids"
+
+-- Site-wide label mapping for cross-page references
+local SITE_LABELS_MAP = file_reading.load_json_file(LABELS_JSON, "site-labels", true)
+
+
+-- ========== CONSTANTS ==========
+
+-- Unicode characters for typography
+local EM_DASH = utf8.char(0x2014)  -- —
+local EN_DASH = utf8.char(0x2013)  -- –
+
+-- \specialblock{searchbox}: Pagefind UI, set up by assets/search.js.
+local SEARCH_BOX_HTML = [[
+<link href="./_pagefind/pagefind-ui.css" rel="stylesheet">
+<div id="search"></div>
+<script src="./_pagefind/pagefind-ui.js"></script>
+<script src="./search.js?v=20261028-math"></script>]]
+
+
+-- ========== UTILITY FUNCTIONS ==========
+
+--- Renders Pandoc attributes as HTML attribute string.
+local function render_attr(attr)
+  local id      = attr[1] or ""
+  local classes = attr[2] or {}
+  local kvs     = attr[3] or {}
+
+  local parts = {}
+
+  if id ~= "" then
+    table.insert(parts, ' id="' .. html_escape(id) .. '"')
+  end
+
+  if #classes > 0 then
+    table.insert(parts, ' class="' .. table.concat(classes, " ") .. '"')
+  end
+
+  for _, kv in ipairs(kvs) do
+    local k, v = kv[1], kv[2]
+    -- data-source-loc is build-time diagnostics only; keep it out of the HTML.
+    if k and v and v ~= "" and k ~= "data-source-loc" then
+      table.insert(parts, ' ' .. k .. '="' .. html_escape(v) .. '"')
+    end
+  end
+
+  return table.concat(parts)
+end
+
+
+--- Extracts key-value pairs from Pandoc attributes.
+local function extract_keyvals(kvs)
+  local result = {}
+  for _, kv in ipairs(kvs or {}) do
+    local k, v = kv[1], kv[2]
+    if k then
+      result[k] = v
+    end
+  end
+  return result
+end
+
+
+--- Checks if an array contains a specific value.
+local function array_contains(arr, val)
+  for _, v in ipairs(arr) do
+    if v == val then
+      return true
+    end
+  end
+  return false
+end
+
+
+--- Returns true when src points to a non-local resource that should not be file-validated.
+local function is_external_resource(src)
+  src = tostring(src or "")
+  return src:match("^[a-z][a-z0-9+.-]*://") ~= nil
+      or src:match("^//") ~= nil
+      or src:match("^data:") ~= nil
+end
+
+--- Returns true when a link URL is safe to emit in an href attribute.
+local function is_safe_href(url)
+  url = tostring(url or ""):match("^%s*(.-)%s*$")
+  if url == "" then return true end
+  if url:match("^#") or url:match("^/") then return true end
+  if url:match("^%.?/") then return true end
+  if not url:match("^[A-Za-z][A-Za-z0-9+.-]*:") then return true end
+
+  local scheme = url:match("^([A-Za-z][A-Za-z0-9+.-]*):"):lower()
+  return scheme == "http" or scheme == "https" or scheme == "mailto"
+end
+
+local function sanitize_href(url, source_loc)
+  if is_safe_href(url) then
+    return url
+  end
+
+  if source_loc and source_loc ~= "" then
+    print_error("%s: Unsafe link URL rejected: %s", source_loc, url)
+  else
+    print_error("Unsafe link URL rejected: %s", url)
+  end
+  return "#"
+end
+
+
+--- Validates a site-local image path against the source assets tree.
+local function image_source_exists(src)
+  if src == "" or is_external_resource(src) then
+    return true
+  end
+
+  local normalized = tostring(src)
+    :gsub("[?#].*$", "")
+    :gsub("^%./", "")
+    :gsub("^/", "")
+
+  if normalized == "" then
+    return false
+  end
+
+  if normalized == ".."
+      or normalized:match("^%.%./")
+      or normalized:match("/%.%./")
+      or normalized:match("/%.%.$") then
+    return false
+  end
+
+  return file_reading.file_exists(ASSETS_DIR .. "/" .. normalized)
+end
+
+
+-- ========== INLINE ELEMENT RENDERERS ==========
+
+local render_inlines_html
+local render_blocks_html
+
+local function plain_text_from_inlines(inlines, preserve_math)
+  local parts = {}
+  for _, inline in ipairs(inlines or {}) do
+    local t, c = inline.t, inline.c
+    if t == "Str" then
+      parts[#parts + 1] = c or ""
+    elseif t == "Space" or t == "SoftBreak" or t == "LineBreak" then
+      parts[#parts + 1] = " "
+    elseif t == "Math" then
+      local body = (c and c[2]) or ""
+      if preserve_math then
+        local kind = c and c[1] and c[1].t or "InlineMath"
+        local delimiters = kind == "DisplayMath" and { "\\[", "\\]" }
+            or { "\\(", "\\)" }
+        body = delimiters[1] .. body .. delimiters[2]
+      end
+      parts[#parts + 1] = body
+    elseif t == "Code" then
+      parts[#parts + 1] = (c and (c[2] or c.text)) or ""
+    elseif t == "Emph" or t == "Strong" then
+      parts[#parts + 1] = plain_text_from_inlines(c, preserve_math)
+    elseif t == "Span" or t == "Link" or t == "Image" or t == "Cite" then
+      parts[#parts + 1] = plain_text_from_inlines((c and c[2]) or {}, preserve_math)
+    elseif t == "Quoted" then
+      parts[#parts + 1] = plain_text_from_inlines((c and c[2]) or {}, preserve_math)
+    end
+  end
+  return (table.concat(parts):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+
+--- Renders a link element, handling internal cross-references.
+local function render_link(attr, inlines, target)
+  local url, title = "#", ""
+
+  if type(target) == "table" then
+    url   = target[1] or target.url or "#"
+    title = target[2] or ""
+  elseif type(target) == "string" then
+    url = target
+  end
+
+  local link_inner_html = render_inlines_html(inlines)
+  local classes = attr[2] or {}
+  local kv_map = extract_keyvals(attr[3] or {})
+  local source_loc = kv_map["data-source-loc"] or ""
+
+  -- Handle internal cross-references with .hyperref class
+  if array_contains(classes, "hyperref") then
+    local label = tostring(url or ""):gsub("^#", "")
+    local entry = SITE_LABELS_MAP[label]
+
+    if not entry then
+      if source_loc ~= "" then
+        print_error("%s: hyperref to unknown label '%s' (text: %s)", source_loc, label, link_inner_html)
+      else
+        print_error("hyperref to unknown label '%s' (text: %s)", label, link_inner_html)
+      end
+      url = "#" .. label
+    else
+      url = entry.href or ("#" .. label)
+    end
+  end
+
+  local attr_html = render_attr(attr)
+  if title ~= "" then
+    attr_html = attr_html .. ' title="' .. html_escape(title) .. '"'
+  end
+
+  url = sanitize_href(url, source_loc)
+  return '<a href="' .. html_escape(url) .. '"' .. attr_html .. '>' .. link_inner_html .. '</a>'
+end
+
+
+--- Renders an image element with validation.
+local function render_image(attr, caption, target)
+  local src, title = "", ""
+
+  if type(target) == "table" then
+    src   = target[1] or target.src or ""
+    title = target[2] or target.title or ""
+  elseif type(target) == "string" then
+    src = target
+  end
+
+  local caption_text = plain_text_from_inlines(caption)
+  local kv_map = extract_keyvals(attr[3] or {})
+  local source_loc = kv_map["data-source-loc"] or ""
+
+  if src ~= "" then
+    if not image_source_exists(src) then
+      if source_loc ~= "" then
+        print_error("%s: Image file not found: %s", source_loc, src)
+      else
+        print_error("Image file not found: %s", src)
+      end
+    end
+  else
+    if source_loc ~= "" then
+      print_error("%s: Image missing src (caption: %s)", source_loc, caption_text)
+    else
+      print_error("Image missing src (caption: %s)", caption_text)
+    end
+  end
+
+  local attr_html = render_attr(attr)
+
+  return string.format(
+    '<img src="%s" title="%s" alt="%s" %s/>',
+    html_escape(src),
+    html_escape(title ~= "" and title or caption_text),
+    html_escape(caption_text),
+    attr_html
+  )
+end
+
+
+--- Renders a LaTeX table inline element.
+local function render_table_hyperref(label, text)
+  local source_loc = label:match("@@([%w%.%-_/]+:%d+)$") or ""
+  label = label:gsub("@@[%w%.%-_/]+:%d+$", "")
+
+  local entry = SITE_LABELS_MAP[label]
+  local url
+  if not entry then
+    if source_loc ~= "" then
+      print_error("%s: hyperref to unknown label '%s' (text: %s)",
+        source_loc, label, text)
+    else
+      print_error("hyperref to unknown label '%s' (text: %s)", label, text)
+    end
+    url = "#" .. label
+  else
+    url = entry.href or ("#" .. label)
+  end
+
+  local attr = { "", { "hyperref" }, {} }
+  if source_loc ~= "" then
+    attr[3][#attr[3] + 1] = { "data-source-loc", source_loc }
+  end
+
+  url = sanitize_href(url, source_loc)
+  return '<a href="' .. html_escape(url) .. '"' .. render_attr(attr) .. '>'
+      .. html_escape(text) .. '</a>'
+end
+
+local function render_latex_table_cell(content)
+  local s = tostring(content or "")
+  if not s:find("\\hyperref", 1, true) then
+    return nil
+  end
+
+  local out = {}
+  local pos = 1
+
+  while true do
+    local start_pos, end_pos, label, body =
+      s:find("\\hyperref%s*%[([^%]]+)%]%s*(%b{})", pos)
+    if not start_pos then
+      out[#out + 1] = html_escape(s:sub(pos))
+      break
+    end
+
+    out[#out + 1] = html_escape(s:sub(pos, start_pos - 1))
+    out[#out + 1] = render_table_hyperref(label, body:sub(2, -2))
+    pos = end_pos + 1
+  end
+
+  return table.concat(out), true
+end
+
+local function render_latex_table_inline(body)
+  local html, err = transform_tex_snippet(body, {
+    cell_renderer = render_latex_table_cell
+  })
+  if err then
+    print_error("Failed to convert LaTeX table (inline): %s", err)
+    return "<code class='tex-error'>" .. html_escape(body) .. "</code>"
+  end
+  return html
+end
+
+local function render_booktabs_array_math(body)
+  local src = tostring(body or ""):match("^%s*(.-)%s*$")
+  if src == "" then return nil end
+  if not src:match("^\\begin%s*%{%s*array%s*%}") then return nil end
+  if not src:match("\\end%s*%{%s*array%s*%}%s*$") then return nil end
+  if not (src:find("\\toprule", 1, true)
+      or src:find("\\midrule", 1, true)
+      or src:find("\\bottomrule", 1, true)) then
+    return nil
+  end
+
+  local html, err = transform_tex_snippet(src)
+  if err then
+    print_error("Failed to convert booktabs array: %s", err)
+    return nil
+  end
+  return html
+end
+
+
+--- Renders Pandoc inline elements to HTML.
+function render_inlines_html(inlines)
+  if type(inlines) ~= "table" then return "" end
+
+  local buffer = {}
+
+  for _, el in ipairs(inlines) do
+    local t, c = el.t, el.c
+
+    if t == "Str" then
+      local s = c:gsub("%-%-%-", EM_DASH):gsub("%-%-", EN_DASH)
+      table.insert(buffer, html_escape(s))
+
+    elseif t == "Space" then
+      table.insert(buffer, " ")
+
+    elseif t == "SoftBreak" or t == "LineBreak" then
+      table.insert(buffer, "\n")
+
+    elseif t == "Emph" then
+      table.insert(buffer, "<em>" .. render_inlines_html(c) .. "</em>")
+
+    elseif t == "Strong" then
+      table.insert(buffer, "<strong>" .. render_inlines_html(c) .. "</strong>")
+    elseif t == "Code" then
+      local code = c[2] or c.code or ""
+      table.insert(buffer, "<code>" .. html_escape(code) .. "</code>")
+    elseif t == "Math" then
+      local kind = c[1].t
+      local body = c[2] or ""
+      local table_html = render_booktabs_array_math(body)
+      if table_html then
+        table.insert(buffer, table_html)
+      else
+        local delim = (kind == "DisplayMath") and {"\\[", "\\]"} or {"\\(", "\\)"}
+        table.insert(buffer, delim[1] .. html_escape(body) .. delim[2])
+      end
+    elseif t == "Link" then
+      table.insert(buffer, render_link(c[1], c[2], c[3]))
+    elseif t == "RawInline" then
+      if type(c) == "table" then
+        local fmt, body = c[1], c[2]
+        if fmt and fmt:match("latextable") then
+          table.insert(buffer, render_latex_table_inline(body))
+        elseif fmt and fmt:match("tex") then
+          print_error("TEX still present: %s", body)
+        else
+          table.insert(buffer, body or "")
+        end
+      else
+        table.insert(buffer, c or "")
+      end
+
+    elseif t == "Span" then
+      local attr = c[1] or { "", {}, {} }
+      local inl  = c[2] or {}
+      table.insert(buffer, "<span" .. render_attr(attr) .. ">" .. render_inlines_html(inl) .. "</span>")
+    elseif t == "Quoted" then
+      table.insert(buffer, "<q>" .. render_inlines_html(c[2] or {}) .. "</q>")
+
+    elseif t == "Cite" then
+      table.insert(buffer, render_inlines_html(c[2] or {}))
+
+    elseif t == "Image" then
+      table.insert(buffer, render_image(c[1], c[2], c[3]))
+
+    else
+      print_error("Unhandled inline type: %s", t)
+    end
+  end
+
+  return table.concat(buffer)
+end
+
+
+-- ========== BLOCK ELEMENT RENDERERS ==========
+
+--- Renders a collapsible environment (details/summary).
+local function render_collapsible(attr, blocks)
+  local head = blocks[1]
+  local rest = {}
+  for i = 2, #blocks do rest[#rest + 1] = blocks[i] end
+
+  local head_html = ""
+  if head and (head.t == "Para" or head.t == "Plain") then
+    head_html = render_inlines_html(head.c or {})
+  end
+
+  local parts = {
+    '<details' .. render_attr(attr) .. '>',
+    '<summary>' .. head_html .. '</summary>',
+    render_blocks_html(rest),
+    '</details>'
+  }
+  return table.concat(parts)
+end
+
+
+--- Renders a LaTeX table block element.
+local function render_latex_table_block(body)
+  local html, err = transform_tex_snippet(body, {
+    cell_renderer = render_latex_table_cell
+  })
+  if err then
+    print_error("Failed to convert LaTeX table (block): %s", err)
+    return "<pre class='tex-error'>" .. html_escape(body) .. "</pre>\n"
+  end
+  return html
+end
+
+
+--- Extracts plain text from inline elements (for TOC).
+local function extract_text_from_inlines(inlines)
+  return plain_text_from_inlines(inlines, true)
+end
+
+
+--- Renders a header element.
+local function render_header(level, attr, inlines, header_collector)
+  local id = attr[1]
+  if (not id) or id == "" then
+    print_error("Header missing ID")
+    local text_parts = {}
+    for _, x in ipairs(inlines) do
+      if x.t == "Str" then table.insert(text_parts, x.c) end
+    end
+    id = slugify(table.concat(text_parts, ""))
+    attr[1] = id
+  end
+
+  if header_collector then
+    local text = extract_text_from_inlines(inlines)
+    header_collector(level, id, text)
+  end
+
+  local tag = "h" .. tostring(level)
+  local anchor = ""
+  if level >= 2 and level <= 4 then
+    anchor = '<a class="header-anchor" href="#' .. html_escape(id) .. '" data-pagefind-ignore>#</a>'
+  end
+  return "<" .. tag .. render_attr(attr) .. ">" .. anchor .. render_inlines_html(inlines) .. "</" .. tag .. ">\n"
+end
+
+
+--- Renders Pandoc block elements to HTML.
+function render_blocks_html(blocks, header_collector)
+  local buffer = {}
+
+  for _, b in ipairs(blocks or {}) do
+    local t, c = b.t, b.c
+
+    if t == "Para" or t == "Plain" then
+      table.insert(buffer, "<p>" .. render_inlines_html(c) .. "</p>\n")
+
+    elseif t == "Header" then
+      local level = c[1]
+      local attr = c[2] or { "", {}, {} }
+      local inlines = c[3] or {}
+      table.insert(buffer, render_header(level, attr, inlines, header_collector))
+
+    elseif t == "CodeBlock" then
+      table.insert(buffer, "<pre><code>" .. html_escape(c[2] or "") .. "</code></pre>\n")
+
+    elseif t == "BlockQuote" then
+      table.insert(buffer, "<blockquote>" .. render_blocks_html(c) .. "</blockquote>\n")
+
+    elseif t == "BulletList" then
+      local items = {}
+      for _, itemBlocks in ipairs(c) do
+        table.insert(items, "<li>" .. render_blocks_html(itemBlocks) .. "</li>")
+      end
+      table.insert(buffer, "<ul>" .. table.concat(items) .. "</ul>")
+
+    elseif t == "OrderedList" then
+      local items = c[2] or {}
+      local list_items = {}
+      for _, itemBlocks in ipairs(items) do
+        table.insert(list_items, "<li>" .. render_blocks_html(itemBlocks) .. "</li>")
+      end
+      table.insert(buffer, "<ol>" .. table.concat(list_items) .. "</ol>")
+
+    elseif t == "HorizontalRule" then
+      table.insert(buffer, "<hr/>")
+
+    elseif t == "Div" then
+      local attr = c[1] or { "", {}, {} }
+      local classes = attr[2] or {}
+
+      -- Check for special page divs
+      if array_contains(classes, "specialblock") then
+        local kvs = attr[3] or {}
+        local kv_map = extract_keyvals(kvs)
+        local block_type = kv_map["data-type"]
+
+        if block_type and block_type == "polynomialList" then
+          local polydata = file_reading.load_json_file(POLYDATA_JSON, "site-polydata", true)
+          local poly_list_html = poly_to_html.render_polynomial_table(polydata) or ""
+          table.insert(buffer, poly_list_html)
+        elseif block_type == "searchbox" then
+          table.insert(buffer, SEARCH_BOX_HTML)
+        else
+          print_error("specialblock div missing data-type attribute")
+        end
+      end
+
+      -- Check for collapsible divs
+      if array_contains(classes, "collapsible") then
+        table.insert(buffer, render_collapsible(attr, c[2] or {}))
+      else
+        local inner = render_blocks_html(c[2] or {})
+        table.insert(buffer, "<div" .. render_attr(attr) .. ">" .. inner .. "</div>")
+      end
+
+    elseif t == "RawBlock" then
+      local fmt, body = c[1], c[2]
+      if fmt and fmt:match("latextable") then
+        table.insert(buffer, render_latex_table_block(body))
+      elseif fmt and fmt:match("tex") then
+        print_error("Render: Unknown tex: %s", (body or ""):match("([^\n\r]*)"))
+      else
+        table.insert(buffer, "<pre>" .. html_escape(body or "") .. "</pre>")
+        print_error("Render: Unknown raw block format: %s", fmt or "nil")
+      end
+
+    else
+      print_error("Render: Unhandled block type: %s", t)
+    end
+  end
+
+  return table.concat(buffer)
+end
+
+
+-- ========== METADATA EXTRACTION ==========
+
+local function get_meta(meta, key, fallback)
+  local v = meta[key]
+  if type(v) == "table" and v.t == "MetaString" then
+    return v.c
+  end
+  return v or fallback
+end
+
+
+-- ========== TABLE OF CONTENTS ==========
+
+local function create_toc_collector()
+  local toc_items = {}
+  local function collector(level, id, text)
+    if not id or id == "" then return end
+    -- Only include sections (h2) and subsections (h3) in the TOC
+    if level >= 4 then return end
+    local css_class = ""
+    if level == 2 then css_class = "section"
+    elseif level == 3 then css_class = "subsection" end
+    table.insert(toc_items, string.format(
+      '<li><a href="#%s" class="%s">%s</a></li>\n',
+      html_escape(id), html_escape(css_class), html_escape(text or "")))
+  end
+  return collector, toc_items
+end
+
+local function build_toc_html(toc_items, has_citations)
+  if #toc_items == 0 and not has_citations then return "" end
+  local items = {}
+  for _, item in ipairs(toc_items) do table.insert(items, item) end
+  if has_citations then
+    table.insert(items, '<li><a href="#bibliography" class="section">Bibliography</a></li>\n')
+  end
+  return table.concat(items)
+end
+
+
+-- ========== BIBLIOGRAPHY ==========
+
+local function build_bibliography_html(refs_json_path, citations)
+  if not citations or #citations == 0 then return "" end
+  return bibhandler.build_bibliography_HTML(refs_json_path, citations, BIBTEX_JSON)
+end
+
+
+-- ========== METADATA FORMATTING ==========
+
+local function format_lastmod_html(timestamp)
+  local date = utils.format_iso_date(timestamp)
+  return string.format('<time class="dateMod" datetime="%s">%s</time>', date, date)
+end
+
+
+-- ========== PAGE CITATION LABELS ==========
+
+--- gather.lua writes each citation's base label; where two references cited
+--- on this page share a base label, give them their a/b suffixes.  Works on
+--- the finished HTML so cites inside table cells are covered too.
+local function apply_page_labels(html, citations)
+  local keys = {}
+  for _, citation in ipairs(citations or {}) do
+    keys[#keys + 1] = (type(citation) == "table" and citation.c) or citation
+  end
+  for key, label in pairs(bibhandler.page_labels(keys)) do
+    local base = bibhandler.get_bibliography_label(key)
+    if label ~= base then
+      local escaped_key = html_escape(key):gsub("%p", "%%%0")
+      html = html:gsub('(<a href="#' .. escaped_key .. '"[^>]*class="cite"[^>]*>)'
+          .. base:gsub("%p", "%%%0") .. '</a>', function(open_tag)
+        return open_tag .. label .. "</a>"
+      end)
+    end
+  end
+  return html
+end
+
+
+-- ========== DUPLICATE ID CHECK ==========
+
+--- Reports every id attribute that occurs more than once in the page.
+local function check_unique_ids(html, page)
+  local counts, order = {}, {}
+  for id in html:gmatch('%sid="([^"]*)"') do
+    if not counts[id] then order[#order + 1] = id end
+    counts[id] = (counts[id] or 0) + 1
+  end
+  for _, id in ipairs(order) do
+    if counts[id] > 1 then
+      print_error("%s: id '%s' occurs %d times in the generated page", page, id, counts[id])
+    end
+  end
+end
+
+
+-- ========== MAIN EXECUTION ==========
+
+local filename = assert(arg[1], "Usage: lua render.lua <page.json>")
+local filestem = filename:match("([^/\\]+)%.json$") or "unknown"
+local pandoc_doc = file_reading.load_json_file(filename, "json pandoc document", true)
+assert(type(pandoc_doc.meta) == "table" and type(pandoc_doc.blocks) == "table",
+       "Invalid Pandoc document: expected meta and blocks tables in " .. filename)
+
+-- Extract metadata
+local meta      = pandoc_doc.meta or {}
+local title     = get_meta(meta, "metatitle", "Untitled")
+local desc      = get_meta(meta, "metadescription", title)
+local page_path = (SITE_PATH ~= "" and (SITE_PATH .. "/") or "") .. filestem .. ".htm"
+local canonical = get_meta(meta, "canonical", page_path)
+local citations = meta.citations and (meta.citations.c or meta.citations) or {}
+local custom_css= get_meta(meta, "custom_css", "")
+
+-- Render body
+local collect_header, toc_items = create_toc_collector()
+local html_body = render_blocks_html(pandoc_doc.blocks or {}, collect_header)
+local has_citations = (citations and #citations > 0)
+if has_citations then
+  html_body = apply_page_labels(html_body, citations)
+end
+
+-- Load template
+local template = file_reading.read_file(TEMPLATE, "html template")
+
+local source_path = (SOURCE_DIR == "." and "" or (SOURCE_DIR:gsub("/+$", "") .. "/"))
+  .. filestem .. ".tex"
+local document_content = {
+  TITLE       = html_escape(title),
+  DESCRIPTION = html_escape(desc),
+  CANONICAL   = html_escape(canonical),
+  ROBOTS      = utils.NON_INDEXED_PAGES[filestem .. ".htm"] and "noindex, follow" or "index, follow",
+  LASTMOD    = format_lastmod_html(SOURCE_TS),
+  EDITLINK    = string.format(
+    '<a class="editLink" href="%s/blob/%s/%s" target="_blank" rel="noopener">Improve this page</a>',
+    html_escape(SOURCE_REPOSITORY), html_escape(SOURCE_BRANCH), html_escape(source_path)
+  ),
+  MAIN        = html_body,
+
+  SIDELINKS = function()
+    return build_toc_html(toc_items, has_citations)
+  end,
+
+  REFERENCES = function()
+    return build_bibliography_html(REFS_JSON, citations)
+  end,
+
+  -- Inject CSS variables captured in gather.lua
+  STYLE = function()
+    if custom_css and custom_css ~= "" then
+      return ":root {\n" .. custom_css .. "\n}"
+    else
+      return ""
+    end
+  end,
+}
+
+-- Render and output
+local final_html = utils.render_template(template, document_content)
+if utils.NON_INDEXED_PAGES[filestem .. ".htm"] then
+  -- Pagefind indexes only pages with data-pagefind-body.
+  final_html = final_html:gsub(" data%-pagefind%-body", "", 1)
+end
+check_unique_ids(final_html, filestem .. ".htm")
+if has_errors() then
+  print_error("Render failed with %d error(s)", get_error_count())
+  os.exit(1)
+end
+print(final_html)

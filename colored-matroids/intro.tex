@@ -1,0 +1,39 @@
+\metatitle{Introduction to colored matroids}
+\metadescription{The objects, exchange axiom, conventions, and proof-status vocabulary used for colored matroids.}
+
+\section[intro]{Colorings with fixed quotas}
+
+Let $E$ be a finite set of positions and let $C$ be a finite set of colors.
+A word is a map $w:E\to C$. A fixed-quota family prescribes the cardinality
+of every color fiber $w^{-1}(c)$ and then selects a nonempty collection of
+such words.
+
+Ordinary matroid bases are recovered by looking at one color fiber. The
+colored object retains all fibers simultaneously, so compatible exchanges
+must remember how several colors move around a cycle.
+
+\section[symmetricCycleExchange]{Symmetric cycle exchange}
+
+The working axiom is \defin{symmetric simple-color-cycle exchange}. Given two
+words and a prescribed position where they disagree, we seek a simple cycle
+of distinct colors through that disagreement such that switching the selected
+positions in both parents produces two words that remain in the family.
+
+This chapter will develop the definition, basic switch identities, examples,
+and the two-color correspondence with ordinary matroids.
+
+\section[statusVocabulary]{Status of statements}
+
+Every substantial statement will carry one of the following statuses.
+
+\begin{itemize}
+\item \textbf{Open}: no proof is claimed.
+\item \textbf{Written}: a human-readable proof is recorded but has not been
+certified by Lean.
+\item \textbf{Reviewed}: the written argument has received an independent
+mathematical review.
+\item \textbf{Lean-checked}: the displayed formal declaration belongs to a
+recorded successful build and axiom audit.
+\item \textbf{False}: a counterexample is recorded and the former claim is
+retained only for provenance.
+\end{itemize}

@@ -1,0 +1,565 @@
+-- Convert ytableau/youngtab/array/tabular to HTML using CSS Grid with explicit positioning
+-- Simplified approach: one container span + positioned cell spans
+
+local utils = dofile("utils.lua")
+local trim = utils.trim
+local rtrim = utils.rtrim
+local html_escape = utils.html_escape
+local print_error = utils.print_error
+
+-- ========== UTILITY FUNCTIONS ==========
+
+local function pad_matrix_to_rectangle(matrix, val)
+  local max_w = 0
+  for _, row in ipairs(matrix) do
+    if #row > max_w then max_w = #row end
+  end
+  for _, row in ipairs(matrix) do
+    for i = #row + 1, max_w do
+      row[i] = val
+    end
+  end
+  return max_w
+end
+
+local function split_top_level_commas(s)
+  local parts, buf, depth = {}, {}, 0
+  for i = 1, #s do
+    local ch = s:sub(i, i)
+    if ch == "{" then
+      depth = depth + 1
+      table.insert(buf, ch)
+    elseif ch == "}" then
+      depth = math.max(0, depth - 1)
+      table.insert(buf, ch)
+    elseif ch == "," and depth == 0 then
+      table.insert(parts, table.concat(buf))
+      buf = {}
+    else
+      table.insert(buf, ch)
+    end
+  end
+  table.insert(parts, table.concat(buf))
+  for i, p in ipairs(parts) do parts[i] = trim(p) end
+  return parts
+end
+
+--- Splits off a leading "*(color)" cell prefix.
+local function extract_color(ent)
+  local color, rest = ent:match("^%s*%*(%b())(.*)$")
+  if not color then return "", ent end
+  return color:sub(2, -2), rest
+end
+
+local function is_safe_color(color)
+  color = trim(color or "")
+  return color:match("^#%x%x%x$")
+      or color:match("^#%x%x%x%x%x%x$")
+      or color:match("^#%x%x%x%x%x%x%x%x$")
+      or color:match("^[A-Za-z][A-Za-z0-9_-]*$")
+end
+
+--- Splits a table body at top-level separators: "&" between cells or "\\"
+--- between rows.  A separator does not split inside braces, environments,
+--- inline math_open or an escape (\&, \\ inside a cell); with opts.html it also
+--- skips HTML tags and entities, which appear once gather.lua has rendered
+--- cell contents.  Empty pieces are kept.
+local function split_top_level(s, sep, opts)
+  s = tostring(s or "")
+  local html = opts and opts.html
+  local out, buf = {}, {}
+  local i, n = 1, #s
+  local depth, env_depth = 0, 0
+  local math_open = nil     -- open math delimiter: "$", "$$", "\\(" or "\\["
+  local in_tag, quote = false, nil
+
+  local function at_top() return depth == 0 and env_depth == 0 and not math_open end
+  local function split() out[#out + 1] = table.concat(buf); buf = {} end
+
+  while i <= n do
+    local ch = s:sub(i, i)
+    if in_tag then
+      buf[#buf + 1] = ch
+      if quote then
+        if ch == quote then quote = nil end
+      elseif ch == '"' or ch == "'" then
+        quote = ch
+      elseif ch == ">" then
+        in_tag = false
+      end
+      i = i + 1
+    elseif html and ch == "<" and s:find("^</?%a[^>]*>", i) then
+      in_tag = true
+      buf[#buf + 1] = ch
+      i = i + 1
+    elseif ch == "\\" then
+      local env_token = s:match("^\\begin%s*%b{}", i)
+      local end_token = s:match("^\\end%s*%b{}", i)
+      local word = s:match("^\\%a+", i)
+      local symbol = s:sub(i, i + 1)
+      if sep == "\\\\" and symbol == "\\\\" and at_top() then
+        split()
+        i = i + 2
+        -- Drop the optional row-spacing argument of \\[2pt].
+        local spacing = s:match("^%s*%[%s*%-?[%d%.]+%s*%a%a%s*%]", i)
+        if spacing then i = i + #spacing end
+      elseif env_token then
+        env_depth = env_depth + 1
+        buf[#buf + 1] = env_token
+        i = i + #env_token
+      elseif end_token then
+        env_depth = math.max(0, env_depth - 1)
+        buf[#buf + 1] = end_token
+        i = i + #end_token
+      elseif word then
+        buf[#buf + 1] = word
+        i = i + #word
+      else
+        if symbol == "\\(" or symbol == "\\[" then
+          math_open = math_open or symbol
+        elseif (symbol == "\\)" and math_open == "\\(") or (symbol == "\\]" and math_open == "\\[") then
+          math_open = nil
+        end
+        buf[#buf + 1] = symbol
+        i = i + #symbol
+      end
+    elseif ch == "{" then
+      depth = depth + 1
+      buf[#buf + 1] = ch
+      i = i + 1
+    elseif ch == "}" then
+      depth = math.max(0, depth - 1)
+      buf[#buf + 1] = ch
+      i = i + 1
+    elseif ch == "$" then
+      local delimiter = (s:sub(i, i + 1) == "$$") and "$$" or "$"
+      if math_open == nil then
+        math_open = delimiter
+      elseif math_open == delimiter then
+        math_open = nil
+      end
+      buf[#buf + 1] = delimiter
+      i = i + #delimiter
+    elseif sep == "&" and ch == "&" and at_top()
+        and not (html and s:find("^&[#%w][#%w]*;", i)) then
+      split()
+      i = i + 1
+    else
+      buf[#buf + 1] = ch
+      i = i + 1
+    end
+  end
+
+  split()
+  return out
+end
+
+local function split_cells(s, opts)
+  return split_top_level(s, "&", opts)
+end
+
+--- Splits a table body into rows, dropping a final whitespace-only piece left
+--- by a trailing "\\".
+local function split_rows(s, opts)
+  local rows = split_top_level(s, "\\\\", opts)
+  if #rows > 1 and trim(rows[#rows]) == "" then rows[#rows] = nil end
+  return rows
+end
+
+--- Column alignments from a tabular/array column spec.  Arguments of @{..},
+--- !{..}, >{..}, <{..} are ignored, p/m/b{width} columns align left, and
+--- *{n}{cols} is expanded.
+local function parse_colspec(spec)
+  spec = tostring(spec or "")
+  local expanded
+  repeat
+    expanded = false
+    spec = spec:gsub("%*%s*(%b{})%s*(%b{})", function(count, cols)
+      expanded = true
+      return string.rep(cols:sub(2, -2), tonumber(count:sub(2, -2)) or 1)
+    end)
+  until not expanded
+  spec = spec:gsub("[@!<>]%s*%b{}", ""):gsub("[pmb]%s*%b{}", "l")
+  local list = {}
+  for ch in spec:gmatch("[lcr]") do list[#list + 1] = ch end
+  return list
+end
+
+local function looks_like_trusted_html_fragment(s)
+  s = tostring(s or "")
+  return s:find("<span", 1, true) ~= nil
+      or s:find("</span>", 1, true) ~= nil
+      or s:find("<a ", 1, true) ~= nil
+      or s:find("</a>", 1, true) ~= nil
+      or s:find("<em>", 1, true) ~= nil
+      or s:find("</em>", 1, true) ~= nil
+      or s:find("<strong>", 1, true) ~= nil
+      or s:find("</strong>", 1, true) ~= nil
+      or s:find("<code>", 1, true) ~= nil
+      or s:find("</code>", 1, true) ~= nil
+      or s:find("<q>", 1, true) ~= nil
+      or s:find("</q>", 1, true) ~= nil
+      or s:find("<img ", 1, true) ~= nil
+end
+
+local function html_escape_preserving_entities(s)
+  s = tostring(s or "")
+  local out = {}
+  local pos = 1
+  while pos <= #s do
+    local first, last = s:find("&[#%w][#%w]+;", pos)
+    if not first then
+      out[#out + 1] = html_escape(s:sub(pos))
+      break
+    end
+    out[#out + 1] = html_escape(s:sub(pos, first - 1))
+    out[#out + 1] = s:sub(first, last)
+    pos = last + 1
+  end
+  return table.concat(out)
+end
+
+local function split_yshort_row(row)
+  row = trim(row or "")
+  local toks = {}
+  local i, n = 1, #row
+  while i <= n do
+    local ch = row:sub(i, i)
+    if ch:match("%s") then
+      i = i + 1
+    elseif ch == "{" then
+      local depth, j = 1, i + 1
+      while j <= n and depth > 0 do
+        local c = row:sub(j, j)
+        if c == "{" then depth = depth + 1 elseif c == "}" then depth = depth - 1 end
+        j = j + 1
+      end
+      local tok = row:sub(i, j - 1)
+      if tok ~= "" then table.insert(toks, tok) end
+      i = j
+    elseif ch == "\\" then
+      local control_word = row:sub(i):match("^(\\[A-Za-z]+)")
+      if control_word then
+        table.insert(toks, control_word)
+        i = i + #control_word
+      else
+        table.insert(toks, ch)
+        i = i + 1
+      end
+    else
+      table.insert(toks, ch)
+      i = i + 1
+    end
+  end
+  return toks
+end
+
+-- Helper to determine if a neighbor exists and is "solid" (not \none)
+local function is_solid_cell(content)
+
+  if content == nil then return false end
+
+  -- If it's a rule row (table), it's not a solid cell
+  if type(content) == "table" then return false end
+
+  -- If it contains \none, it acts as empty space for border calculations
+  if tostring(content):find("\\none") then return false end
+
+  return true
+end
+
+-- ========== CORE RENDERER ==========
+
+--- Formats a single cell with inline grid position
+local function format_cell(content, row, col, opts)
+  opts = opts or {}
+  local delimiter = opts.delimiter or ""
+  local delimiter_left = delimiter
+  local delimiter_right = delimiter
+  if type(delimiter) == "table" then
+    delimiter_left = delimiter[1] or ""
+    delimiter_right = delimiter[2] or delimiter_left
+  end
+  local align = opts.align or ""
+  local cell_renderer = opts.cell_renderer
+
+  -- Neighbor flags for border logic
+  local has_south  = opts.has_south
+  local has_east = opts.has_east
+
+  local ent = content or ""
+  local classes = {}
+  local styles = {}
+
+  -- Grid position
+  table.insert(styles, string.format("grid-row: %d", row))
+  table.insert(styles, string.format("grid-column: %d", col))
+
+  -- Extract color
+  local color
+  color, ent = extract_color(ent)
+  if color ~= "" then
+    if is_safe_color(color) then
+      table.insert(styles, "background-color: " .. color)
+    else
+      print_error("Unsafe table cell color rejected: %s", color)
+    end
+  end
+
+  -- Handle \none
+    local is_none = false
+    if ent:find("\\none", 1, true) then
+      ent = ent:gsub("\\none", "")
+      is_none = true
+      table.insert(classes, "cell-none")
+    end
+
+    -- The only cells with north/west borders are those in the first row/column that are not \none
+    if not is_none and row == 1 then
+      table.insert(classes, "border-n")
+    end
+    if not is_none and col == 1 then
+      table.insert(classes, "border-w")
+    end
+
+
+    if not is_none or has_south then
+      table.insert(classes, "border-s")
+    end
+
+    if not is_none or has_east then
+      table.insert(classes, "border-e")
+    end
+
+  local escape_ent = true
+  if cell_renderer and trim(ent) ~= "" then
+    local rendered, is_html = cell_renderer(ent)
+    if rendered then
+      ent = rendered
+      escape_ent = not is_html
+    end
+  end
+  if escape_ent and looks_like_trusted_html_fragment(ent) then
+    escape_ent = false
+  end
+
+  -- Alignment
+  if align == "l" or align == "c" or align == "r" then
+    table.insert(classes, "align-" .. align)
+  end
+
+  -- Empty handling
+  if trim(ent) == "" then
+    ent = "&nbsp;"
+    delimiter_left = ""
+    delimiter_right = ""
+  elseif escape_ent then
+    ent = html_escape_preserving_entities(ent)
+  end
+
+  local cls_attr = (#classes > 0) and (' class="' .. table.concat(classes, " ") .. '"') or ""
+  local style_attr = ' style="' .. table.concat(styles, "; ") .. '"'
+
+  return string.format("<span%s%s>%s%s%s</span>", cls_attr, style_attr,
+    delimiter_left, ent, delimiter_right)
+end
+
+--- Renders matrix to HTML with CSS Grid
+local function render_matrix(matrix, specList, opts, col_count)
+  specList = specList or {}
+  opts = opts or {}
+  local type_name = opts.type or "ytableau"
+  local delimiter = opts.delimiter or ""
+  local is_inline = not opts.is_block
+
+  -- Container classes
+  local classes = { type_name }
+  if is_inline then table.insert(classes, "inline") end
+
+  -- Count actual rows (including rules)
+  local total_rows = #matrix
+
+  -- Grid dimensions
+  local grid_style = string.format("grid-template-rows: repeat(%d, auto); grid-template-columns: repeat(%d, auto)",
+                                   total_rows, col_count)
+
+  local html = {}
+  table.insert(html, string.format('<span class="%s" style="%s">',
+                                    table.concat(classes, " "), grid_style))
+
+  -- Render cells with explicit positions
+  local current_row = 0
+  for r, row in ipairs(matrix) do
+    if row[1] == "__RULE__" then
+      current_row = current_row + 1
+      -- Render horizontal rule spanning all columns
+      local rule_type = row[2] or "mid"
+      local rule_class = "rule rule-" .. rule_type
+      local rule_style = string.format("grid-row: %d; grid-column: 1 / %d",
+                                       current_row, col_count + 1)
+      table.insert(html, string.format('<span class="%s" style="%s"></span>',
+                                       rule_class, rule_style))
+    else
+      current_row = current_row + 1
+      for c, cell in ipairs(row) do
+        -- We render ALL cells, even empty/\none ones, to maintain grid structure
+
+        -- Determine neighbors for border logic
+        -- Note: We check the raw matrix. matrix[r-1] might be a rule or nil.
+        local neighbor_s = (matrix[r+1] and matrix[r+1][c]) or nil
+        local neighbor_e = matrix[r][c+1] or nil
+        local has_south = is_solid_cell(neighbor_s)
+        local has_east  = is_solid_cell(neighbor_e)
+
+        local align = specList[c] or ""
+        local cell_html = format_cell(cell, current_row, c, {
+          delimiter = delimiter,
+          align = align,
+          has_south = has_south,
+          has_east = has_east,
+          cell_renderer = opts.cell_renderer
+        })
+        table.insert(html, cell_html)
+      end
+    end
+  end
+
+  table.insert(html, '</span>')
+  return table.concat(html, "\n")
+end
+
+-- ========== PARSERS ==========
+
+local function tex_tabular_to_span(s, type_, spec, opts)
+  if not s or s == "" then return "", "Empty content" end
+  opts = opts or {}
+
+  local specList = parse_colspec(spec)
+
+  -- Booktabs rules end a row of their own
+  s = s:gsub("\r\n", "\n")
+       :gsub("\\toprule", "\\toprule\\\\")
+       :gsub("\\midrule", "\\midrule\\\\")
+       :gsub("\\bottomrule", "\\bottomrule\\\\")
+
+  local matrix = {}
+  for _, line in ipairs(split_rows(s, { html = true })) do
+    local tline = trim(line)
+    if tline == "\\toprule" then
+      table.insert(matrix, { "__RULE__", "top" })
+    elseif tline == "\\midrule" then
+      table.insert(matrix, { "__RULE__", "mid" })
+    elseif tline == "\\bottomrule" then
+      table.insert(matrix, { "__RULE__", "bottom" })
+    elseif tline ~= "" then
+      table.insert(matrix, split_cells(line, { html = true }))
+    end
+  end
+
+  -- Pad with \none
+  -- is_solid_cell handles \none checks.
+  local width = pad_matrix_to_rectangle(matrix, "\\none")
+
+  local delim = (type_ == "array") and { "\\(", "\\)" } or ""
+
+  return render_matrix(matrix, specList, {
+    type = type_,
+    delimiter = delim,
+    is_block = true,
+    cell_renderer = opts.cell_renderer
+  }, width)
+end
+
+local function ytableaushort_to_span(argstr, opts)
+  if not argstr or argstr == "" then return "", "Empty content" end
+  opts = opts or {}
+
+  local rows = split_top_level_commas(trim(argstr))
+  local matrix = {}
+
+  for _, row in ipairs(rows) do
+    local tokens = split_yshort_row(row)
+    for k, v in ipairs(tokens) do
+      if v:match("^{.*}$") then tokens[k] = v:sub(2, -2) end
+    end
+    table.insert(matrix, tokens)
+  end
+
+  local width = pad_matrix_to_rectangle(matrix, "\\none")
+
+  return render_matrix(matrix, nil, {
+    type = "ytableau",
+    delimiter = opts.delimiter or "$",
+    is_block = false
+  }, width)
+end
+
+local function youngtab_to_span(body, opts)
+  if not body or body == "" then return "", "Empty content" end
+  opts = opts or {}
+
+  local s = body:gsub("\r\n", "\n")
+
+  local matrix = {}
+  for _, line in ipairs(split_rows(s)) do
+    table.insert(matrix, split_cells(rtrim(line)))
+  end
+
+  local width = pad_matrix_to_rectangle(matrix, "\\none")
+
+  return render_matrix(matrix, nil, {
+    type = "ytableau",
+    delimiter = opts.delimiter or "$",
+    is_block = false
+  }, width)
+end
+
+-- ========== MAIN ENTRY ==========
+
+local function transform_tex_snippet(s, opts)
+  if type(s) ~= "string" or s == "" then return nil, "Invalid input" end
+  opts = opts or {}
+  local src = trim(s)
+
+  -- \ytableaushort{...}
+  local cmd, arg = src:match("^\\(%a+)%s*(%b{})%s*$")
+  if cmd == "ytableaushort" then
+    return ytableaushort_to_span(arg:sub(2, -2), { delimiter = "$" })
+  elseif cmd == "textytableaushort" then
+    return ytableaushort_to_span(arg:sub(2, -2), { delimiter = "" })
+  end
+
+  -- \begin{ytableau}
+  local ytab = src:match("^%s*\\begin%s*%{ytableau%}%s*([%s%S]-)%s*\\end%s*%{ytableau%}%s*$")
+  if ytab then return youngtab_to_span(ytab, { delimiter = "$" }) end
+
+  -- \begin{youngtabtext}
+  local ytext = src:match("^%s*\\begin%s*%{youngtabtext%}%s*([%s%S]-)%s*\\end%s*%{youngtabtext%}%s*$")
+  if ytext then return youngtab_to_span(ytext, { delimiter = "" }) end
+
+  -- \begin{array}
+  local acols, abody = src:match("^%s*\\begin%s*%{array%}%s*(%b{})%s*([%s%S]-)%s*\\end%s*%{array%}%s*$")
+  if acols then return tex_tabular_to_span(abody, "array", acols:sub(2, -2)) end
+
+  -- \begin{tabular}
+  local tcols, tbody = src:match("^%s*\\begin%s*%{tabular%}%s*(%b{})%s*([%s%S]-)%s*\\end%s*%{tabular%}%s*$")
+  if tcols then return tex_tabular_to_span(tbody, "tabular", tcols:sub(2, -2), opts) end
+
+  -- \begin{rawtabular}
+  local rcols, rbody = src:match("^%s*\\begin%s*%{rawtabular%}%s*(%b{})%s*([%s%S]-)%s*\\end%s*%{rawtabular%}%s*$")
+  if rcols then return tex_tabular_to_span(rbody, "tabular", rcols:sub(2, -2), opts) end
+
+  return nil, "Unknown format"
+end
+
+-- ========== EXPORTS ==========
+
+return {
+  split_cells = split_cells,
+  split_rows = split_rows,
+  parse_colspec = parse_colspec,
+  tex_tabular_to_span = tex_tabular_to_span,
+  ytableaushort_to_span = ytableaushort_to_span,
+  youngtab_to_span = youngtab_to_span,
+  transform_tex_snippet = transform_tex_snippet
+}

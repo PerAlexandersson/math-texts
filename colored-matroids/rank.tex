@@ -1,0 +1,29 @@
+\metatitle{Rank and projections}
+\metadescription{Ordinary color-projection matroids, joint counts, and rank questions for colored matroids.}
+
+\section[rank]{Color projections}
+
+For a fixed color $c$, take all subsets of $E$ that occur as the $c$-fiber of
+a word in the family. Symmetric cycle exchange implies ordinary basis
+exchange for these subsets, and hence produces a matroid on $E$.
+
+This projection construction is the first bridge to ordinary matroid theory
+and is already represented in the accompanying Lean development.
+
+\section[jointRankData]{Joint cell counts}
+
+One can retain more information by counting how a coloring meets subsets of
+positions and subsets of colors. These joint counts lead to rank-like
+inequalities and relaxations of the assignment polytope.
+
+They give exact descriptions for important subclasses, including full
+basis-partition families and families with a determining color. They do not
+describe every colored-matroid assignment polytope, even after the affine hull
+is included.
+
+\section[intrinsicRankAxioms]{Intrinsic rank axioms}
+
+Finding an intrinsic rank formalism for colored matroids remains open. A
+successful theory must distinguish valid positive classes from the known
+failure of unrestricted subset-count reconstruction, and it must expose the
+data needed by exchange rather than assuming it implicitly.

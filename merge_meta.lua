@@ -1,0 +1,852 @@
+-- Metadata merger for static site generation
+--
+-- Reads every page's Pandoc JSON (from gather.lua) and writes the site-wide
+-- metadata: label and polydata indexes, collected todos, the sitemap, the
+-- goto.htm redirect page, the public label/keyword/bibliography feeds and the
+-- polynomial relation graph (JSON and HTML).  Outputs are rewritten only when
+-- their bytes change.
+--
+-- Usage:
+--   lua merge_meta.lua temp/*.json
+--
+-- Environment variables (defaults in parentheses):
+--   TEMP_DIR            intermediate directory (temp); page source timestamps
+--                       are read from TEMP_DIR/<page>.timestamp when present
+--   WWW_DIR             output site directory (www)
+--   LABELS_JSON, POLYDATA_JSON, TODOS_JSON   (TEMP_DIR/site-*.json)
+--   SITEMAP_XML         (TEMP_DIR/sitemap.xml)
+--   RELATION_GRAPH_HTML, RELATION_GRAPH_JSON (www/polynomial-relations.*)
+
+-- ========== DEPENDENCIES ==========
+
+local utils          = dofile("utils.lua")
+local trim           = utils.trim
+local print_info     = utils.print_info
+local print_error    = utils.print_error
+local has_errors     = utils.has_errors
+local table_size     = utils.table_size
+local html_escape    = utils.html_escape
+local format_iso_date = utils.format_iso_date
+
+local file_reading   = dofile("file_reading.lua")
+local json_encode    = file_reading.json_encode
+local json_array     = file_reading.json_array
+local load_json_file = file_reading.load_json_file
+local bibhandler     = dofile("bibhandler.lua")
+local relation_registry = dofile("relation_registry.lua")
+local relation_graph = dofile("relation_graph.lua")
+
+
+-- ========== CONFIGURATION ==========
+
+local OUT_DIR        = os.getenv("TEMP_DIR") or "temp"
+local LABELS_JSON    = os.getenv("LABELS_JSON") or (OUT_DIR .. "/site-labels.json")
+local POLYDATA_JSON  = os.getenv("POLYDATA_JSON") or (OUT_DIR .. "/site-polydata.json")
+local TODOS_JSON     = os.getenv("TODOS_JSON") or (OUT_DIR .. "/site-todo.json")
+local SITEMAP_XML    = os.getenv("SITEMAP_XML") or (OUT_DIR .. "/sitemap.xml")
+local RELATION_GRAPH_HTML = os.getenv("RELATION_GRAPH_HTML") or "www/polynomial-relations.htm"
+local RELATION_GRAPH_JSON = os.getenv("RELATION_GRAPH_JSON") or "www/polynomial-relations.json"
+local SITE_BASE_URL = (os.getenv("SITE_BASE_URL") or "https://math.qxy.se"):gsub("/+$", "")
+local SITE_PATH = (os.getenv("SITE_PATH") or ""):gsub("^/+", ""):gsub("/+$", "")
+local ENABLE_RELATION_GRAPH = os.getenv("ENABLE_RELATION_GRAPH") ~= "0"
+
+
+-- ========== CONSTANTS ==========
+
+-- Required fields for polydata entries
+local REQUIRED_POLYDATA_FIELDS = { "Name", "Space", "Year", "Rating" }
+
+-- ========== FILE UTILITIES ==========
+
+--- Extracts filename from path.
+-- @param path string File path
+-- @return string Filename without directory
+local function get_basename(path)
+  return path:match("([^/]+)$") or path
+end
+
+
+--- Extracts filename stem (without extension).
+-- @param path string File path
+-- @return string Filename without directory or .json extension
+local function get_stem(path)
+  return (get_basename(path):gsub("%.json$", ""))
+end
+
+
+--- Writes string atomically, leaving an existing file untouched when the
+--- bytes are unchanged.
+-- @param path string Output file path
+-- @param content string Content to write
+-- @return boolean, string|nil, boolean Success, error, and changed status
+local function write_file(path, content)
+  local current = io.open(path, "rb")
+  if current then
+    local old_content = current:read("*a")
+    current:close()
+    if old_content == content then
+      return true, nil, false
+    end
+  end
+
+  local unique = tostring({}):gsub("^table:%s*", ""):gsub("[^%w]", "")
+  local temporary_path = path .. ".tmp." .. unique
+  local file, err = io.open(temporary_path, "wb")
+  if not file then
+    return false, err, false
+  end
+
+  local success, write_err = file:write(content)
+  local close_success, close_err = file:close()
+  if not success or not close_success then
+    os.remove(temporary_path)
+    return false, write_err or close_err, false
+  end
+
+  local renamed, rename_err = os.rename(temporary_path, path)
+  if not renamed then
+    os.remove(temporary_path)
+    return false, rename_err, false
+  end
+
+  return true, nil, true
+end
+
+
+-- ========== PANDOC METADATA EXTRACTION ==========
+
+--- Safely gets a metadata field.
+-- @param meta table Pandoc metadata object
+-- @param key string Field key
+-- @return any|nil Field value or nil
+local function get_meta_field(meta, key)
+  return meta and meta[key]
+end
+
+
+--- Extracts a list of strings from Pandoc MetaList.
+-- @param meta table Pandoc metadata object
+-- @param key string Field key
+-- @return table Array of strings
+local function extract_meta_string_list(meta, key)
+  local node = get_meta_field(meta, key)
+  local result = {}
+
+  if not node or node.t ~= "MetaList" then
+    return result
+  end
+
+  for _, item in ipairs(node.c or {}) do
+    if type(item) == "table" and item.t == "MetaString" then
+      table.insert(result, item.c)
+    elseif type(item) == "string" then
+      table.insert(result, item)
+    end
+  end
+
+  return result
+end
+
+
+--- Converts Pandoc metadata nodes to plain Lua values.
+-- Handles nested MetaMaps, MetaLists, and scalar metadata nodes.
+-- @param node any Pandoc metadata node
+-- @return any Plain Lua value
+local function meta_to_plain(node)
+  if type(node) ~= "table" then
+    return node
+  end
+
+  local node_type = node.t
+  if node_type == "MetaString" then
+    return node.c
+  elseif node_type == "MetaBool" then
+    return node.c and true or false
+  elseif node_type == "MetaList" then
+    local result = {}
+    for _, item in ipairs(node.c or {}) do
+      local value = meta_to_plain(item)
+      if value ~= nil then
+        result[#result + 1] = value
+      end
+    end
+    return result
+  elseif node_type == "MetaMap" then
+    local result = {}
+    for k, v in pairs(node.c or {}) do
+      local value = meta_to_plain(v)
+      if value ~= nil then
+        result[k] = value
+      end
+    end
+    return result
+  end
+
+  return nil
+end
+
+
+--- Extracts a map from Pandoc MetaMap, converting to plain Lua table.
+-- @param meta table Pandoc metadata object
+-- @param key string Field key
+-- @return table Map of strings to strings or nested maps
+local function extract_meta_map(meta, key)
+  local node = get_meta_field(meta, key)
+
+  if not node or node.t ~= "MetaMap" then
+    return {}
+  end
+
+  local result = meta_to_plain(node)
+  if type(result) ~= "table" then
+    return {}
+  end
+
+  return result
+end
+
+
+--- Extracts page title from metadata.
+-- @param meta table Pandoc metadata object
+-- @param fallback string Fallback title if not found
+-- @return string Page title
+local function extract_page_title(meta, fallback)
+  local metatitle = get_meta_field(meta, "metatitle")
+
+  if metatitle and metatitle.t == "MetaString" then
+    return metatitle.c
+  end
+
+  return fallback
+end
+
+
+-- ========== DATA COLLECTION ==========
+
+--- Represents collected site data during processing.
+-- @class SiteData
+-- @field pages table Array of page info: {id, slug}
+-- @field labels table Map of label to {page, href, title}
+-- @field polydata table Map of polydata ID to fields
+-- @field todos table Array of {page, text}
+-- @field label_duplicates table Map of duplicate labels to pages array
+-- @field polydata_duplicates table Map of duplicate polydata ids to pages array
+
+
+--- Creates a new site data collector.
+-- @return SiteData Empty data structure
+local function create_site_data()
+  return {
+    pages = {},
+    labels = {},
+    keywords = {},
+    polydata = {},
+    todos = json_array(),
+    label_duplicates = {},
+    polydata_duplicates = {}
+  }
+end
+
+
+--- Processes a single label, detecting duplicates.
+-- @param data SiteData Site data collector
+-- @param label string Label identifier
+-- @param page_id string Page identifier
+-- @param slug string Page slug (filename)
+-- @param title string Page title
+local function process_label(data, label, page_id, slug, title)
+  if data.labels[label] then
+    -- Duplicate detected
+    data.label_duplicates[label] = data.label_duplicates[label] or { data.labels[label].page }
+    table.insert(data.label_duplicates[label], page_id)
+  else
+    data.labels[label] = {
+      page = page_id,
+      href = slug .. "#" .. label,
+      title = title
+    }
+  end
+end
+
+
+--- Processes polydata entries for a page.
+-- @param data SiteData Site data collector
+-- @param polydata_map table Map of polydata ID to fields
+-- @param page_id string Page identifier
+local function process_polydata(data, polydata_map, page_id)
+  for poly_id, fields in pairs(polydata_map) do
+    if data.polydata[poly_id] then
+      data.polydata_duplicates[poly_id] =
+        data.polydata_duplicates[poly_id] or { data.polydata[poly_id].page }
+      table.insert(data.polydata_duplicates[poly_id], page_id)
+      goto continue
+    end
+
+    local record = { page = page_id }
+
+    -- Copy all fields
+    for k, v in pairs(fields) do
+      record[k] = v
+    end
+
+    data.polydata[poly_id] = record
+
+    ::continue::
+  end
+end
+
+
+--- Processes TODOs for a page.
+-- @param data SiteData Site data collector
+-- @param todos table Array of TODO strings
+-- @param page_id string Page identifier
+local function process_todos(data, todos, page_id)
+  for _, todo_text in ipairs(todos) do
+    table.insert(data.todos, {
+      page = page_id,
+      text = todo_text
+    })
+  end
+end
+
+
+--- Processes a single JSON file and extracts metadata.
+-- @param data SiteData Site data collector
+-- @param file_path string Path to JSON file
+local function process_json_file(data, file_path)
+  local doc = load_json_file(file_path, "page-json")
+
+  if type(doc) ~= "table" or not doc.meta then
+    print_error("Skipping unreadable or malformed JSON: %s", file_path)
+    return
+  end
+
+  local page_id = get_stem(file_path)
+  local slug = page_id .. ".htm"
+  local meta = doc.meta or {}
+  local title = extract_page_title(meta, page_id)
+
+  -- Register page, with its source timestamp when the build recorded one
+  local timestamp_file = io.open(OUT_DIR .. "/" .. page_id .. ".timestamp", "r")
+  local timestamp = timestamp_file and tonumber(timestamp_file:read("*l"))
+  if timestamp_file then timestamp_file:close() end
+  table.insert(data.pages, {
+    id = page_id,
+    slug = slug,
+    timestamp = timestamp
+  })
+
+  -- Process labels
+  local labels = extract_meta_string_list(meta, "labels")
+  for _, label in ipairs(labels) do
+    process_label(data, label, page_id, slug, title)
+  end
+
+  for _, keyword in ipairs(meta_to_plain(meta.keywords) or {}) do
+    local label = keyword.label or ""
+    if label ~= "" and not data.labels[label] then
+      print_error("Keyword '%s' has no label '%s'", keyword.phrase, label)
+    end
+    local href = slug .. (label ~= "" and ("#" .. label) or "")
+    local key = keyword.phrase .. "\0" .. href
+    data.keywords[key] = { phrase = keyword.phrase, href = href, title = title }
+  end
+
+  -- Process polydata
+  local polydata_map = extract_meta_map(meta, "polydata")
+  process_polydata(data, polydata_map, page_id)
+
+  -- Process TODOs
+  local todos = extract_meta_string_list(meta, "todos")
+  process_todos(data, todos, page_id)
+end
+
+
+-- ========== VALIDATION ==========
+
+local function normalize_relation_refs(relation)
+  local refs = relation_registry.refs(relation)
+  relation.refs = refs
+  relation.ref = (#refs > 0) and table.concat(refs, ",") or nil
+  return refs
+end
+
+local function validate_relation_refs(poly_id, page_id, relation, index)
+  local refs = normalize_relation_refs(relation)
+  if #refs == 0 then
+    print_error("Polydata '%s' on page '%s' relation #%d has no bibliography key",
+                poly_id, page_id, index)
+    return false
+  end
+
+  local is_valid = true
+  for _, ref in ipairs(refs) do
+    if not bibhandler.get_bibliography_label(ref) then
+      print_error("Polydata '%s' on page '%s' relation #%d has unknown bibliography key '%s'",
+                  poly_id, page_id, index, ref)
+      is_valid = false
+    end
+  end
+  return is_valid
+end
+
+local function validate_relation_status(poly_id, page_id, relation, index)
+  local status = relation_registry.normalize_status(relation.status)
+  relation.status = status
+
+  if not relation_registry.is_valid_status(status) then
+    print_error("Polydata '%s' on page '%s' relation #%d has invalid status '%s'",
+                poly_id, page_id, index, tostring(relation.status))
+    return false
+  end
+
+  return true
+end
+
+local function validate_relation_attrs(poly_id, page_id, relation, index)
+  if relation.attrs == nil then
+    return true
+  end
+
+  if type(relation.attrs) ~= "table" then
+    print_error("Polydata '%s' on page '%s' relation #%d has malformed attrs",
+                poly_id, page_id, index)
+    return false
+  end
+
+  local relation_type = relation.type or ""
+  local is_valid = true
+  local normalized_attrs = {}
+
+  for key, value in pairs(relation.attrs) do
+    local normalized_key = relation_registry.normalize_attr_key(key)
+    normalized_attrs[normalized_key] = value
+
+    if not relation_registry.is_allowed_attr(relation_type, normalized_key) then
+      print_error("Polydata '%s' on page '%s' relation #%d has unexpected attribute '%s'",
+                  poly_id, page_id, index, normalized_key)
+      is_valid = false
+    end
+  end
+
+  relation.attrs = normalized_attrs
+
+  return is_valid
+end
+
+local function validate_rating(poly_id, page_id, value)
+  local rating = tonumber(value)
+  if not rating then
+    print_error("Polydata '%s' on page '%s' has non-numeric Rating '%s'",
+                poly_id, page_id, tostring(value))
+    return false
+  end
+  if rating < 0 or rating > 10 then
+    print_error("Polydata '%s' on page '%s' has Rating outside 0..10: %s",
+                poly_id, page_id, tostring(value))
+    return false
+  end
+  return true
+end
+
+local function validate_basis(poly_id, page_id, value)
+  if value == nil or value == "" then
+    return true
+  end
+  local text = trim(tostring(value)):lower()
+  if text == "yes" or text == "no"
+      or text == "true" or text == "false"
+      or text == "1" or text == "0"
+      or text == "?" or text == "unknown" then
+    return true
+  end
+  print_error("Polydata '%s' on page '%s' has invalid Basis value '%s'",
+              poly_id, page_id, tostring(value))
+  return false
+end
+
+--- Validates that polydata entries have required fields and matching labels.
+-- @param data SiteData Site data to validate
+-- @return boolean True if all validation passes
+local function validate_polydata(data)
+  local is_valid = true
+
+  for poly_id, poly_entry in pairs(data.polydata) do
+    local page_id = poly_entry.page or "?"
+
+    -- Check for corresponding label
+    if not data.labels[poly_id] then
+      print_error("Polydata '%s' has no corresponding label entry", poly_id)
+      is_valid = false
+    end
+
+    -- Check required fields
+    for _, field in ipairs(REQUIRED_POLYDATA_FIELDS) do
+      local value = poly_entry[field]
+      if value == nil or trim(tostring(value)) == "" then
+        print_error("Polydata '%s' on page '%s' is missing required field '%s'",
+                    poly_id, page_id, field)
+        is_valid = false
+      end
+    end
+
+    if poly_entry.Rating ~= nil
+        and not validate_rating(poly_id, page_id, poly_entry.Rating) then
+      is_valid = false
+    end
+
+    if poly_entry.Basis ~= nil
+        and not validate_basis(poly_id, page_id, poly_entry.Basis) then
+      is_valid = false
+    end
+
+    -- Check relation metadata, if present.
+    local relations = poly_entry.Relations
+    if relations ~= nil then
+      if type(relations) ~= "table" then
+        print_error("Polydata '%s' on page '%s' has malformed Relations data",
+                    poly_id, page_id)
+        is_valid = false
+      else
+        for index, relation in ipairs(relations) do
+          if type(relation) ~= "table" then
+            print_error("Polydata '%s' on page '%s' has malformed relation #%d",
+                        poly_id, page_id, index)
+            is_valid = false
+          else
+            local relation_type = relation.type or ""
+            local target = trim(tostring(relation.target or ""))
+
+            if not relation_registry.is_valid_type(relation_type) then
+              print_error("Polydata '%s' on page '%s' has unknown relation type '%s'",
+                          poly_id, page_id, tostring(relation_type))
+              is_valid = false
+            end
+
+            if not validate_relation_status(poly_id, page_id, relation, index) then
+              is_valid = false
+            end
+
+            if not validate_relation_attrs(poly_id, page_id, relation, index) then
+              is_valid = false
+            end
+
+            if not validate_relation_refs(poly_id, page_id, relation, index) then
+              is_valid = false
+            end
+
+            if target == "" then
+              print_error("Polydata '%s' on page '%s' has relation #%d with no target",
+                          poly_id, page_id, index)
+              is_valid = false
+            elseif not data.polydata[target] then
+              print_error("Polydata '%s' on page '%s' relation '%s' points to unknown polydata '%s'",
+                          poly_id, page_id, relation_type, target)
+              is_valid = false
+            end
+          end
+        end
+      end
+    end
+  end
+
+  return is_valid
+end
+
+
+--- Reports duplicate labels found during processing.
+-- @param duplicates table Map of label to pages array
+local function report_duplicate_labels(duplicates)
+  local is_valid = true
+  for label, pages in pairs(duplicates) do
+    print_error("Label '%s' defined in multiple pages: %s",
+                label, table.concat(pages, ", "))
+    is_valid = false
+  end
+  return is_valid
+end
+
+--- Reports duplicate polydata ids found during processing.
+-- @param duplicates table Map of polydata id to pages array
+local function report_duplicate_polydata(duplicates)
+  local is_valid = true
+  for poly_id, pages in pairs(duplicates) do
+    print_error("Polydata '%s' defined in multiple pages: %s",
+                poly_id, table.concat(pages, ", "))
+    is_valid = false
+  end
+  return is_valid
+end
+
+
+-- ========== OUTPUT GENERATION ==========
+
+--- Generates sitemap XML content.
+-- @param pages table Array of page info: {id, slug}
+-- @return string XML sitemap content
+local function generate_sitemap_xml(pages)
+  local lines = {}
+
+  table.insert(lines, '<?xml version="1.0" encoding="UTF-8"?>')
+  table.insert(lines, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+  -- Sort pages by slug for consistent output
+  local sorted_pages = {}
+  for _, page in ipairs(pages) do
+    table.insert(sorted_pages, page)
+  end
+  table.sort(sorted_pages, function(a, b) return a.slug < b.slug end)
+
+  for _, page in ipairs(sorted_pages) do
+    table.insert(lines, "  <url>")
+    local path_prefix = SITE_PATH ~= "" and (SITE_PATH .. "/") or ""
+    table.insert(lines, "    <loc>" .. SITE_BASE_URL .. "/" ..
+      html_escape(path_prefix .. page.slug) .. "</loc>")
+    if page.timestamp then
+      table.insert(lines, "    <lastmod>" .. format_iso_date(page.timestamp) .. "</lastmod>")
+    end
+    table.insert(lines, "  </url>")
+  end
+
+  table.insert(lines, "</urlset>")
+
+  return table.concat(lines, "\n") .. "\n"
+end
+
+
+--- Writes JSON data to file with error handling.
+-- @param path string Output file path
+-- @param data table Data to encode as JSON
+-- @param description string Human-readable description for logging
+-- @return boolean Success status
+local function write_json_file(path, data, description)
+  local json_content = json_encode(data)
+  local success, err, changed = write_file(path, json_content)
+
+  if not success then
+    print_error("Failed to write %s: %s", path, err)
+    return false
+  end
+
+  print_info("%s %s (%d %s)", changed and "Generated" or "Unchanged",
+             path, table_size(data), description)
+  return true
+end
+
+--- Writes XML data to file with error handling.
+-- @param path string Output file path
+-- @param content string XML content
+-- @param count number Count of items for logging
+-- @param description string Human-readable description for logging
+-- @return boolean Success status
+local function write_xml_file(path, content, count, description)
+  local success, err, changed = write_file(path, content)
+
+  if not success then
+    print_error("Failed to write %s: %s", path, err)
+    return false
+  end
+
+  print_info("%s %s (%d %s)", changed and "Generated" or "Unchanged",
+             path, count, description)
+  return true
+end
+
+
+--- Generates a goto.htm redirect page from label data.
+-- URLs of the form goto.htm#label redirect to the correct page#anchor.
+-- @param labels table Label map from site data
+-- @return string HTML content
+local function generate_goto_html(labels)
+  local hrefs = {}
+  for label, info in pairs(labels) do
+    hrefs[label] = info.href
+  end
+  -- Keys are sorted by json_encode; "<" is escaped so a label cannot end the
+  -- script element.
+  local table_json = json_encode(hrefs, false):gsub("<", "\\u003c")
+
+  return [[<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Redirecting… | Math texts</title>
+</head>
+<body>
+<p>Redirecting…</p>
+<script>
+var defined_labels = ]] .. table_json .. [[;
+var id = decodeURIComponent(location.hash.slice(1));
+if (Object.prototype.hasOwnProperty.call(defined_labels, id)) {
+  location.replace(defined_labels[id]);
+} else {
+  document.body.textContent = "Unknown label: " + id;
+}
+</script>
+<noscript><p>JavaScript is required for redirection.</p></noscript>
+</body>
+</html>
+]]
+end
+
+
+--- Generates all output files from collected site data.
+-- @param data SiteData Collected and validated site data
+-- @return boolean True if all outputs written successfully
+local function generate_outputs(data)
+  local all_success = true
+  local graph = relation_graph.build_graph(data.polydata)
+
+  -- Write labels index
+  if not write_json_file(LABELS_JSON, data.labels, "labels") then
+    all_success = false
+  end
+
+  -- Write polydata index
+  if not write_json_file(POLYDATA_JSON, data.polydata, "poly items") then
+    all_success = false
+  end
+
+  -- Write TODOs
+  if not write_json_file(TODOS_JSON, data.todos, "todo notes") then
+    all_success = false
+  end
+
+  -- Write sitemap XML
+  local sitemap_pages = {}
+  local has_relation_page = false
+  for _, page in ipairs(data.pages) do
+    if not utils.NON_INDEXED_PAGES[page.slug] then
+      sitemap_pages[#sitemap_pages + 1] = page
+      if page.slug == "polynomial-relations.htm" then
+        has_relation_page = true
+      end
+    end
+  end
+  if ENABLE_RELATION_GRAPH and not has_relation_page then
+    sitemap_pages[#sitemap_pages + 1] = {
+      id = "polynomial-relations",
+      slug = "polynomial-relations.htm"
+    }
+  end
+
+  local sitemap_content = generate_sitemap_xml(sitemap_pages)
+  if not write_xml_file(SITEMAP_XML, sitemap_content, #sitemap_pages, "pages") then
+    all_success = false
+  end
+
+  -- Write goto.htm redirect page and public site-labels.json
+  local www_dir = os.getenv("WWW_DIR") or "www"
+  local goto_path = www_dir .. "/goto.htm"
+  local goto_content = generate_goto_html(data.labels)
+  local ok, err, changed = write_file(goto_path, goto_content)
+  if ok then
+    print_info("%s %s (%d labels)", changed and "Generated" or "Unchanged",
+               goto_path, table_size(data.labels))
+  else
+    print_error("Failed to write %s: %s", goto_path, err)
+    all_success = false
+  end
+
+  -- Public copy of labels for cross-site use (e.g. arxiv.symmetricfunctions.com)
+  if not write_json_file(www_dir .. "/site-labels.json", data.labels, "labels (public)") then
+    all_success = false
+  end
+
+  local keywords = setmetatable({}, { __jsontype = "array" })
+  local keyword_keys = {}
+  for key in pairs(data.keywords) do keyword_keys[#keyword_keys + 1] = key end
+  table.sort(keyword_keys)
+  for _, key in ipairs(keyword_keys) do
+    keywords[#keywords + 1] = data.keywords[key]
+  end
+  if not write_json_file(www_dir .. "/site-keywords.json",
+      { schema_version = 1, keywords = keywords }, "keywords (public)") then
+    all_success = false
+  end
+
+  -- Public bibliography for cross-site use (e.g. the RealRooted Lean catalog)
+  if not write_json_file(www_dir .. "/bibliography.json",
+      { schema_version = 1, entries = bibhandler.public_bibliography() },
+      "bibliography fields (public)") then
+    all_success = false
+  end
+
+  if ENABLE_RELATION_GRAPH then
+    if not write_json_file(RELATION_GRAPH_JSON, graph, "relation graph items") then
+      all_success = false
+    end
+
+    local graph_timestamp = nil
+    local polydata_pages = {}
+    for _, entry in pairs(data.polydata) do polydata_pages[entry.page] = true end
+    for _, page in ipairs(data.pages) do
+      if polydata_pages[page.id] and page.timestamp
+          and (not graph_timestamp or page.timestamp > graph_timestamp) then
+        graph_timestamp = page.timestamp
+      end
+    end
+    local graph_html = relation_graph.render_page(graph, { timestamp = graph_timestamp })
+    local graph_ok, graph_err, graph_changed = write_file(RELATION_GRAPH_HTML, graph_html)
+    if graph_ok then
+      print_info("%s %s (%d relations)",
+                 graph_changed and "Generated" or "Unchanged",
+                 RELATION_GRAPH_HTML, graph.stats.edge_count)
+    else
+      print_error("Failed to write %s: %s", RELATION_GRAPH_HTML, graph_err)
+      all_success = false
+    end
+  end
+
+  return all_success
+end
+
+
+-- ========== MAIN EXECUTION ==========
+
+--- Main entry point for metadata merging.
+-- @return number Exit code (0 for success, 1 for failure)
+local function main()
+  -- Validate command line arguments
+  if #arg == 0 then
+    print_error("Usage: lua merge_meta.lua temp/*.json")
+    return 1
+  end
+
+  -- Initialize data collection
+  local site_data = create_site_data()
+
+  -- Process all input files
+  for i = 1, #arg do
+    process_json_file(site_data, arg[i])
+  end
+
+  -- Report issues
+  local labels_unique = report_duplicate_labels(site_data.label_duplicates)
+  local polydata_unique = report_duplicate_polydata(site_data.polydata_duplicates)
+
+  -- Validate collected data
+  local validation_passed = validate_polydata(site_data)
+
+  if not (labels_unique and polydata_unique and validation_passed)
+      or has_errors() then
+    print_error("Metadata merge completed with errors")
+    return 1
+  end
+
+  -- Generate outputs
+  local outputs_written = generate_outputs(site_data)
+
+  -- Determine exit code
+  if outputs_written and not has_errors() then
+    return 0
+  else
+    print_error("Metadata merge completed with errors")
+    return 1
+  end
+end
+
+
+-- Execute main function
+local exit_code = main()
+os.exit(exit_code)

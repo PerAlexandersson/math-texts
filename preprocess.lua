@@ -1,0 +1,767 @@
+-- ============================================================================
+-- preprocess.lua — Light, surgical text tweaks before Pandoc
+-- ============================================================================
+-- Performs preprocessing on LaTeX files before passing to Pandoc:
+-- 1. Annotates \todo{} commands with filename:lineno
+-- 2. Annotates \cite{} and \hyperref[] commands with filename:lineno
+-- 3. Normalizes block-level macros (bigskip, ytableaushort) with blank lines
+-- 4. Rewrites various LaTeX commands for better Pandoc compatibility
+--
+-- Usage: lua preprocess.lua [source.tex] < in.tex > out.pre.tex
+-- ============================================================================
+
+local utils = dofile("utils.lua")
+local trim = utils.trim
+local print_warn = utils.print_warn
+
+-- ============================================================================
+-- Argument Parsing
+-- ============================================================================
+
+-- The first argument names the source file (used in location annotations).
+local source_filename = (arg and arg[1]) or "<stdin>"
+
+-- ============================================================================
+-- Input Reading
+-- ============================================================================
+
+local input = io.read("*a")
+
+-- Protect regions in which TeX must remain byte-for-byte literal.  Each mask
+-- retains the original number of newlines so source annotations after it keep
+-- their real line numbers.
+local protected_regions = {}
+
+local function newline_string(text)
+  return (text:gsub("[^\n]", ""))
+end
+
+local function mask_region(text, kind)
+  local index = #protected_regions + 1
+  local token = string.format("@@PREPROCESS_%s_%06d@@", kind or "PROTECTED", index)
+  local masked = token .. newline_string(text)
+  protected_regions[index] = { masked = masked, original = text }
+  return masked
+end
+
+local function mask_protected_text(text)
+  local out = {}
+  local i, n = 1, #text
+
+  while i <= n do
+    local matched = false
+    for _, env in ipairs({ "verbatim", "verbatim*", "lstlisting" }) do
+      local begin_token = "\\begin{" .. env .. "}"
+      if text:sub(i, i + #begin_token - 1) == begin_token then
+        local end_token = "\\end{" .. env .. "}"
+        local end_start = text:find(end_token, i + #begin_token, true)
+        local finish = end_start and (end_start + #end_token - 1) or n
+        out[#out + 1] = mask_region(text:sub(i, finish))
+        i = finish + 1
+        matched = true
+        break
+      end
+    end
+
+    if not matched and text:sub(i, i + 4) == "\\verb" then
+      local delimiter_pos = i + 5
+      if text:sub(delimiter_pos, delimiter_pos) == "*" then
+        delimiter_pos = delimiter_pos + 1
+      end
+      local delimiter = text:sub(delimiter_pos, delimiter_pos)
+      if delimiter ~= "" and not delimiter:match("[%a%s]") then
+        local close = text:find(delimiter, delimiter_pos + 1, true) or n
+        out[#out + 1] = mask_region(text:sub(i, close))
+        i = close + 1
+        matched = true
+      end
+    end
+
+    if not matched and text:sub(i, i) == "%" then
+      local backslashes = 0
+      local j = i - 1
+      while j >= 1 and text:sub(j, j) == "\\" do
+        backslashes = backslashes + 1
+        j = j - 1
+      end
+      if backslashes % 2 == 0 then
+        local newline = text:find("\n", i, true)
+        local finish = newline and (newline - 1) or n
+        out[#out + 1] = mask_region(text:sub(i, finish), "COMMENT")
+        i = finish + 1
+        matched = true
+      end
+    end
+
+    if not matched then
+      out[#out + 1] = text:sub(i, i)
+      i = i + 1
+    end
+  end
+
+  return table.concat(out)
+end
+
+local function replace_plain(text, needle, replacement)
+  local out, pos = {}, 1
+  while true do
+    local start_pos, end_pos = text:find(needle, pos, true)
+    if not start_pos then
+      out[#out + 1] = text:sub(pos)
+      return table.concat(out)
+    end
+    out[#out + 1] = text:sub(pos, start_pos - 1)
+    out[#out + 1] = replacement
+    pos = end_pos + 1
+  end
+end
+
+input = mask_protected_text(input)
+
+-- ============================================================================
+-- STEP 1: Annotate \todo{...} with filename:lineno
+-- ============================================================================
+
+--- Annotate all \todo{} commands with the source filename and line number.
+--- Injects "filename:lineno " right after the opening brace of \todo{}.
+--- @param text string Input LaTeX text
+--- @param fname string Source filename to use in annotations
+--- @return string Text with annotated \todo commands
+local function annotate_todos(text, fname)
+  local out = {}
+  local i = 1
+  local line = 1
+  local n = #text
+
+  while i <= n do
+    -- Look for \todo followed by optional whitespace and {
+    local todo_start, todo_end = text:find("\\todo[ \t]*{", i)
+    if not todo_start then
+      -- No more \todo, append rest
+      table.insert(out, text:sub(i))
+      break
+    end
+
+    -- Chunk before this \todo
+    local chunk = text:sub(i, todo_start - 1)
+    table.insert(out, chunk)
+
+    -- Update line count based on newlines in chunk
+    for _ in chunk:gmatch("\n") do
+      line = line + 1
+    end
+
+    -- Copy "\todo...{" part as-is, then inject filename:lineno
+    local prefix = text:sub(todo_start, todo_end)
+    local annotated = string.format("%s%s:%d ", prefix, fname, line)
+    table.insert(out, annotated)
+
+    -- Continue scanning after the '{'
+    i = todo_end + 1
+  end
+
+  return table.concat(out)
+end
+
+--- Annotate all \cite{} commands with source filename and line number.
+--- Rewrites \cite{keys} → \cite{keys@@file:line} and
+--- \cite[opt]{keys} → \cite[opt]{keys@@file:line}.
+--- The @@file:line suffix is stripped in gather.lua and used for error messages.
+--- @param text string Input LaTeX text
+--- @param fname string Source filename to use in annotations
+--- @return string Text with annotated \cite commands
+local function annotate_cites(text, fname)
+  local out = {}
+  local i = 1
+  local line = 1
+  local n = #text
+
+  while i <= n do
+    local cite_start = text:find("\\cite", i, true)
+    if not cite_start then
+      table.insert(out, text:sub(i))
+      break
+    end
+
+    -- Chunk before this \cite
+    local chunk = text:sub(i, cite_start - 1)
+    table.insert(out, chunk)
+    for _ in chunk:gmatch("\n") do line = line + 1 end
+
+    local command = text:sub(cite_start):match("^(\\cite[%a]*%*?)") or "\\cite"
+    local citation_line = line
+    table.insert(out, command)
+    local j = cite_start + #command
+
+    -- Skip optional whitespace
+    while j <= n and text:sub(j, j):match("%s") do
+      if text:sub(j, j) == "\n" then line = line + 1 end
+      table.insert(out, text:sub(j, j))
+      j = j + 1
+    end
+
+    -- Preserve all optional arguments (multi-note cites use two).
+    while j <= n and text:sub(j, j) == "[" do
+      local depth = 1
+      table.insert(out, "[")
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "[" then depth = depth + 1
+        elseif ch == "]" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        table.insert(out, ch)
+        j = j + 1
+      end
+      -- Skip whitespace between [...] and {
+      while j <= n and text:sub(j, j):match("%s") do
+        if text:sub(j, j) == "\n" then line = line + 1 end
+        table.insert(out, text:sub(j, j))
+        j = j + 1
+      end
+    end
+
+    -- Now expect {keys} — inject @@file:line before closing }
+    if j <= n and text:sub(j, j) == "{" then
+      local depth = 1
+      local brace_start = j
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "{" then depth = depth + 1
+        elseif ch == "}" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        j = j + 1
+      end
+      -- brace_start .. j-1 is the full {keys}
+      local body = text:sub(brace_start + 1, j - 2) -- without braces
+      local loc = string.format("@@%s:%d", fname, citation_line)
+      table.insert(out, "{" .. body .. loc .. "}")
+    end
+
+    i = j
+  end
+
+  return table.concat(out)
+end
+
+--- Annotate all \hyperref[label]{text} commands with source filename and line number.
+--- Rewrites \hyperref[label]{text} → \hyperref[label@@file:line]{text}.
+--- The @@file:line suffix is stripped in gather.lua and used for error messages.
+--- @param text string Input LaTeX text
+--- @param fname string Source filename to use in annotations
+--- @return string Text with annotated \hyperref commands
+local function annotate_hyperrefs(text, fname)
+  local out = {}
+  local i = 1
+  local line = 1
+  local n = #text
+
+  while i <= n do
+    local ref_start, ref_end = text:find("\\hyperref", i, true)
+    if not ref_start then
+      table.insert(out, text:sub(i))
+      break
+    end
+
+    local chunk = text:sub(i, ref_start - 1)
+    table.insert(out, chunk)
+    for _ in chunk:gmatch("\n") do line = line + 1 end
+
+    table.insert(out, "\\hyperref")
+    local j = ref_end + 1
+    if text:sub(j, j):match("%a") then
+      i = j
+      goto continue
+    end
+
+    while j <= n and text:sub(j, j):match("%s") do
+      if text:sub(j, j) == "\n" then line = line + 1 end
+      table.insert(out, text:sub(j, j))
+      j = j + 1
+    end
+
+    if j <= n and text:sub(j, j) == "[" then
+      local depth = 1
+      local bracket_start = j
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "[" then depth = depth + 1
+        elseif ch == "]" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        j = j + 1
+      end
+      local body = text:sub(bracket_start + 1, j - 2)
+      local loc = string.format("@@%s:%d", fname, line)
+      table.insert(out, "[" .. body .. loc .. "]")
+    end
+
+    while j <= n and text:sub(j, j):match("%s") do
+      if text:sub(j, j) == "\n" then line = line + 1 end
+      table.insert(out, text:sub(j, j))
+      j = j + 1
+    end
+
+    if j <= n and text:sub(j, j) == "{" then
+      local depth = 1
+      local brace_start = j
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "{" then depth = depth + 1
+        elseif ch == "}" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        j = j + 1
+      end
+      table.insert(out, text:sub(brace_start, j - 1))
+    end
+
+    i = j
+    ::continue::
+  end
+
+  return table.concat(out)
+end
+
+--- Annotate the first braced argument of a command, optionally after an optional [...] block.
+--- Rewrites \command[opt]{arg}... → \command[opt]{arg@@file:line}...
+--- @param text string Input LaTeX text
+--- @param fname string Source filename to use in annotations
+--- @param command string Command name without leading backslash
+--- @param has_optional boolean Whether the command may have an initial optional [...] argument
+--- @return string
+local function annotate_first_braced_arg(text, fname, command, has_optional)
+  local needle = "\\" .. command
+  local out = {}
+  local i = 1
+  local line = 1
+  local n = #text
+
+  while i <= n do
+    local cmd_start, cmd_end = text:find(needle, i, true)
+    if not cmd_start then
+      table.insert(out, text:sub(i))
+      break
+    end
+
+    local chunk = text:sub(i, cmd_start - 1)
+    table.insert(out, chunk)
+    for _ in chunk:gmatch("\n") do line = line + 1 end
+
+    table.insert(out, needle)
+    local j = cmd_end + 1
+    if text:sub(j, j):match("%a") then
+      -- A longer command name such as \iconsize: not ours.
+      i = j
+      goto continue
+    end
+
+    while j <= n and text:sub(j, j):match("%s") do
+      if text:sub(j, j) == "\n" then line = line + 1 end
+      table.insert(out, text:sub(j, j))
+      j = j + 1
+    end
+
+    if has_optional and j <= n and text:sub(j, j) == "[" then
+      local depth = 1
+      local opt_start = j
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "[" then depth = depth + 1
+        elseif ch == "]" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        j = j + 1
+      end
+      table.insert(out, text:sub(opt_start, j - 1))
+
+      while j <= n and text:sub(j, j):match("%s") do
+        if text:sub(j, j) == "\n" then line = line + 1 end
+        table.insert(out, text:sub(j, j))
+        j = j + 1
+      end
+    end
+
+    if j <= n and text:sub(j, j) == "{" then
+      local depth = 1
+      local brace_start = j
+      j = j + 1
+      while j <= n and depth > 0 do
+        local ch = text:sub(j, j)
+        if ch == "{" then depth = depth + 1
+        elseif ch == "}" then depth = depth - 1
+        elseif ch == "\n" then line = line + 1 end
+        j = j + 1
+      end
+      local body = text:sub(brace_start + 1, j - 2)
+      local loc = string.format("@@%s:%d", fname, line)
+      table.insert(out, "{" .. body .. loc .. "}")
+    end
+
+    i = j
+    ::continue::
+  end
+
+  return table.concat(out)
+end
+
+-- The full input text as one big string
+input = annotate_todos(input, source_filename)
+input = annotate_cites(input, source_filename)
+input = annotate_hyperrefs(input, source_filename)
+input = annotate_first_braced_arg(input, source_filename, "svgimg", true)
+input = annotate_first_braced_arg(input, source_filename, "includegraphics", true)
+input = annotate_first_braced_arg(input, source_filename, "icon", false)
+input = annotate_first_braced_arg(input, source_filename, "topiccard", false)
+
+-- ============================================================================
+-- STEP 1B: Normalize raw angle brackets in math
+-- ============================================================================
+
+local math_envs = {
+  ["align"] = true,
+  ["align*"] = true,
+  ["aligned"] = true,
+  ["array"] = true,
+  ["bmatrix"] = true,
+  ["cases"] = true,
+  ["equation"] = true,
+  ["equation*"] = true,
+  ["gather"] = true,
+  ["gather*"] = true,
+  ["matrix"] = true,
+  ["multline"] = true,
+  ["multline*"] = true,
+  ["pmatrix"] = true,
+  ["smallmatrix"] = true,
+  ["vmatrix"] = true,
+}
+
+local verbatim_envs = {
+  ["lstlisting"] = true,
+  ["verbatim"] = true,
+  ["verbatim*"] = true,
+}
+
+local function starts_with(text, pos, needle)
+  return text:sub(pos, pos + #needle - 1) == needle
+end
+
+local function is_escaped(text, pos)
+  local count = 0
+  local i = pos - 1
+  while i >= 1 and text:sub(i, i) == "\\" do
+    count = count + 1
+    i = i - 1
+  end
+  return count % 2 == 1
+end
+
+local function parse_begin_env(text, pos)
+  local prefix = "\\begin{"
+  if not starts_with(text, pos, prefix) then
+    return nil, nil
+  end
+
+  local name_start = pos + #prefix
+  local close = text:find("}", name_start, true)
+  if not close then
+    return nil, nil
+  end
+
+  return text:sub(name_start, close - 1), close
+end
+
+local function rewrite_angle_math_body(text, pos, close_len_at)
+  local out = {}
+  local i = pos
+  local n = #text
+
+  while i <= n do
+    local close_len = close_len_at(text, i)
+    if close_len then
+      return table.concat(out), i, close_len
+    end
+
+    local ch = text:sub(i, i)
+    if ch == "<" then
+      table.insert(out, "\\lt{}")
+    elseif ch == ">" then
+      table.insert(out, "\\gt{}")
+    else
+      table.insert(out, ch)
+    end
+    i = i + 1
+  end
+
+  return table.concat(out), n + 1, 0
+end
+
+local function rewrite_angle_brackets_in_math(text)
+  local out = {}
+  local i = 1
+  local n = #text
+
+  while i <= n do
+    if starts_with(text, i, "\\(") and not is_escaped(text, i) then
+      table.insert(out, "\\(")
+      local body, close_pos, close_len = rewrite_angle_math_body(text, i + 2, function(s, pos)
+        return starts_with(s, pos, "\\)") and 2 or nil
+      end)
+      table.insert(out, body)
+      if close_len > 0 then
+        table.insert(out, text:sub(close_pos, close_pos + close_len - 1))
+      end
+      i = close_pos + close_len
+
+    elseif starts_with(text, i, "\\[") and not is_escaped(text, i) then
+      table.insert(out, "\\[")
+      local body, close_pos, close_len = rewrite_angle_math_body(text, i + 2, function(s, pos)
+        return starts_with(s, pos, "\\]") and 2 or nil
+      end)
+      table.insert(out, body)
+      if close_len > 0 then
+        table.insert(out, text:sub(close_pos, close_pos + close_len - 1))
+      end
+      i = close_pos + close_len
+
+    elseif starts_with(text, i, "$$") and not is_escaped(text, i) then
+      table.insert(out, "$$")
+      local body, close_pos, close_len = rewrite_angle_math_body(text, i + 2, function(s, pos)
+        return starts_with(s, pos, "$$") and not is_escaped(s, pos) and 2 or nil
+      end)
+      table.insert(out, body)
+      if close_len > 0 then
+        table.insert(out, "$$")
+      end
+      i = close_pos + close_len
+
+    elseif text:sub(i, i) == "$" and not is_escaped(text, i) then
+      table.insert(out, "$")
+      local body, close_pos, close_len = rewrite_angle_math_body(text, i + 1, function(s, pos)
+        return s:sub(pos, pos) == "$" and not is_escaped(s, pos) and 1 or nil
+      end)
+      table.insert(out, body)
+      if close_len > 0 then
+        table.insert(out, "$")
+      end
+      i = close_pos + close_len
+
+    else
+      local env, begin_close = parse_begin_env(text, i)
+      if env and verbatim_envs[env] then
+        local end_delim = "\\end{" .. env .. "}"
+        local close_start = text:find(end_delim, begin_close + 1, true)
+        if close_start then
+          table.insert(out, text:sub(i, close_start + #end_delim - 1))
+          i = close_start + #end_delim
+        else
+          table.insert(out, text:sub(i))
+          i = n + 1
+        end
+      elseif env and math_envs[env] then
+        table.insert(out, text:sub(i, begin_close))
+        local end_delim = "\\end{" .. env .. "}"
+        local body, close_pos, close_len = rewrite_angle_math_body(text, begin_close + 1, function(s, pos)
+          return starts_with(s, pos, end_delim) and #end_delim or nil
+        end)
+        table.insert(out, body)
+        if close_len > 0 then
+          table.insert(out, end_delim)
+        end
+        i = close_pos + close_len
+      else
+        table.insert(out, text:sub(i, i))
+        i = i + 1
+      end
+    end
+  end
+
+  return table.concat(out)
+end
+
+input = rewrite_angle_brackets_in_math(input)
+
+-- ============================================================================
+-- STEP 2: Line-based Normalization (Block-level Macros)
+-- ============================================================================
+
+local COMMENT_MASK = "@@PREPROCESS_COMMENT_%d+@@"
+
+--- A line's content with masked comments removed.
+local function without_comments(line)
+  return trim((line:gsub(COMMENT_MASK, "")))
+end
+
+--- Check if a line contains only a vertical skip command (bigskip/medskip/smallskip).
+--- @param line string Line to check
+--- @return boolean true if line is purely a skip command
+local function is_standalone_skip(line)
+  local trimmed = without_comments(line)
+  return trimmed == "\\bigskip" or trimmed == "\\medskip" or trimmed == "\\smallskip"
+end
+
+--- Check if a line contains a skip command inline with other content.
+--- @param line string Line to check
+--- @return boolean true if line has a skip command but isn't standalone
+local function has_inline_skip(line)
+  if is_standalone_skip(line) then return false end
+  return line:find("\\bigskip")~=nil or line:find("\\medskip")~=nil or line:find("\\smallskip")~=nil
+end
+
+-- Line numbers are still those of the source file here (masks keep newlines).
+do
+  local line_number = 0
+  for line in (input .. "\n"):gmatch("([^\n]*)\n") do
+    line_number = line_number + 1
+    if has_inline_skip(line) then
+      print_warn("%s:%d: inline \\bigskip/\\medskip/\\smallskip; " ..
+                 "these are block-level macros", source_filename, line_number)
+    end
+  end
+end
+
+-- Add newlines to make it block-level
+
+-- Comments are masked at this point, so every visible \specialblock is real.
+input = input:gsub("(\\specialblock%b{})", "\n%1\n")
+
+input = input:gsub("([^\n]*)(\\ytableaushort%b{})", function(prefix, command)
+    -- Check if the prefix contains any non-whitespace characters (%S matches non-whitespace)
+    if prefix:match("%S") then
+        return prefix .. command
+    else
+        return prefix .. "\n" .. command .. "\n"
+    end
+end)
+
+
+-- Split into lines for further processing
+local raw_lines = {}
+for line in (input .. "\n"):gmatch("([^\n]*)\n") do
+  table.insert(raw_lines, line)
+end
+
+--- Check if a line is a LaTeX comment line (comments are masked).
+--- @param line string Line to check
+--- @return boolean true if the line holds nothing but a comment
+local function is_comment_line(line)
+  return trim(line):match("^" .. COMMENT_MASK) ~= nil
+end
+
+--- Check if a line contains only \ytableaushort{...}.
+--- @param line string Line to check
+--- @return boolean true if line is purely \ytableaushort
+local function is_standalone_ytableaushort(line)
+  return line:match("^%s*\\ytableaushort%b{}%s*$") ~= nil
+end
+
+--- Normalize block-level macros by ensuring blank lines before and after.
+--- Also warns about inline usage of block-level macros.
+--- @param lines table Array of input lines
+--- @return table Normalized array of lines
+local function normalize_blocks(lines)
+  local out = {}
+
+  --- Add a blank line if the last line isn't already blank
+  local function ensure_blank_line_before()
+    if #out == 0 then return end
+    if trim(out[#out]) ~= "" then
+      table.insert(out, "")
+    end
+  end
+
+  for _, line in ipairs(lines) do
+    if is_comment_line(line) then
+      table.insert(out, line)
+    elseif is_standalone_skip(line) then
+      -- Normalize skips to block: blank line before + after
+      ensure_blank_line_before()
+      table.insert(out, trim(line))
+      table.insert(out, "")
+    elseif is_standalone_ytableaushort(line) then
+      -- Normalize ytableaushort to block
+      ensure_blank_line_before()
+      table.insert(out, trim(line))
+      table.insert(out, "")
+    else
+      table.insert(out, line)
+    end
+  end
+
+  return out
+end
+
+local norm_lines = normalize_blocks(raw_lines)
+input = table.concat(norm_lines, "\n")
+
+-- ============================================================================
+-- STEP 3: Global Substitutions and Rewrites
+-- ============================================================================
+
+-- Freeze figures: \begin{figure}...\end{figure} → symfig
+-- This prevents Pandoc from moving/reordering figure environments
+input = input
+    :gsub("\\begin%s*{%s*figure%s*}", "\\begin{symfig}")
+    :gsub("\\end%s*{%s*figure%s*}", "\\end{symfig}")
+
+-- Rename only proof environment delimiters to symproof.  Ordinary brace
+-- groups containing the word "proof" are content and must stay untouched.
+input = input
+    :gsub("\\begin%s*{%s*proof%s*}", "\\begin{symproof}")
+    :gsub("\\end%s*{%s*proof%s*}", "\\end{symproof}")
+    :gsub("\\begin%s*{%s*proof%*%s*}", "\\begin{symproof*}")
+    :gsub("\\end%s*{%s*proof%*%s*}", "\\end{symproof*}")
+
+-- Rename tabular to rawtabular to prevent Pandoc from processing it
+input = input
+    :gsub("\\begin%s*{%s*tabular%s*}%s*%b[]%s*(%b{})", "\\begin{rawtabular}%1")
+    :gsub("\\begin%s*{%s*tabular%s*}(%b{})", "\\begin{rawtabular}%1")
+    :gsub("\\end%s*{%s*tabular%s*}", "\\end{rawtabular}")
+
+-- Keep \url intact. Pandoc parses its argument verbatim; gather.lua handles
+-- scheme normalization and display shortening without reparsing URL bytes.
+
+-- Keep \filelink intact; gather.lua lowers it to a link with class="dataFile".
+
+-- Fix section commands with labels: \section[label]{Title} → \section{Title}\label{label}
+-- This provides better Pandoc compatibility
+input = input
+    :gsub("\\section%s*%[(.-)%]%s*(%b{})", "\\section%2\\label{%1}")
+    :gsub("\\subsection%s*%[(.-)%]%s*(%b{})", "\\subsection%2\\label{%1}")
+    :gsub("\\subsubsection%s*%[(.-)%]%s*(%b{})", "\\subsubsection%2\\label{%1}")
+
+
+-- ============================================================================
+-- STEP 4: Typographical Fixes (Math Punctuation)
+-- ============================================================================
+
+-- Rewrite $stuff$. to $stuff.$ (and likewise for comma).  A colon remains
+-- outside math because TeX treats ':' as a relation symbol.
+-- assumption: $ is exclusively used for math delimiters.
+input = input:gsub("(%b$$)([.,])", function(math_seq, punct)
+  -- If it is display math ($$ ... $$), do nothing.
+  if math_seq:sub(2,2) == "$" then
+    return math_seq .. punct
+  else
+    -- It is inline math ($ ... $). Move punctuation inside.
+    -- Chop off the last '$', add punct, add '$' back.
+    return math_seq:sub(1, -2) .. punct .. "$"
+  end
+end)
+
+-- Rewrite \(stuff\). to \(stuff.\) (and likewise for comma).
+input = input:gsub("\\%((.-)\\%)%s*([.,])", "\\(%1%2\\)")
+
+-- Restore comments, verbatim/lstlisting environments, and \verb spans after
+-- every transformation has run.
+for _, region in ipairs(protected_regions) do
+  input = replace_plain(input, region.masked, region.original)
+end
+
+-- ============================================================================
+-- Output
+-- ============================================================================
+
+io.write(input)

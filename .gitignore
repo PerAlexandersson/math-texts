@@ -1,0 +1,22 @@
+# Generated site output lives outside the Dropbox checkout by default.
+.build/
+temp/
+www/
+
+# Editor and operating-system files.
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/
+.codex/
+
+# Local environments and secrets.
+.env
+.venv*/
+venv/
+node_modules/
+__pycache__/

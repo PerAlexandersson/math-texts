@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://math.qxy.se/sitemap.xml

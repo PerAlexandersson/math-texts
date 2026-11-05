@@ -1,0 +1,530 @@
+// Main site JS: cookie dialog, sidebar, TOC click handlers, scroll behavior, KaTeX init.
+(function () {
+  'use strict';
+
+  // Utility
+  function setCookieAccepted() {
+    // Check if we are on a secure connection (HTTPS)
+    var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = "cookieaccepted=1; expires=Thu, 18 Dec 2030 12:00:00 UTC; path=/; SameSite=Lax" + secure;
+  }
+
+  function writeToClipboard(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      return navigator.clipboard.writeText(text);
+    }
+    return Promise.reject(new Error('Clipboard API unavailable'));
+  }
+
+  // KaTeX initialization (macros expected from katex-macros.js in window.KATEX_MACROS)
+  function initKatex() {
+    if (typeof renderMathInElement !== 'function') return;
+    var macros = window.KATEX_MACROS || {};
+    try {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "\\[", right: "\\]", display: true},
+          {left: "$",  right: "$",  display: false},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        output: "html",
+        throwOnError: false,
+        macros: macros
+      });
+    } catch (e) {
+      // Fail gracefully in older browsers
+      console.warn('KaTeX render failed:', e);
+    }
+  }
+
+  // Cookie dialog
+  // Helper: Tell Google to start tracking
+  function updateConsent(state) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', {
+        'analytics_storage': state,
+        'ad_storage': state,
+        'ad_user_data': state,
+        'ad_personalization': state
+      });
+    }
+  }
+
+  function getStoredPreference(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setStoredPreference(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {}
+  }
+
+  function getCookiePreference(key) {
+    var match = document.cookie.match(new RegExp('(?:^|;\\s*)' + key + '=(dark|light)\\b'));
+    return match ? match[1] : null;
+  }
+
+  function initTextWidth() {
+    var main = document.getElementById('doc-main');
+    var meta = document.getElementById('page-meta');
+    var layout = document.getElementById('doc-all');
+    var themeToggle = document.getElementById('dark-mode-toggle');
+    if (!main || !meta || !layout || !themeToggle) return;
+    // Article pages have reading content; indexes and interactive tools
+    // retain their own layouts.
+    if (main.querySelector('.topic-card-grid, #polynomialIndex') ||
+        document.body.classList.contains('relation-graph-document')) return;
+
+    var key = 'math-texts-width';
+    var savedWidth = getStoredPreference(key);
+    if (savedWidth === null) {
+      savedWidth = getStoredPreference('math-texts-legacy-width');
+      if (savedWidth === 'narrow' || savedWidth === 'wide') {
+        setStoredPreference(key, savedWidth);
+      }
+    }
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'text-width-toggle';
+    button.className = 'toplink theme-toggle';
+    button.setAttribute('aria-label', 'Narrow text');
+    button.setAttribute('aria-controls', 'doc-main');
+    button.setAttribute('data-pagefind-ignore', '');
+    button.innerHTML = '<svg class="theme-icon" viewBox="0 0 20 20" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">' +
+      '<path class="width-icon-wide" d="M2 3v14M18 3v14M5 5h10M5 10h10M5 15h10"/>' +
+      '<path class="width-icon-narrow" d="M5 3v14M15 3v14M8 5h4M8 10h4M8 15h4"/>' +
+      '</svg>';
+    themeToggle.after(button);
+    layout.classList.add('has-text-width');
+
+    var editLink = meta.querySelector('.editLink');
+    if (editLink) {
+      var editFooter = document.createElement('div');
+      editFooter.id = 'page-edit-footer';
+      editFooter.setAttribute('data-pagefind-ignore', '');
+      editFooter.appendChild(editLink);
+      main.appendChild(editFooter);
+    }
+
+    function applyWidth(narrow) {
+      main.classList.toggle('narrow-text', narrow);
+      layout.classList.toggle('narrow-reading', narrow);
+      button.setAttribute('aria-pressed', String(narrow));
+      button.title = narrow ? 'Wide text' : 'Narrow text';
+    }
+
+    applyWidth(savedWidth === 'narrow');
+    button.addEventListener('click', function () {
+      var narrow = !main.classList.contains('narrow-text');
+      applyWidth(narrow);
+      setStoredPreference(key, narrow ? 'narrow' : 'wide');
+    });
+  }
+
+  function setCookiePreference(key, value) {
+    var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    var domain = '';
+    if (window.location.hostname === 'qxy.se' ||
+        window.location.hostname.endsWith('.qxy.se')) {
+      domain = '; Domain=.qxy.se';
+    }
+    document.cookie = key + '=' + value + '; max-age=31536000; path=/' + domain + '; SameSite=Lax' + secure;
+  }
+
+  function getThemePreference() {
+    var saved = getStoredPreference('math-texts-theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+
+    var cookie = getCookiePreference('math-texts-theme');
+    if (cookie) return cookie;
+
+    var legacy = getStoredPreference('dark-mode');
+    if (legacy === 'on') return 'dark';
+    if (legacy === 'off') return 'light';
+
+    return null;
+  }
+
+  function setThemePreference(value) {
+    setStoredPreference('math-texts-theme', value);
+    setStoredPreference('dark-mode', value === 'dark' ? 'on' : 'off');
+    setCookiePreference('math-texts-theme', value);
+  }
+
+  function prefersDarkMode() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function isDarkModeActive() {
+    var root = document.documentElement;
+    if (root.classList.contains('dark')) return true;
+    if (root.classList.contains('light')) return false;
+    return prefersDarkMode();
+  }
+
+  function updateDarkModeLabel() {
+    var toggle = document.getElementById('dark-mode-toggle');
+    if (!toggle) return;
+
+    var isDark = isDarkModeActive();
+    var moonIcon = toggle.querySelector('.theme-icon-moon');
+    var sunIcon = toggle.querySelector('.theme-icon-sun');
+    if (moonIcon) moonIcon.toggleAttribute('hidden', !isDark);
+    if (sunIcon) sunIcon.toggleAttribute('hidden', isDark);
+    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  function toggleDarkMode() {
+    var root = document.documentElement;
+    var switchToLight = isDarkModeActive();
+    var newPreference = switchToLight ? 'light' : 'dark';
+
+    root.classList.toggle('dark', newPreference === 'dark');
+    root.classList.toggle('light', newPreference === 'light');
+    setThemePreference(newPreference);
+    updateDarkModeLabel();
+  }
+
+  function initDarkMode() {
+    var saved = getThemePreference();
+    var root = document.documentElement;
+
+    root.classList.toggle('dark', saved === 'dark');
+    root.classList.toggle('light', saved === 'light');
+    updateDarkModeLabel();
+
+    var toggle = document.getElementById('dark-mode-toggle');
+    if (toggle) {
+      toggle.addEventListener('click', toggleDarkMode);
+    }
+
+    window.addEventListener('storage', function (event) {
+      if (event.key !== 'math-texts-theme' && event.key !== 'dark-mode') return;
+      var current = getThemePreference();
+      root.classList.toggle('dark', current === 'dark');
+      root.classList.toggle('light', current === 'light');
+      updateDarkModeLabel();
+    });
+  }
+
+  function initCookieDialog() {
+    if (document.cookie.indexOf("cookieaccepted=") >= 0) {
+      return; // Already accepted, do nothing
+    }
+
+    var dlg = document.getElementById("cookie-dialog");
+    if (!dlg || !dlg.showModal) return;
+
+    dlg.showModal();
+
+    dlg.addEventListener('close', function () {
+      if (dlg.returnValue === "accept") {
+        setCookieAccepted();
+        updateConsent('granted');
+      }
+    });
+  }
+
+  // Sidebar toggle + aria sync
+  function toggleSideBar() {
+    var toc = document.getElementById("tocContainer");
+    var btn = document.getElementById("tocButton");
+    var body = document.body;
+
+    if (!toc || !btn) return;
+
+    var expanded = btn.getAttribute("aria-expanded") === "true";
+
+    // Toggle the visible class
+    toc.classList.toggle("sideBarShowHide");
+
+    // Toggle body scroll lock & overlay visibility
+    body.classList.toggle("menu-open");
+
+    // Update ARIA
+    btn.setAttribute("aria-expanded", String(!expanded));
+    toc.setAttribute("aria-hidden", String(expanded));
+  }
+
+  function closeSideBar() {
+    var btn = document.getElementById("tocButton");
+    if (btn && btn.getAttribute("aria-expanded") === "true") {
+      toggleSideBar();
+      btn.focus();
+    }
+  }
+
+  // Wire up TOC list items to close sidebar on click (delegation safe)
+  function initTOCListeners() {
+    var tocList = document.getElementById("tocLinkList"); // Ensure your UL has this ID or use "#tocContainer"
+    // Fallback if specific list ID isn't found, attach to the whole container
+    if (!tocList) tocList = document.getElementById("tocContainer");
+    if (!tocList) return;
+    tocList.addEventListener('click', function (ev) {
+      var target = ev.target;
+      while (target && target !== tocList) {
+        if (target.tagName === 'A' || target.tagName === 'BUTTON') {
+          // If we are on mobile (check if the toggle button is visible), close the menu
+          var btn = document.getElementById("tocButton");
+          if (btn && getComputedStyle(btn).display !== 'none') {
+             toggleSideBar();
+          }
+          return;
+        }
+        target = target.parentElement;
+      }
+    });
+  }
+
+// Initialize Copy-to-Clipboard buttons on all <pre> blocks
+  function initCopyButtons() {
+    // Find all <pre> tags
+    var blocks = document.querySelectorAll('pre');
+
+    blocks.forEach(function(pre) {
+        if (pre.classList.contains('bibtex-code') || pre.hasAttribute('data-no-auto-copy')) {
+            return;
+        }
+
+        // Create the button
+        var button = document.createElement('button');
+        button.className = 'copy-btn';
+
+        button.innerHTML = '<img src="icons/icon-clone.svg" class="copy icon" alt="" aria-hidden="true"/>';
+        button.setAttribute('aria-label', 'Copy to clipboard');
+
+        // Add Click Logic
+        button.addEventListener('click', function() {
+            var code = pre.querySelector('code');
+            var text = code ? code.innerText : pre.innerText;
+
+            // The modern clipboard API
+            writeToClipboard(text).then(function() {
+                // Success Feedback
+                button.innerHTML = '<img src="icons/icon-heart.svg" class="heart icon" alt="" aria-hidden="true"/>';
+                button.style.color = 'red';
+                button.style.borderColor = 'red';
+
+                // Reset after 2 seconds
+                setTimeout(function() {
+                    button.innerHTML = '<img src="icons/icon-clone.svg" class="copy icon" alt="" aria-hidden="true"/>';
+                    button.style.color = '';
+                    button.style.borderColor = '';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy!', err);
+            });
+        });
+
+        // Append button to the <pre> block
+        pre.appendChild(button);
+    });
+  }
+
+  function setTemporaryButtonHtml(button, html, className) {
+    var original = button.getAttribute('data-original-html');
+    if (!original) {
+      original = button.innerHTML;
+      button.setAttribute('data-original-html', original);
+    }
+    if (className) button.classList.add(className);
+    button.innerHTML = html;
+    setTimeout(function () {
+      button.innerHTML = original;
+      if (className) button.classList.remove(className);
+    }, 1800);
+  }
+
+  function getBibtexText(button) {
+    var details = button.closest('.bibtex-details');
+    if (!details) return "";
+    var code = details.querySelector('.bibtex-code code');
+    return code ? code.innerText : "";
+  }
+
+  function initBibtexControls() {
+    document.addEventListener('click', function (e) {
+      var copyButton = e.target.closest('.bibtex-copy');
+      if (copyButton) {
+        var text = getBibtexText(copyButton);
+        if (!text) return;
+
+        writeToClipboard(text).then(function () {
+          setTemporaryButtonHtml(
+            copyButton,
+            '<img src="icons/icon-check-circle.svg" class="icon" alt="" aria-hidden="true"/> Copied',
+            'is-success'
+          );
+        }).catch(function (err) {
+          console.error('Failed to copy BibTeX!', err);
+        });
+        return;
+      }
+
+      var downloadButton = e.target.closest('.bibtex-download');
+      if (!downloadButton) return;
+
+      var bibtex = getBibtexText(downloadButton);
+      if (!bibtex) return;
+
+      var filename = downloadButton.getAttribute('data-filename') || 'citation.bib';
+      var blob = new Blob([bibtex], { type: 'application/x-bibtex;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setTemporaryButtonHtml(
+        downloadButton,
+        '<img src="icons/icon-check-circle.svg" class="icon" alt="" aria-hidden="true"/> Downloaded',
+        'is-success'
+      );
+    });
+  }
+
+  // Header anchor: copy permalink to clipboard on click
+  function initHeaderAnchors() {
+    document.addEventListener('click', function (e) {
+      var anchor = e.target.closest('.header-anchor');
+      if (!anchor) return;
+      e.preventDefault();
+      var url = anchor.href;
+      writeToClipboard(url).then(function () {
+        anchor.textContent = '\u2713';
+        setTimeout(function () { anchor.textContent = '#'; }, 1500);
+      }).catch(function (err) {
+        console.error('Failed to copy permalink!', err);
+      });
+    });
+  }
+
+  // Family Index Table Sorting & Row Linking
+  function initFamilyIndexTable() {
+    var table = document.getElementById("family-index");
+    if (!table) return;
+
+    var headers = table.querySelectorAll('th');
+    var tableBody = table.querySelector('tbody');
+
+    // Map column index to data-attribute.
+    // We use null for index 0 because we will special-case it to use textContent.
+    var columnDataMap = [null, 'space', 'category', 'year', 'rating', 'relations'];
+    var directions = [1, 1, 1, 1, 1, 1];
+
+    var rows = Array.prototype.slice.call(tableBody.querySelectorAll('tr'));
+
+    // 1. Sorting Logic
+    for (var i = 0; i < headers.length; i++) {
+      (function(index) {
+        headers[index].addEventListener('click', function() {
+          var direction = directions[index];
+
+          rows.sort(function(rowA, rowB) {
+            var valA, valB;
+
+            // If it's the first column (Name), sort by visible text
+            if (index === 0) {
+              valA = rowA.cells[0].textContent.replace(/\$/g, '').trim();
+              valB = rowB.cells[0].textContent.replace(/\$/g, '').trim();
+            } else {
+              // Otherwise sort by the data attribute
+              var attr = columnDataMap[index];
+              valA = rowA.getAttribute('data-' + attr);
+              valB = rowB.getAttribute('data-' + attr);
+            }
+
+            var numA = parseFloat(valA);
+            var numB = parseFloat(valB);
+
+            // Numeric Sort (if both are numbers)
+            if (!isNaN(numA) && !isNaN(numB)) {
+              return (numA - numB) * direction;
+            }
+
+            // Text Sort
+            return valA.localeCompare(valB) * direction;
+          });
+
+            // Re-append sorted rows
+          for (var j = 0; j < rows.length; j++) {
+            tableBody.appendChild(rows[j]);
+          }
+
+          directions[index] = -direction;
+        });
+      })(i);
+    }
+
+    // Row Click Logic (Delegation)
+    tableBody.addEventListener('click', function(e) {
+      // Find the clicked row
+      var row = e.target.closest('tr');
+      if (!row) return;
+
+      // If the user actually clicked a link directly, let the browser handle it
+      // This prevents double-firing or breaking Middle-Click / Cmd-Click
+      if (e.target.closest('a')) return;
+
+      // Otherwise, find the primary link in this row and click it
+      var link = row.querySelector('a');
+      if (link) {
+        link.click();
+      }
+    });
+
+    // Sort table initially
+    if (headers.length > 0) {
+        headers[0].click();
+    }
+  }
+
+  // Index sorting: keep the same API as before
+  window.sortByVariable = function (newClass) {
+    var elem = document.getElementById("index-container");
+    if (!elem) return;
+    if (elem.className === newClass) {
+      elem.style.flexDirection = (elem.style.flexDirection === 'column') ? 'column-reverse' : 'column';
+    } else {
+      elem.className = newClass;
+    }
+  };
+
+  // Expose toggle for template inline onclick compatibility
+  window.toggleSideBar = toggleSideBar;
+
+  // Init on DOM ready
+  document.addEventListener('DOMContentLoaded', function () {
+    initKatex();
+    initCookieDialog();
+    initTOCListeners();
+    initCopyButtons();
+    initBibtexControls();
+    initHeaderAnchors();
+    initFamilyIndexTable();
+    initDarkMode();
+    initTextWidth();
+
+    var btn = document.getElementById("tocButton");
+    if (btn) {
+        btn.addEventListener('click', toggleSideBar);
+    }
+    var overlay = document.getElementById("menuOverlay");
+    if (overlay) overlay.addEventListener('click', closeSideBar);
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeSideBar();
+    });
+  });
+
+})();
