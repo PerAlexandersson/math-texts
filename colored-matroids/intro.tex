@@ -50,10 +50,7 @@ partitions are
 The Color A sets are the rank-three bases of $M$. Their complements, shown in
 the Color B column, are the rank-four bases of $M^*$.
 
-Take
-\[
- u=\mathtt{ABABABB},\qquad v=\mathtt{BABABAB}.
-\]
+Take $u=\mathtt{ABABABB}$ and $v=\mathtt{BABABAB}$.
 The Color A set of $u$ contains $1$ but not $2$, while the Color A set of $v$
 contains $2$ but not $1$. Exchanging these two elements gives the bases
 $\{2,3,5\}$ and $\{1,4,6\}$. In the colored words, the arcs at positions
@@ -61,12 +58,21 @@ $1$ and $2$ form the cycle
 \[
  A\longrightarrow B\longrightarrow A.
 \]
-Switching these positions in both words gives
-\[
- \mathtt{BAABABB}\qquad\text{and}\qquad\mathtt{ABBABAB},
-\]
-which are again rows of the table. Thus basis exchange appears as a two-color
-cycle exchange, simultaneously in the matroid and its dual.
+The highlighted columns show the exchange. The first two rows are the original
+words, and the last two are obtained by switching positions $1$ and $2$ in
+both words:
+\begin{array}{c|ccccccc}
+\text{position}&*(exchange)1&*(exchange)2&3&4&5&6&7\\
+\midrule
+u&*(exchange)A&*(exchange)B&A&B&A&B&B\\
+v&*(exchange)B&*(exchange)A&B&A&B&A&B\\
+\midrule
+u'&*(exchange)B&*(exchange)A&A&B&A&B&B\\
+v'&*(exchange)A&*(exchange)B&B&A&B&A&B
+\end{array}
+Thus $u'=\mathtt{BAABABB}$ and $v'=\mathtt{ABBABAB}$, which are again rows of
+the table. Basis exchange appears as a two-color cycle exchange, simultaneously
+in the matroid and its dual.
 \end{example}
 
 The two color classes in each row have complementary roles. Color A is a basis
@@ -234,16 +240,29 @@ on the last block they form the two-cycle $A\to B\to A$. Switching that block
 in both words changes one allowed choice into the other, so both resulting
 words remain in the family.
 
-Here are three exchanges in this family.
+Here is one exchange in full. Take $u=\mathtt{ABCABCAB}$ and
+$v=\mathtt{BCABCAAB}$, and prescribe position $1$. The arcs at positions
+$1,2,3$ form a three-cycle. Switching the highlighted positions gives
+\begin{array}{c|cccccccc}
+\text{position}&*(exchange)1&*(exchange)2&*(exchange)3&4&5&6&7&8\\
+\midrule
+u&*(exchange)A&*(exchange)B&*(exchange)C&A&B&C&A&B\\
+v&*(exchange)B&*(exchange)C&*(exchange)A&B&C&A&A&B\\
+\midrule
+u'&*(exchange)B&*(exchange)C&*(exchange)A&A&B&C&A&B\\
+v'&*(exchange)A&*(exchange)B&*(exchange)C&B&C&A&A&B
+\end{array}
+Thus $u'=\mathtt{BCAABCAB}$ and $v'=\mathtt{ABCBCAAB}$, both of which belong
+to $\mathcal F$.
+
+Here are three other exchanges in this family.
 \begin{itemize}
 \item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCAABCAB}$ differ on
 positions $1,2,3$. Switching the cycle through any of these positions
 interchanges the two words.
-\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCABCAAB}$ differ on the
-first two blocks. If position $1$ is prescribed, we switch positions
-$1,2,3$ and obtain $\mathtt{BCAABCAB}$ and $\mathtt{ABCBCAAB}$. If position
-$4$ is prescribed, we instead switch positions $4,5,6$ and obtain the same
-two words in the opposite order.
+\item For the two words in the displayed exchange, if position $4$ is
+prescribed, we switch positions $4,5,6$ and obtain the same two resulting
+words in the opposite order.
 \item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCABCABA}$ differ on all
 three blocks. For the prescribed position $7$, switching positions $7,8$
 gives $\mathtt{ABCABCBA}$ and $\mathtt{BCABCAAB}$. For the prescribed

@@ -31,6 +31,7 @@
   /* Theorem-like environments */
   --math-env-bar:  light-dark(hsl(var(--hue-neutral), 20%, 85%), hsl(var(--hue-brand), 30%, 32%));
   --math-accent:   light-dark(hsl(var(--hue-link), 80%, 50%), hsl(214, 90%, 76%));
+  --c-exchange:    light-dark(hsl(44, 95%, 86%), hsl(42, 45%, 24%));
 
   /* Diagram data colours */
   --c-data-red:    light-dark(hsl(0, 85%, 60%), hsl(4, 80%, 72%));
@@ -644,6 +645,15 @@
   .array > span, .tabular > span {
     display: flex; align-items: center; min-width: 2em;
     padding: 0.5em 0.75em; border: none; font-weight: normal;
+  }
+  .array > span.exchange-cell, .tabular > span.exchange-cell {
+    background: var(--c-exchange);
+    box-shadow: inset 0 -2px 0 var(--c-brand);
+    font-weight: 650;
+  }
+  .exchange-table > span {
+    min-width: 1.5em;
+    padding: 0.45em 0.25em;
   }
   .align-l { justify-content: flex-start; text-align: left; padding-left: 0.2em;}
   .align-c { justify-content: center; text-align: center; }

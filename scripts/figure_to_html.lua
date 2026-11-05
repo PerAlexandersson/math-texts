@@ -299,7 +299,9 @@ local function format_cell(content, row, col, opts)
   local color
   color, ent = extract_color(ent)
   if color ~= "" then
-    if is_safe_color(color) then
+    if color == "exchange" then
+      table.insert(classes, "exchange-cell")
+    elseif is_safe_color(color) then
       table.insert(styles, "background-color: " .. color)
     else
       print_error("Unsafe table cell color rejected: %s", color)
@@ -375,6 +377,20 @@ local function render_matrix(matrix, specList, opts, col_count)
   -- Container classes
   local classes = { type_name }
   if is_inline then table.insert(classes, "inline") end
+  local has_exchange = false
+  for _, row in ipairs(matrix) do
+    for _, cell in ipairs(row) do
+      if type(cell) == "string" then
+        local color = extract_color(cell)
+        if color == "exchange" then
+          has_exchange = true
+          break
+        end
+      end
+    end
+    if has_exchange then break end
+  end
+  if has_exchange then table.insert(classes, "exchange-table") end
 
   -- Count actual rows (including rules)
   local total_rows = #matrix
