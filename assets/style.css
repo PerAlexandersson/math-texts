@@ -479,21 +479,12 @@
   }
   .dateMod::before { content: "Last updated: "; margin-right: 0.3em; }
 
-  body:not(.reading-document) #text-width-toggle { display: none; }
-  #text-width-toggle .width-icon-narrow,
-  :root.text-width-narrow #text-width-toggle .width-icon-wide { display: none; }
-  :root.text-width-narrow #text-width-toggle .width-icon-narrow { display: initial; }
-  :root.text-width-narrow #text-width-toggle { color: var(--c-link); }
-
   @media (min-width: 901px) {
     #doc-all.has-text-width {
-      --reading-width: calc(4 * var(--w-col) + 3rem);
+      --reading-width: calc(84ch + 4.8rem + 2px);
       grid-template-columns: minmax(1rem, 1fr) minmax(14rem, 20rem)
         minmax(0, var(--reading-width)) minmax(1rem, 1fr);
       column-gap: 1rem;
-    }
-    :root.text-width-narrow #doc-all.has-text-width {
-      --reading-width: calc(72ch + 4.8rem + 2px);
     }
     .has-text-width #doc-main { grid-column: 3; }
     .has-text-width #tocContainer {
@@ -501,12 +492,6 @@
     }
   }
 
-  /* 72ch of prose plus the main panel's padding and border. */
-  :root.text-width-narrow .reading-document #doc-main {
-    width: 100%;
-    max-width: calc(72ch + 4.8rem + 2px);
-    margin-inline: auto;
-  }
   .has-text-width .katex-display {
     max-width: 100%;
     overflow-x: auto;
@@ -1331,11 +1316,6 @@
       padding: 0.5rem 0.5rem;
     }
 
-    :root.text-width-narrow .reading-document #doc-main {
-      max-width: calc(72ch + 1rem);
-    }
-
-
     /*  Off-Canvas Sidebar */
     #tocContainer {
       display: block;
@@ -1542,8 +1522,6 @@
 
 
   @media print {
-    #text-width-toggle { display: none !important; }
-    :root.text-width-narrow .reading-document #doc-main { max-width: none; }
     #topnav, #tocContainer, #tocButton, #cookie-dialog, footer { display: none !important; }
     body, #doc-main { background: white !important; color: black !important; margin: 0; padding: 0; }
     a { text-decoration: none; color: black; }

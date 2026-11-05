@@ -122,18 +122,55 @@ The only possible switch interchanges the two words, and its cycle contains
 every prescribed disagreement.
 \end{example}
 
-\section[statusVocabulary]{Status of statements}
+\section[twoColors]{The two-color case}
 
-Every substantial statement will carry one of the following statuses.
+Recall that a nonempty equicardinal family of subsets of $E$ is the family of
+bases of a matroid if it satisfies basis exchange: for bases $B,C$ and
+$e\in B\setminus C$, there is an $f\in C\setminus B$ such that
+$B-e+f$ is a basis. We write $\mathcal B(M)$ for the bases of a matroid $M$.
+The dual matroid $M^*$ has bases
+\[
+ \mathcal B(M^*)=\{E\setminus B:B\in\mathcal B(M)\}.
+\]
 
-\begin{itemize}
-\item \textbf{Open}: no proof is claimed.
-\item \textbf{Written}: a human-readable proof is recorded but has not been
-certified by Lean.
-\item \textbf{Reviewed}: the written argument has received an independent
-mathematical review.
-\item \textbf{Lean-checked}: the displayed formal declaration belongs to a
-recorded successful build and axiom audit.
-\item \textbf{False}: a counterexample is recorded and the former claim is
-retained only for provenance.
-\end{itemize}
+\begin{proposition}
+Let $\mathcal F$ be a fixed-quota coloring family with colors $A$ and $B$.
+Then $\mathcal F$ is an SCE family if and only if there is a matroid $M$ on
+$E$ such that
+\[
+ \mathcal F
+ =\{u:E\to\{A,B\}:B(u,A)\in\mathcal B(M)\}.
+\]
+Under this correspondence, the color-$A$ classes are the bases of $M$, and
+the color-$B$ classes are the bases of $M^*$.
+\end{proposition}
+
+\begin{proof}
+Suppose first that $\mathcal F$ is an SCE family. Take $u,v\in\mathcal F$ and
+$e\in B(u,A)\setminus B(v,A)$. With two colors, a simple color cycle through
+the arc at $e$ must be a two-cycle. Its other arc is labeled by some
+$f\in B(v,A)\setminus B(u,A)$. Switching the two positions gives a word in
+$\mathcal F$ whose color-$A$ class is
+\[
+ B(u,A)-e+f.
+\]
+Thus the color-$A$ classes satisfy basis exchange. They all have cardinality
+$r_A$, so they are the bases of a matroid $M$. Since
+$B(u,B)=E\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
+
+Conversely, let $M$ be a matroid on $E$ and form $\mathcal F$ by assigning
+color $A$ to the elements of a basis and color $B$ to the remaining elements.
+Take
+$u,v\in\mathcal F$ and a position $e$ where they disagree. After interchanging
+$u$ and $v$ if needed, we may assume that
+$e\in B(u,A)\setminus B(v,A)$. The symmetric basis-exchange theorem gives an
+$f\in B(v,A)\setminus B(u,A)$ such that both
+\[
+ B(u,A)-e+f
+ \qquad\text{and}\qquad
+ B(v,A)-f+e
+\]
+are bases of $M$. The positions $e,f$ form a simple color two-cycle, and
+switching them in both words gives two words in $\mathcal F$. Hence
+$\mathcal F$ is an SCE family.
+\end{proof}

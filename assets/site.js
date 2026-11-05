@@ -70,42 +70,6 @@
     return match ? match[1] : null;
   }
 
-  function initTextWidth() {
-    var main = document.getElementById('doc-main');
-    var button = document.getElementById('text-width-toggle');
-    var root = document.documentElement;
-    if (!main || !button ||
-        !document.body.classList.contains('reading-document')) return;
-
-    var key = 'math-texts-width';
-    var savedWidth = getStoredPreference(key);
-    if (savedWidth === null) {
-      savedWidth = getStoredPreference('math-texts-legacy-width');
-      if (savedWidth === 'narrow' || savedWidth === 'wide') {
-        setStoredPreference(key, savedWidth);
-      }
-    }
-    function applyWidth(narrow) {
-      root.classList.toggle('text-width-narrow', narrow);
-      button.setAttribute('aria-pressed', String(narrow));
-      button.title = narrow ? 'Wide text' : 'Narrow text';
-      button.setAttribute('aria-label', button.title);
-    }
-
-    applyWidth(savedWidth === 'narrow' ||
-      root.classList.contains('text-width-narrow'));
-    button.addEventListener('click', function () {
-      var narrow = !root.classList.contains('text-width-narrow');
-      applyWidth(narrow);
-      setStoredPreference(key, narrow ? 'narrow' : 'wide');
-    });
-
-    window.addEventListener('storage', function (event) {
-      if (event.key !== key) return;
-      applyWidth(event.newValue === 'narrow');
-    });
-  }
-
   function setCookiePreference(key, value) {
     var secure = window.location.protocol === 'https:' ? '; Secure' : '';
     var domain = '';
@@ -492,7 +456,6 @@
     initHeaderAnchors();
     initFamilyIndexTable();
     initDarkMode();
-    initTextWidth();
 
     var btn = document.getElementById("tocButton");
     if (btn) {
