@@ -18,7 +18,8 @@ SCRIPTS_DIR ?= scripts
 TEMP_DIR ?= $(BUILD_ROOT)/temp/$(PROJECT)
 
 TEMPLATE ?= template.htm
-BIBFILE ?= bibliography.bib
+SYMCAT_DIR ?= ../symmetricfunctions.com
+BIBFILE ?= $(SYMCAT_DIR)/bibliography.bib
 
 SITE_BASE_URL ?= https://math.qxy.se
 SOURCE_REPOSITORY ?= https://github.com/PerAlexandersson/math-texts

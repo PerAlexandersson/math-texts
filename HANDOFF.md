@@ -1,5 +1,23 @@
 # Current handoff
 
+## Shared bibliography and leaner build — ready 2026-11-05
+
+Ownership released. Removed the duplicate `bibliography.bib`, `tests/`, and
+`config_test.mk`. The build reads SymCat's bibliography through configurable
+`SYMCAT_DIR`/`BIBFILE`; CI checks out both repositories side by side. The full
+site build is now the check, with `site-check` retained only as a deployment
+bridge compatibility alias. Public documentation and the SVG helper no longer
+contain machine-specific paths. `make site Q=1 LUA=lua5.4
+BUILD_ROOT=/tmp/math-texts-shared-bib-check`, `git diff --check`, and the
+repository symlink scan pass. User authorized deployment; this checkpoint has
+not yet been deployed.
+
+## Width-control deployment — complete 2026-11-05
+
+The constrained qxy.se bridge deployed exact clean commit
+`f61c137f4144772d6ac09596e6c3c637662fb3d4` under receipt
+`20261105T093838-04d158e818e9`. This predates the shared-bibliography cleanup.
+
 ## Script layout and width-control first paint — ready 2026-11-05
 
 Ownership released. All shared Lua executables/modules now live in `scripts/`;

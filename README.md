@@ -17,9 +17,10 @@ top-level URL. The initial projects are:
 
 Each published project is a top-level directory. Its `index.tex` links to the
 project's chapter files. The repository root contains the site-wide landing
-page, bibliography, Make configuration, and HTML template. Shared Lua build
-tooling lives in `scripts/`, while browser CSS, JavaScript, icons, and images
-live in `assets/`.
+page, Make configuration, and HTML template. Shared Lua build tooling lives in
+`scripts/`, while browser CSS, JavaScript, icons, and images live in `assets/`.
+The build reads the shared `bibliography.bib` from a sibling checkout of
+`symmetricfunctions.com`; this repository does not maintain a second copy.
 
 The initial colored-matroid outline is:
 
@@ -37,14 +38,16 @@ are added.
 
 ## Building
 
-The build requires Lua 5.4, Pandoc, `jq`, and Node's `npx`. Generated files
-stay outside the Dropbox checkout by default:
+The build requires Lua 5.4, Pandoc, `jq`, and Node's `npx`:
 
 ```sh
 make site
-make site-check
 python3 -m http.server 8000 --directory /tmp/math-texts-build/www
 ```
+
+By default, `SYMCAT_DIR=../symmetricfunctions.com`. Override `SYMCAT_DIR` (or
+`BIBFILE` directly) if that checkout lives elsewhere. GitHub Actions checks out
+both repositories side by side before building.
 
 To build only the colored-matroid project, run `make`. Override `BUILD_ROOT`
 when a different external output directory is needed. The complete site is
@@ -52,11 +55,10 @@ written to `$BUILD_ROOT/www`.
 
 The rendering pipeline is adapted from
 [`symmetricfunctions.com`](https://github.com/PerAlexandersson/symmetricfunctions.com)
-at revision `8681eba774d7204ce0981b6eb666495aba7c500e`. It retains the tested
+at revision `8681eba774d7204ce0981b6eb666495aba7c500e`. It retains the
 preprocessor, Pandoc gatherer, Lua renderer, bibliography support, cross-page
 references, Pagefind search, and HTML safeguards, with a separate template and
 parameterized domain, project path, and source links.
 
-GitHub Actions builds and checks the site and uploads a review artifact. It
-does not deploy the site; publication to `math.qxy.se` uses the separately
-registered constrained deployment bridge.
+GitHub Actions builds the site and uploads a review artifact. Deployment is a
+separate step.

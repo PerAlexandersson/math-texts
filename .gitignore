@@ -1,4 +1,4 @@
-# Generated site output lives outside the Dropbox checkout by default.
+# Generated site output is not tracked.
 .build/
 temp/
 www/

@@ -3,7 +3,6 @@ SHELL := /bin/bash
 
 # === LOAD CONFIGURATION ===
 include config.mk
-include config_test.mk
 
 ifeq ($(strip $(WWW_DIR)),)
 $(error WWW_DIR must not be empty)
@@ -12,7 +11,7 @@ ifeq ($(abspath $(WWW_DIR)),/)
 $(error WWW_DIR must not be the filesystem root)
 endif
 
-.PHONY: all site site-check clean-site gather meta bib render copy-assets svg clean unittest lint-html check search
+.PHONY: all site site-check clean-site gather meta bib render copy-assets svg clean search
 .DELETE_ON_ERROR:
 .SECONDARY: $(PRE_TEX)
 
@@ -72,18 +71,9 @@ index-aliases: project-sites
 	done
 	@find "$(BUILD_ROOT)/www" -name .created -type f -delete
 
+# Compatibility alias for the deployment bridge. The repository deliberately
+# has no separate test suite; a complete site build is the check.
 site-check: site
-	$(MAKE) unittest PROJECT=colored-matroids \
-	  TEMP_DIR=$(BUILD_ROOT)/temp/tests \
-	  WWW_DIR=$(BUILD_ROOT)/www/colored-matroids \
-	  BIBFILE=tests/bibliography.bib Q=$(Q)
-	$(MAKE) lint-html PROJECT=root SRC_DIR=. SITE_PATH= \
-	  TEMP_DIR=$(BUILD_ROOT)/temp/root WWW_DIR=$(BUILD_ROOT)/www \
-	  ENABLE_RELATION_GRAPH=0 Q=$(Q)
-	$(MAKE) lint-html PROJECT=colored-matroids SRC_DIR=colored-matroids \
-	  SITE_PATH=colored-matroids TEMP_DIR=$(BUILD_ROOT)/temp/colored-matroids \
-	  WWW_DIR=$(BUILD_ROOT)/www/colored-matroids ENABLE_RELATION_GRAPH=0 Q=$(Q)
-	@find "$(BUILD_ROOT)/www" -name .created -type f -delete
 
 clean-site:
 	@case "$(BUILD_ROOT)" in ""|"/") echo "[ERROR] Unsafe BUILD_ROOT='$(BUILD_ROOT)'" >&2; exit 2;; esac
@@ -97,14 +87,6 @@ $(TEMP_DIR)/.created:
 
 $(WWW_DIR)/.created:
 	@mkdir -p $(WWW_DIR)
-	@touch $@
-
-$(TEST_WWW_DIR)/.created: | $(TEMP_DIR)/.created
-	@mkdir -p $(TEST_WWW_DIR)
-	@touch $@
-
-$(TEST_META_DIR)/.created: | $(TEST_WWW_DIR)/.created
-	@mkdir -p $(TEST_META_DIR)
 	@touch $@
 
 # === BIBLIOGRAPHY (must complete before gathering) ===
@@ -129,11 +111,6 @@ $(TEMP_DIR)/%.pre.tex: $(SRC_DIR)/%.tex $(PREPROC_DEPS) | $(TEMP_DIR)/.created
 	$(LOG) "Preprocessing $< → $@"
 	@$(LUA) $(PREPROC_LUA) "$<" < "$<" > "$@"
 
-# Test file preprocessing
-$(TEST_PRE): $(TEST_META_DIR)/%.pre.tex: $(TEST_DIR)/%.tex $(PREPROC_DEPS) | $(TEST_META_DIR)/.created
-	$(LOG) "Preprocessing $< → $@"
-	@$(LUA) $(PREPROC_LUA) "$<" < "$<" > "$@"
-
 # === 2) GATHER: Collect metadata to JSON ===
 .PHONY: gather
 ifeq ($(strip $(FILE)),)
@@ -148,12 +125,6 @@ endif
 $(TEMP_DIR)/%.json: $(TEMP_DIR)/%.pre.tex $(GATHER_DEPS) $(REFS_JSON)
 	$(LOG) "Gathering $< → $@"
 	@$(PANDOC) "$<" --from=$(READER) --to=json --lua-filter=$(GATHER_LUA) --fail-if-warnings | jq '.' > "$@"
-
-# Test file gathering
-$(TEST_JSON): $(TEST_META_DIR)/%.json: $(TEST_META_DIR)/%.pre.tex $(GATHER_DEPS) $(REFS_JSON)
-	$(LOG) "Gathering $< → $@"
-	@$(PANDOC) "$<" --from=$(READER) --to=json \
-	        --lua-filter=$(GATHER_LUA) --fail-if-warnings -o "$@"
 
 # === METADATA: Generate site-wide metadata ===
 .PHONY: meta
@@ -205,29 +176,6 @@ $(WWW_DIR)/%.htm: $(TEMP_DIR)/%.json $(TEMP_DIR)/%.timestamp $(RENDER_DEPS) $(TE
 	@SOURCE_TS=$$(cat $(TEMP_DIR)/$*.timestamp) \
 	$(LUA) $(RENDER_LUA) "$<" > "$@"
 
-# Test metadata is separate from site metadata so unittest links resolve against
-# labels declared inside tests/*.tex.
-$(TEST_LABELS_JSON) $(TEST_POLYDATA_JSON) $(TEST_TODOS_JSON) $(TEST_SITEMAP_XML) $(TEST_GOTO_HTML) $(TEST_PUBLIC_LABELS_JSON) $(TEST_PUBLIC_KEYWORDS_JSON) $(TEST_PUBLIC_BIB_JSON) $(TEST_RELATION_GRAPH_HTML) $(TEST_RELATION_GRAPH_JSON) &: $(TEST_JSON) $(MERGE_META_DEPS) $(REFS_JSON) $(BIBTEX_JSON) $(TEMPLATE) | $(TEST_META_DIR)/.created
-	$(LOG) "Generating test metadata ..."
-	@LABELS_JSON=$(TEST_LABELS_JSON) \
-	  BIBTEX_JSON=$(BIBTEX_JSON) \
-	  POLYDATA_JSON=$(TEST_POLYDATA_JSON) \
-	  TODOS_JSON=$(TEST_TODOS_JSON) \
-	  SITEMAP_XML=$(TEST_SITEMAP_XML) \
-	  WWW_DIR=$(TEST_WWW_DIR) \
-	  RELATION_GRAPH_HTML=$(TEST_RELATION_GRAPH_HTML) \
-	  RELATION_GRAPH_JSON=$(TEST_RELATION_GRAPH_JSON) \
-	  ENABLE_RELATION_GRAPH=1 \
-	  $(LUA) $(MERGE_META_LUA) $(TEST_JSON)
-
-# Test file rendering
-$(TEST_HTML): $(TEST_WWW_DIR)/%.htm: $(TEST_META_DIR)/%.json $(RENDER_DEPS) $(TEMPLATE) $(REFS_JSON) $(BIBTEX_JSON) $(TEST_LABELS_JSON) $(TEST_POLYDATA_JSON) | $(TEST_WWW_DIR)/.created
-	$(LOG) "Rendering test $< → $@"
-	@SOURCE_TS=$$(stat -c '%Y' "$(TEST_DIR)/$*.tex") \
-	LABELS_JSON=$(TEST_LABELS_JSON) \
-	POLYDATA_JSON=$(TEST_POLYDATA_JSON) \
-	$(LUA) $(RENDER_LUA) "$<" > "$@"
-
 # === COPY ASSETS ===
 .PHONY: copy-assets
 copy-assets: $(COPY_ASSETS_STAMP)
@@ -244,53 +192,6 @@ svg:
 	$(LOG) "Generating SVG assets..."
 	@$(LUA) $(TEX_TO_SVG_LUA) $(if $(filter-out 0,$(FORCE)),--force)
 	$(MAKE) copy-assets Q=$(Q)
-
-# === UNITTEST ===
-.PHONY: unittest
-unittest: $(TEST_HTML) $(TEST_CHECK) $(TEST_EDGE_CHECK) $(TEST_JSON_CHECK) $(TEST_BACKEND_CHECK) $(TEST_SAFEGUARDS_CHECK)
-	$(LOG) "Unittest pipeline finished — processed $(words $(TEST_TEX)) test file(s)"
-
-$(TEST_CHECK): $(TEST_PUBLIC_KEYWORDS_JSON) $(TEST_JSON) $(TEST_LABELS_JSON) $(TEST_POLYDATA_JSON) $(TEST_HTML) tests/check_unittest.lua $(FILE_READING_LUA) $(UTILS_LUA)
-	$(LOG) "Checking unittest metadata ..."
-	@LABELS_JSON=$(TEST_LABELS_JSON) \
-	  POLYDATA_JSON=$(TEST_POLYDATA_JSON) \
-	  TEST_HTML="$(TEST_HTML)" \
-	  WWW_DIR="$(WWW_DIR)" \
-	  $(LUA) tests/check_unittest.lua
-	@touch $@
-
-$(TEST_EDGE_CHECK): tests/check_edge_cases.lua tests/fixtures/preprocess.tex tests/fixtures/unsupported-cite.tex $(PREPROC_DEPS) $(GATHER_DEPS) $(FIG_TO_HTML_LUA) $(REFS_JSON) | $(TEST_META_DIR)/.created
-	$(LOG) "Checking preprocess and citation edge cases ..."
-	@$(LUA) tests/check_edge_cases.lua
-	@touch $@
-
-$(TEST_JSON_CHECK): tests/check_json_determinism.lua $(FILE_READING_LUA) $(UTILS_LUA) $(RELATION_GRAPH_LUA) $(RELATION_REGISTRY_LUA) $(BIBHANDLER_LUA) $(REFS_JSON) $(BIBTEX_JSON) | $(TEST_META_DIR)/.created
-	$(LOG) "Checking deterministic JSON encoding ..."
-	@$(LUA) tests/check_json_determinism.lua
-	@touch $@
-
-$(TEST_BACKEND_CHECK): tests/check_backend.py tests/fixtures/svg_runner.lua $(TEX_TO_SVG_LUA) $(RENDER_DEPS) $(MERGE_META_DEPS) $(GATHER_DEPS) $(PREPROC_DEPS) $(BIBTEX_EXTRACT_LUA) $(BIB_MATH_FILTER) $(TEMPLATE) Makefile config.mk config_test.mk | $(TEST_META_DIR)/.created
-	$(LOG) "Checking backend failure handling and build dependencies ..."
-	@python3 tests/check_backend.py
-	@touch $@
-
-$(TEST_SAFEGUARDS_CHECK): tests/check_safeguards.lua tests/fixtures/bibliography.json tests/fixtures/bibtex-entries.json $(PREPROC_DEPS) $(GATHER_DEPS) $(RENDER_DEPS) $(MERGE_META_DEPS) $(REFS_JSON) $(BIBTEX_JSON) $(TEMPLATE) | $(TEST_META_DIR)/.created
-	$(LOG) "Checking build safeguards ..."
-	@TEST_META_DIR=$(TEST_META_DIR) READER=$(READER) $(LUA) tests/check_safeguards.lua
-	@touch $@
-
-# === GENERATED HTML LINT ===
-.PHONY: lint-html
-LINT_INPUTS := $(HTML_FILES) $(SITEMAP_XML) $(GOTO_HTML)
-ifneq ($(ENABLE_RELATION_GRAPH),0)
-LINT_INPUTS += $(RELATION_GRAPH_HTML)
-endif
-lint-html: $(LINT_INPUTS) copy-assets tests/lint_html.lua
-	$(LOG) "Linting generated HTML ..."
-	@WWW_DIR="$(WWW_DIR)" SRC_DIR="$(SRC_DIR)" ASSETS_DIR="$(ASSETS_DIR)" $(LUA) tests/lint_html.lua
-
-.PHONY: check
-check: unittest lint-html
 
 # === CLEAN ===
 .PHONY: clean

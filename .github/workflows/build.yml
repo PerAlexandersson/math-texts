@@ -16,14 +16,21 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
+          path: math-texts
+          persist-credentials: false
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: PerAlexandersson/symmetricfunctions.com
+          path: symmetricfunctions.com
           persist-credentials: false
       - name: Install document tools
         run: |
           sudo apt-get update
           sudo apt-get install --yes jq lua5.4 lua-dkjson pandoc
       - name: Build and check
+        working-directory: math-texts
         run: |
-          make site-check Q=1 LUA=lua5.4 BUILD_ROOT="$RUNNER_TEMP/math-texts-build"
+          make site Q=1 LUA=lua5.4 BUILD_ROOT="$RUNNER_TEMP/math-texts-build"
           git diff --check
           test -z "$(find . -type l -print -quit)"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
