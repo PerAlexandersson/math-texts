@@ -213,6 +213,31 @@ are bases of $M$. Exchanging positions $e$ and $f$ between the two words gives
 two words in $\mathcal F$. Hence $\mathcal F$ is a colored matroid.
 \end{proof}
 
+\begin{proposition}[Color projections]
+Let $\mathcal F$ be a colored matroid and fix a color $c$. Then
+\[
+ \defin{\mathcal B_c}=\{B(u,c):u\in\mathcal F\}
+\]
+is the set of bases of a rank-$r_c$ matroid on $[n]$.
+\end{proposition}
+
+\begin{proof}
+The family $\mathcal B_c$ is nonempty, and each of its members has cardinality
+$r_c$. Take $X,Y\in\mathcal B_c$ and $e\in X\setminus Y$, and choose
+$u,v\in\mathcal F$ such that $X=B(u,c)$ and $Y=B(v,c)$. In a cyclic exchange
+containing $e$, the pair at $e$ starts with $c$. The cycle returns to $c$ at a
+position $f$ whose pair ends with $c$. Hence $f\in Y\setminus X$.
+
+Let $u'$ be the word obtained from $u$ by this exchange. Since the colors in
+the cycle are distinct, the exchange removes $e$ from the color-$c$ positions
+and adds $f$. Therefore
+\[
+ B(u',c)=(X\setminus\{e\})\cup\{f\}.
+\]
+Symmetric cycle exchange gives $u'\in\mathcal F$, so
+$B(u',c)\in\mathcal B_c$. Thus $\mathcal B_c$ satisfies basis exchange.
+\end{proof}
+
 \subsection[exchangeExamples]{Examples with three or more colors}
 
 \begin{example}[A 3-matroid on five elements]
