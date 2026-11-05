@@ -34,39 +34,38 @@ $e\in B\setminus C$, replace $e$ by the element of $C$ that belongs to the
 same set as $e$.
 
 Each basis gives an ordered partition $(B,E\setminus B)$. Color the elements
-of the basis $A$ and the elements of its complement $B$. The twelve ordered
+of the basis $1$ and the elements of its complement $0$. The twelve ordered
 partitions are
 \[
 \begin{array}{c|c|c}
-\text{word}&\text{Color }A&\text{Color }B\\ \hline
-\mathtt{ABABABB}&\{1,3,5\}&\{2,4,6,7\}\\
-\mathtt{ABABBAB}&\{1,3,6\}&\{2,4,5,7\}\\
-\mathtt{ABABBBA}&\{1,3,7\}&\{2,4,5,6\}\\
-\mathtt{ABBAABB}&\{1,4,5\}&\{2,3,6,7\}\\
-\mathtt{ABBABAB}&\{1,4,6\}&\{2,3,5,7\}\\
-\mathtt{ABBABBA}&\{1,4,7\}&\{2,3,5,6\}\\
-\mathtt{BAABABB}&\{2,3,5\}&\{1,4,6,7\}\\
-\mathtt{BAABBAB}&\{2,3,6\}&\{1,4,5,7\}\\
-\mathtt{BAABBBA}&\{2,3,7\}&\{1,4,5,6\}\\
-\mathtt{BABAABB}&\{2,4,5\}&\{1,3,6,7\}\\
-\mathtt{BABABAB}&\{2,4,6\}&\{1,3,5,7\}\\
-\mathtt{BABABBA}&\{2,4,7\}&\{1,3,5,6\}
+\text{word}&\text{Color }1&\text{Color }0\\ \hline
+\mathtt{1010100}&\{1,3,5\}&\{2,4,6,7\}\\
+\mathtt{1010010}&\{1,3,6\}&\{2,4,5,7\}\\
+\mathtt{1010001}&\{1,3,7\}&\{2,4,5,6\}\\
+\mathtt{1001100}&\{1,4,5\}&\{2,3,6,7\}\\
+\mathtt{1001010}&\{1,4,6\}&\{2,3,5,7\}\\
+\mathtt{1001001}&\{1,4,7\}&\{2,3,5,6\}\\
+\mathtt{0110100}&\{2,3,5\}&\{1,4,6,7\}\\
+\mathtt{0110010}&\{2,3,6\}&\{1,4,5,7\}\\
+\mathtt{0110001}&\{2,3,7\}&\{1,4,5,6\}\\
+\mathtt{0101100}&\{2,4,5\}&\{1,3,6,7\}\\
+\mathtt{0101010}&\{2,4,6\}&\{1,3,5,7\}\\
+\mathtt{0101001}&\{2,4,7\}&\{1,3,5,6\}
 \end{array}
 \]
-The Color A sets are the rank-three bases of $M$. Their complements, shown in
-the Color B column, are the rank-four bases of $M^*$.
-If we identify $A$ with $1$ and $B$ with $0$, each word is the indicator
-vector of its Color A basis. Thus, with two colors, the words are simply the
-bases written in position notation; the Color B positions simultaneously
-record the bases of the dual matroid.
+The Color 1 sets are the rank-three bases of $M$. Their complements, shown in
+the Color 0 column, are the rank-four bases of $M^*$. Each word is the
+indicator vector of its Color 1 basis. Thus, with two colors, the words are
+simply the bases written in position notation; the Color 0 positions
+simultaneously record the bases of the dual matroid.
 
-Take $u=\mathtt{ABABABB}$ and $v=\mathtt{BABABAB}$.
-The Color A set of $u$ contains $1$ but not $2$, while the Color A set of $v$
+Take $u=\mathtt{1010100}$ and $v=\mathtt{0101010}$.
+The Color 1 set of $u$ contains $1$ but not $2$, while the Color 1 set of $v$
 contains $2$ but not $1$. Exchanging these two elements gives the bases
 $\{2,3,5\}$ and $\{1,4,6\}$. In the colored words, the pairs at positions
-$1$ and $2$ are $(A,B)$ and $(B,A)$, forming the cycle
+$1$ and $2$ are $(1,0)$ and $(0,1)$, forming the cycle
 \[
- A\longrightarrow B\longrightarrow A.
+ 1\longrightarrow 0\longrightarrow 1.
 \]
 The highlighted columns show the exchange. The first two rows are the original
 words, and the last two are obtained by switching positions $1$ and $2$ in
@@ -74,13 +73,13 @@ both words:
 \begin{array}{c|ccccccc}
 \text{position}&*(exchange)1&*(exchange)2&3&4&5&6&7\\
 \midrule
-u&*(exchange)A&*(exchange)B&A&B&A&B&B\\
-v&*(exchange)B&*(exchange)A&B&A&B&A&B\\
+u&*(exchange)1&*(exchange)0&1&0&1&0&0\\
+v&*(exchange)0&*(exchange)1&0&1&0&1&0\\
 \midrule
-u'&*(exchange)B&*(exchange)A&A&B&A&B&B\\
-v'&*(exchange)A&*(exchange)B&B&A&B&A&B
+u'&*(exchange)0&*(exchange)1&1&0&1&0&0\\
+v'&*(exchange)1&*(exchange)0&0&1&0&1&0
 \end{array}
-Thus $u'=\mathtt{BAABABB}$ and $v'=\mathtt{ABBABAB}$, which are again rows of
+Thus $u'=\mathtt{0110100}$ and $v'=\mathtt{1001010}$, which are again rows of
 the table. Basis exchange appears as a two-color cycle exchange, simultaneously
 in the matroid and its dual.
 \end{example}
@@ -102,7 +101,7 @@ is a permutation of
 \[
  1^{r_1}2^{r_2}\dotsm k^{r_k}.
 \]
-The letters are the colors, and we write
+The symbols are the colors, and we write
 \[
  B(u,c)=\{i:u_i=c\}
 \]
@@ -111,8 +110,8 @@ for the positions carrying color $c$. The tuple
  (B(u,1),\dotsc,B(u,k))
 \]
 is the corresponding ordered set partition of $[n]$. For example,
-$\mathtt{ABAC}$ represents $(\{1,3\},\{2\},\{4\})$ for the ordered colors
-$(A,B,C)$. These words play the role of bases.
+$\mathtt{1213}$ represents $(\{1,3\},\{2\},\{4\})$ for the ordered colors
+$(1,2,3)$. These words play the role of bases.
 
 \subsection[cyclicExchange]{Cyclic exchange}
 
@@ -120,24 +119,24 @@ Basis exchange replaces one element of a basis by another. For several color
 classes, changing one position may force further changes in other classes.
 Consider the following two words with four colors:
 \[
- u=\mathtt{ABCDAB},\qquad v=\mathtt{BCDABA}.
+ u=\mathtt{123412},\qquad v=\mathtt{234121}.
 \]
-In positions $1,2,3,4$, the pairs of letters are
+In positions $1,2,3,4$, the pairs of symbols are
 \[
- (A,B),\qquad(B,C),\qquad(C,D),\qquad(D,A).
+ (1,2),\qquad(2,3),\qquad(3,4),\qquad(4,1).
 \]
-They follow the cycle $A\to B\to C\to D\to A$. Interchanging the entries of
+They follow the cycle $1\to 2\to 3\to 4\to 1$. Interchanging the entries of
 $u$ and $v$ in these four positions gives the last two rows below.
 \begin{array}{c|cccccc}
 \text{position}&*(exchange)1&*(exchange)2&*(exchange)3&*(exchange)4&5&6\\
 \midrule
-u&*(exchange)A&*(exchange)B&*(exchange)C&*(exchange)D&A&B\\
-v&*(exchange)B&*(exchange)C&*(exchange)D&*(exchange)A&B&A\\
+u&*(exchange)1&*(exchange)2&*(exchange)3&*(exchange)4&1&2\\
+v&*(exchange)2&*(exchange)3&*(exchange)4&*(exchange)1&2&1\\
 \midrule
-u'&*(exchange)B&*(exchange)C&*(exchange)D&*(exchange)A&A&B\\
-v'&*(exchange)A&*(exchange)B&*(exchange)C&*(exchange)D&B&A
+u'&*(exchange)2&*(exchange)3&*(exchange)4&*(exchange)1&1&2\\
+v'&*(exchange)1&*(exchange)2&*(exchange)3&*(exchange)4&2&1
 \end{array}
-Thus $u'=\mathtt{BCDAAB}$ and $v'=\mathtt{ABCDBA}$.
+Thus $u'=\mathtt{234112}$ and $v'=\mathtt{123421}$.
 
 \begin{definition}[Cyclic exchange]
 In general, let $u,v$ be two permutations of
@@ -174,40 +173,40 @@ exchange uses two positions and recovers ordinary matroid exchange. With three
 colors, it uses either two or three positions.
 
 \begin{proposition}[Two colors]
-Let $\mathcal F$ be a nonempty family of words with $r$ letters $A$ and
-$n-r$ letters $B$. Then $\mathcal F$ is a colored matroid if and only if there
+Let $\mathcal F$ be a nonempty family of binary words with $r$ symbols $1$
+and $n-r$ symbols $0$. Then $\mathcal F$ is a colored matroid if and only if there
 is a rank-$r$ matroid $M$ on $[n]$ such that
 \[
  \mathcal F
- =\{u\in\{A,B\}^n:B(u,A)\in\mathcal B(M)\}.
+ =\{u\in\{0,1\}^n:B(u,1)\in\mathcal B(M)\}.
 \]
-Under this correspondence, the color-$A$ classes are the bases of $M$, and
-the color-$B$ classes are the bases of $M^*$.
+Under this correspondence, the color-$1$ classes are the bases of $M$, and
+the color-$0$ classes are the bases of $M^*$.
 \end{proposition}
 
 \begin{proof}
 Suppose first that $\mathcal F$ is a colored matroid. Take
-$u,v\in\mathcal F$ and $e\in B(u,A)\setminus B(v,A)$. With two colors, a
+$u,v\in\mathcal F$ and $e\in B(u,1)\setminus B(v,1)$. With two colors, a
 cyclic exchange containing $e$ uses one further position
-$f\in B(v,A)\setminus B(u,A)$. The resulting word in $\mathcal F$ has
-color-$A$ class
+$f\in B(v,1)\setminus B(u,1)$. The resulting word in $\mathcal F$ has
+color-$1$ class
 \[
- (B(u,A)\setminus\{e\})\cup\{f\}.
+ (B(u,1)\setminus\{e\})\cup\{f\}.
 \]
-Thus the color-$A$ classes satisfy basis exchange. They all have cardinality
+Thus the color-$1$ classes satisfy basis exchange. They all have cardinality
 $r$, so they are the bases of a matroid $M$. Since
-$B(u,B)=[n]\setminus B(u,A)$, the color-$B$ classes are the bases of $M^*$.
+$B(u,0)=[n]\setminus B(u,1)$, the color-$0$ classes are the bases of $M^*$.
 
 Conversely, let $M$ be a matroid on $[n]$ and form $\mathcal F$ by assigning
-color $A$ to the elements of a basis and color $B$ to the remaining elements.
+color $1$ to the elements of a basis and color $0$ to the remaining elements.
 Take $u,v\in\mathcal F$ and a position $e$ where they disagree. After
 interchanging $u$ and $v$ if needed, we may assume that
-$e\in B(u,A)\setminus B(v,A)$. The symmetric basis-exchange theorem gives an
-$f\in B(v,A)\setminus B(u,A)$ such that both
+$e\in B(u,1)\setminus B(v,1)$. The symmetric basis-exchange theorem gives an
+$f\in B(v,1)\setminus B(u,1)$ such that both
 \[
- (B(u,A)\setminus\{e\})\cup\{f\}
+ (B(u,1)\setminus\{e\})\cup\{f\}
  \qquad\text{and}\qquad
- (B(v,A)\setminus\{f\})\cup\{e\}
+ (B(v,1)\setminus\{f\})\cup\{e\}
 \]
 are bases of $M$. Exchanging positions $e$ and $f$ between the two words gives
 two words in $\mathcal F$. Hence $\mathcal F$ is a colored matroid.
@@ -243,73 +242,73 @@ $B(u',c)\in\mathcal B_c$. Thus $\mathcal B_c$ satisfies basis exchange.
 \begin{example}[A 3-matroid on five elements]
 Consider the family
 \[
- \mathcal F=\{\mathtt{ABCAB},\mathtt{ABCBA},
-               \mathtt{BCAAB},\mathtt{BCABA}\}.
+ \mathcal F=\{\mathtt{12312},\mathtt{12321},
+               \mathtt{23112},\mathtt{23121}\}.
 \]
-Each word is obtained by choosing either $\mathtt{ABC}$ or $\mathtt{BCA}$ in
-positions $1,2,3$, and independently choosing either $\mathtt{AB}$ or
-$\mathtt{BA}$ in positions $4,5$. A disagreement belongs to one of these two
+Each word is obtained by choosing either $\mathtt{123}$ or $\mathtt{231}$ in
+positions $1,2,3$, and independently choosing either $\mathtt{12}$ or
+$\mathtt{21}$ in positions $4,5$. A disagreement belongs to one of these two
 blocks, and exchanging that block produces two words in $\mathcal F$. Hence
 $\mathcal F$ is a 3-matroid.
 
-Take $u=\mathtt{ABCAB}$ and $v=\mathtt{BCABA}$. The words differ on both
+Take $u=\mathtt{12312}$ and $v=\mathtt{23121}$. The words differ on both
 blocks. For the prescribed position $1$, exchange positions $1,2,3$:
 \begin{array}{c|ccccc}
 \text{position}&*(exchange)1&*(exchange)2&*(exchange)3&4&5\\
 \midrule
-u&*(exchange)A&*(exchange)B&*(exchange)C&A&B\\
-v&*(exchange)B&*(exchange)C&*(exchange)A&B&A\\
+u&*(exchange)1&*(exchange)2&*(exchange)3&1&2\\
+v&*(exchange)2&*(exchange)3&*(exchange)1&2&1\\
 \midrule
-u'&*(exchange)B&*(exchange)C&*(exchange)A&A&B\\
-v'&*(exchange)A&*(exchange)B&*(exchange)C&B&A
+u'&*(exchange)2&*(exchange)3&*(exchange)1&1&2\\
+v'&*(exchange)1&*(exchange)2&*(exchange)3&2&1
 \end{array}
-Thus $u'=\mathtt{BCAAB}$ and $v'=\mathtt{ABCBA}$; neither is one of the two
+Thus $u'=\mathtt{23112}$ and $v'=\mathtt{12321}$; neither is one of the two
 original words.
 \end{example}
 
 \begin{example}[A 3-matroid on eight elements]
 The same block construction gives a larger example. Let $E=[8]$, and consider
-permutations of $A^3B^3C^2$. On the positions
-$\{1,2,3\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, on
-$\{4,5,6\}$ choose either $\mathtt{ABC}$ or $\mathtt{BCA}$, and on
-$\{7,8\}$ choose either $\mathtt{AB}$ or $\mathtt{BA}$. Taking all eight
+permutations of $1^3 2^3 3^2$. On the positions
+$\{1,2,3\}$ choose either $\mathtt{123}$ or $\mathtt{231}$, on
+$\{4,5,6\}$ choose either $\mathtt{123}$ or $\mathtt{231}$, and on
+$\{7,8\}$ choose either $\mathtt{12}$ or $\mathtt{21}$. Taking all eight
 choices gives the following family. The three color columns record each
 ordered partition.
 \[
 \begin{array}{c|c|c|c}
-\text{word}&\text{Color }A&\text{Color }B&\text{Color }C\\ \hline
-\mathtt{ABCABCAB}&\{1,4,7\}&\{2,5,8\}&\{3,6\}\\
-\mathtt{ABCABCBA}&\{1,4,8\}&\{2,5,7\}&\{3,6\}\\
-\mathtt{ABCBCAAB}&\{1,6,7\}&\{2,4,8\}&\{3,5\}\\
-\mathtt{ABCBCABA}&\{1,6,8\}&\{2,4,7\}&\{3,5\}\\
-\mathtt{BCAABCAB}&\{3,4,7\}&\{1,5,8\}&\{2,6\}\\
-\mathtt{BCAABCBA}&\{3,4,8\}&\{1,5,7\}&\{2,6\}\\
-\mathtt{BCABCAAB}&\{3,6,7\}&\{1,4,8\}&\{2,5\}\\
-\mathtt{BCABCABA}&\{3,6,8\}&\{1,4,7\}&\{2,5\}
+\text{word}&\text{Color }1&\text{Color }2&\text{Color }3\\ \hline
+\mathtt{12312312}&\{1,4,7\}&\{2,5,8\}&\{3,6\}\\
+\mathtt{12312321}&\{1,4,8\}&\{2,5,7\}&\{3,6\}\\
+\mathtt{12323112}&\{1,6,7\}&\{2,4,8\}&\{3,5\}\\
+\mathtt{12323121}&\{1,6,8\}&\{2,4,7\}&\{3,5\}\\
+\mathtt{23112312}&\{3,4,7\}&\{1,5,8\}&\{2,6\}\\
+\mathtt{23112321}&\{3,4,8\}&\{1,5,7\}&\{2,6\}\\
+\mathtt{23123112}&\{3,6,7\}&\{1,4,8\}&\{2,5\}\\
+\mathtt{23123121}&\{3,6,8\}&\{1,4,7\}&\{2,5\}
 \end{array}
 \]
 
 This family satisfies symmetric cycle exchange. A position where two words
 differ belongs to one of the three displayed blocks. On a three-position
-block, the pairs of letters form the cycle $A\to B\to C\to A$ or its reverse;
-on the last block they form $A\to B\to A$. Exchanging the positions in that
+block, the pairs of symbols form the cycle $1\to 2\to 3\to 1$ or its reverse;
+on the last block they form $1\to 2\to 1$. Exchanging the positions in that
 block changes one allowed choice into the other, so both resulting words
 remain in the family.
 
-Here is one exchange in full. Take $u=\mathtt{ABCABCAB}$ and
-$v=\mathtt{BCABCAAB}$, and prescribe position $1$. At positions $1,2,3$ the
-pairs of letters form a three-cycle. Interchanging the highlighted columns
+Here is one exchange in full. Take $u=\mathtt{12312312}$ and
+$v=\mathtt{23123112}$, and prescribe position $1$. At positions $1,2,3$ the
+pairs of symbols form a three-cycle. Interchanging the highlighted columns
 gives
 \begin{array}{c|cccccccc}
 \text{position}&*(exchange)1&*(exchange)2&*(exchange)3&4&5&6&7&8\\
 \midrule
-u&*(exchange)A&*(exchange)B&*(exchange)C&A&B&C&A&B\\
-v&*(exchange)B&*(exchange)C&*(exchange)A&B&C&A&A&B\\
+u&*(exchange)1&*(exchange)2&*(exchange)3&1&2&3&1&2\\
+v&*(exchange)2&*(exchange)3&*(exchange)1&2&3&1&1&2\\
 \midrule
-u'&*(exchange)B&*(exchange)C&*(exchange)A&A&B&C&A&B\\
-v'&*(exchange)A&*(exchange)B&*(exchange)C&B&C&A&A&B
+u'&*(exchange)2&*(exchange)3&*(exchange)1&1&2&3&1&2\\
+v'&*(exchange)1&*(exchange)2&*(exchange)3&2&3&1&1&2
 \end{array}
-Thus $u'=\mathtt{BCAABCAB}$ and $v'=\mathtt{ABCBCAAB}$, both of which belong
+Thus $u'=\mathtt{23112312}$ and $v'=\mathtt{12323112}$, both of which belong
 to $\mathcal F$.
 
 Here are two other exchanges in this family.
@@ -317,24 +316,24 @@ Here are two other exchanges in this family.
 \item For the two words in the displayed exchange, if position $4$ is
 prescribed, we switch positions $4,5,6$ and obtain the same two resulting
 words in the opposite order.
-\item The words $\mathtt{ABCABCAB}$ and $\mathtt{BCABCABA}$ differ on all
+\item The words $\mathtt{12312312}$ and $\mathtt{23123121}$ differ on all
 three blocks. For the prescribed position $7$, switching positions $7,8$
-gives $\mathtt{ABCABCBA}$ and $\mathtt{BCABCAAB}$. For the prescribed
-position $1$, switching positions $1,2,3$ gives $\mathtt{BCAABCAB}$ and
-$\mathtt{ABCBCABA}$.
+gives $\mathtt{12312321}$ and $\mathtt{23123112}$. For the prescribed
+position $1$, switching positions $1,2,3$ gives $\mathtt{23112312}$ and
+$\mathtt{12323121}$.
 \end{itemize}
 \end{example}
 
 \begin{example}[A switch inside a larger family]
 Consider the family
 \[
- \mathcal F=\{\mathtt{AABC},\mathtt{ABAC},\mathtt{ACBA},
- \mathtt{BAAC},\mathtt{CABA},\mathtt{BCAA},\mathtt{CBAA}\}.
+ \mathcal F=\{\mathtt{1123},\mathtt{1213},\mathtt{1321},
+ \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
 \]
-Take $u=\mathtt{BCAA}$ and $v=\mathtt{AABC}$. At positions $1$ and $3$, the
-pairs of letters are $(B,A)$ and $(A,B)$. Interchanging those positions gives
+Take $u=\mathtt{2311}$ and $v=\mathtt{1123}$. At positions $1$ and $3$, the
+pairs of symbols are $(2,1)$ and $(1,2)$. Interchanging those positions gives
 \[
- u'=\mathtt{ACBA},\qquad v'=\mathtt{BAAC},
+ u'=\mathtt{1321},\qquad v'=\mathtt{2113},
 \]
 which are again members of $\mathcal F$. Unlike the previous example, the
 resulting words are different from the original two words.
