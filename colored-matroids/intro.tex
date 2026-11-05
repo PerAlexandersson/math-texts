@@ -1,26 +1,125 @@
 \metatitle{Introduction to colored matroids}
-\metadescription{The objects, exchange axiom, conventions, and proof-status vocabulary used for colored matroids.}
+\metadescription{Fixed-quota colorings, disagreement cycles, and the symmetric cycle-exchange axiom.}
 
-\section[intro]{Colorings with fixed quotas}
+\section[intro]{Words with fixed quotas}
 
-Let $E$ be a finite set of positions and let $C$ be a finite set of colors.
-A word is a map $w:E\to C$. A fixed-quota family prescribes the cardinality
-of every color fiber $w^{-1}(c)$ and then selects a nonempty collection of
-such words.
+Let $E$ be a finite set of positions, let $[k]=\{1,\dots,k\}$ be a set of
+colors, and fix nonnegative integers $r_1,\dots,r_k$ whose sum is $|E|$.
+A \defin{word} is a map $u:E\to[k]$. We write
+\[
+ B(u,c)=u^{-1}(c)
+\]
+for the positions carrying color $c$. A \defin{fixed-quota family} is a
+nonempty collection $\mathcal F$ of words such that
+\[
+ |B(u,c)|=r_c
+ \qquad\text{for every }u\in\mathcal F\text{ and }c\in[k].
+\]
+When $E=[n]$, we display a word by listing its colors in position order. Thus
+$\mathtt{ABAC}$ denotes the map with values $A,B,A,C$ at positions
+$1,2,3,4$.
 
 Ordinary matroid bases are recovered by looking at one color fiber. The
 colored object retains all fibers simultaneously, so compatible exchanges
 must remember how several colors move around a cycle.
 
+\section[disagreementGraph]{The disagreement graph}
+
+Fix two words $u,v\in\mathcal F$. Their \defin{disagreement graph}
+$D(u,v)$ is the directed multigraph whose vertices are the colors. For each
+position $e$ at which $u(e)\ne v(e)$, it has an arc
+\[
+ u(e)\longrightarrow v(e)
+\]
+labeled by $e$. The quota conditions imply that every vertex has equal
+indegree and outdegree.
+
+A \defin{simple color cycle} is a directed cycle in $D(u,v)$ that visits each
+of its colors once. To \defin{switch} such a cycle, we exchange the entries of
+$u$ and $v$ at all positions labeling its arcs. Entries outside the cycle are
+left unchanged. We denote the two resulting words by $u'$ and $v'$.
+
+Every color occurs equally often in $u'$ and $u$ (and in $v'$ and $v$), so a
+cycle switch automatically preserves the quotas. The real condition is that
+both new words remain in the chosen family $\mathcal F$.
+
 \section[symmetricCycleExchange]{Symmetric cycle exchange}
 
-The working axiom is \defin{symmetric simple-color-cycle exchange}. Given two
-words and a prescribed position where they disagree, we seek a simple cycle
-of distinct colors through that disagreement such that switching the selected
-positions in both parents produces two words that remain in the family.
+\begin{definition}[Symmetric cycle exchange]
+A fixed-quota family $\mathcal F$ satisfies \defin{symmetric cycle exchange}
+if the following holds. For every $u,v\in\mathcal F$ and every position $e$
+with $u(e)\ne v(e)$, the arc of $D(u,v)$ labeled by $e$ lies on a simple color
+cycle whose switch produces two words $u',v'\in\mathcal F$.
+\end{definition}
 
-This chapter will develop the definition, basic switch identities, examples,
-and the two-color correspondence with ordinary matroids.
+The position $e$ is prescribed: it is not enough that some switch works. The
+condition is also symmetric in the two offspring. Both $u'$ and $v'$ must
+belong to $\mathcal F$.
+
+With three colors, a simple color cycle has length two or three. Thus an
+exchange may be an ordinary swap between two colors, or it may move three
+colors cyclically.
+
+\section[exchangeExamples]{Examples of colored exchange}
+
+\begin{example}[A two-color exchange]
+Let $\mathcal F$ be the family of all words on four positions with two $A$'s and two
+$B$'s. Take
+\[
+ u=\mathtt{AABB},\qquad v=\mathtt{BBAA}.
+\]
+At positions $1$ and $3$, the disagreement arcs are respectively
+$A\to B$ and $B\to A$. Switching this two-cycle gives
+\[
+ u'=\mathtt{BAAB},\qquad v'=\mathtt{ABBA}.
+\]
+Both offspring have the required quotas. More generally, with two colors in
+the full fixed-quota family, every prescribed disagreement can be paired with
+a reverse disagreement. This is the two-color form of symmetric exchange.
+\end{example}
+
+\begin{example}[A three-color cycle]
+Consider
+\[
+ \mathcal F=\{\mathtt{ABC},\mathtt{BCA},\mathtt{CAB}\}.
+\]
+For $u=\mathtt{ABC}$ and $v=\mathtt{BCA}$, the three positions label the
+cycle
+\[
+ A\longrightarrow B\longrightarrow C\longrightarrow A.
+\]
+Switching the cycle interchanges $u$ and $v$. The same happens for either of
+the other pairs, so $\mathcal F$ satisfies symmetric cycle exchange.
+\end{example}
+
+\begin{example}[The offspring need not be the parents]
+Consider the fixed-quota family
+\[
+ \mathcal F=\{\mathtt{AABC},\mathtt{ABAC},\mathtt{ACBA},
+ \mathtt{BAAC},\mathtt{CABA},\mathtt{BCAA},\mathtt{CBAA}\}.
+\]
+Take $u=\mathtt{BCAA}$ and $v=\mathtt{AABC}$. The arcs at positions $1$ and
+$3$ form the two-cycle $B\to A\to B$. Switching those positions gives
+\[
+ u'=\mathtt{ACBA},\qquad v'=\mathtt{BAAC},
+\]
+which are again members of $\mathcal F$. Unlike the previous example, the
+offspring are different from both parents.
+\end{example}
+
+\begin{example}[A four-color cycle]
+The family
+\[
+ \mathcal F=\{\mathtt{ABCD},\mathtt{BCDA}\}
+\]
+satisfies symmetric cycle exchange. Between its two words, all four positions
+form the simple color cycle
+\[
+ A\longrightarrow B\longrightarrow C\longrightarrow D\longrightarrow A.
+\]
+The only possible switch interchanges the two words, and its cycle contains
+every prescribed disagreement.
+\end{example}
 
 \section[statusVocabulary]{Status of statements}
 
