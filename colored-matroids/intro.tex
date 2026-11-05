@@ -49,6 +49,10 @@ partitions are
 \]
 The Color A sets are the rank-three bases of $M$. Their complements, shown in
 the Color B column, are the rank-four bases of $M^*$.
+If we identify $A$ with $1$ and $B$ with $0$, each word is the indicator
+vector of its Color A basis. Thus, with two colors, the words are simply the
+bases written in position notation; the Color B positions simultaneously
+record the bases of the dual matroid.
 
 Take $u=\mathtt{ABABABB}$ and $v=\mathtt{BABABAB}$.
 The Color A set of $u$ contains $1$ but not $2$, while the Color A set of $v$
@@ -75,10 +79,8 @@ the table. Basis exchange appears as a two-color cycle exchange, simultaneously
 in the matroid and its dual.
 \end{example}
 
-The two color classes in each row have complementary roles. Color A is a basis
-of $M$, while Color B is its complement and hence a basis of $M^*$. Thus the
-matroid and its dual are recorded together as an ordered partition of $E$ into
-two blocks.
+Each word therefore records the ordered partition $(B,E\setminus B)$, placing
+the matroid and its dual in the two color classes.
 
 \section[coloredMatroids]{Colored matroids}
 
