@@ -69,11 +69,17 @@ which are again rows of the table. Thus basis exchange appears as a two-color
 cycle exchange, simultaneously in the matroid and its dual.
 \end{example}
 
-With two colors, every change from $A$ to $B$ must be matched by a change from
-$B$ to $A$. With more colors, the compensating changes may pass through
-several colors before returning to the first one.
+The two color classes in each row have complementary roles. Color A is a basis
+of $M$, while Color B is its complement and hence a basis of $M^*$. Thus the
+matroid and its dual are recorded together as an ordered partition of $E$ into
+two blocks.
 
 \section[coloredMatroids]{Colored matroids}
+
+We now generalize this set-partition viewpoint. Instead of dividing $E$ into a
+basis and its complement, we divide it into an ordered list of $k$ color
+classes. Their sizes remain fixed, but no single class determines all the
+others. The exchange rule must therefore move several colors compatibly.
 
 Let $E$ be a finite set of positions, let $[k]=\{1,\dots,k\}$ be a set of
 colors, and fix nonnegative integers $r_1,\dots,r_k$ whose sum is $|E|$.
