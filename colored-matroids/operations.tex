@@ -1,0 +1,221 @@
+\metatitle{Operations and minors}
+\metadescription{Loops, coloops, restrictions, deletion, contraction, and
+direct sums of colored matroids.}
+
+\section[operations]{Operations and minors}
+
+The usual matroid operations have direct analogues for colored matroids.
+Loops and coloops are considered one color at a time, while deletion and
+contraction act on a position together with a specified color.
+
+\subsection[loopsAndColoops]{Loops and coloops}
+
+Let $\mathcal F$ be a colored matroid on $E$. For each color $c$, the sets
+$B(u,c)$, where $u\in\mathcal F$, are the bases of a matroid on $E$. We write
+$M(\mathcal F,c)$ for this color projection.
+
+\begin{definition}[Loops and coloops]
+A position $e\in E$ is a \defin{loop of color $c$} if no word in
+$\mathcal F$ assigns color $c$ to $e$. It is a \defin{coloop of color $c$}
+if every word in $\mathcal F$ assigns color $c$ to $e$. Equivalently, $e$ is
+a loop or coloop, respectively, of $M(\mathcal F,c)$.
+\end{definition}
+
+\begin{example}
+Consider the seven-word colored matroid
+\[
+ \mathcal F=\left\{\mathtt{1123},\mathtt{1213},\mathtt{1321},
+ \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\right\}.
+\]
+Color $2$ never occurs at position $4$, so position $4$ is a loop of color
+$2$. Similarly, position $3$ is a loop of color $3$.
+
+If $\mathcal G=\{\mathtt{1231},\mathtt{1321}\}$, then positions $1$ and $4$
+are coloops of color $1$. At either position, colors $2$ and $3$ are loops.
+\end{example}
+
+\subsection[restrictionsAndPinning]{Restrictions and pinning}
+
+\begin{definition}[Restrictions and pinning]
+Choose a set $L_e$ of allowed colors at each position $e$. The corresponding
+\defin{restriction} of $\mathcal F$ is
+\[
+ \mathcal F_L
+ \coloneqq
+ \{u\in\mathcal F:u(e)\in L_e\text{ for every }e\in E\}.
+\]
+To \defin{pin} $(e,c)$ means to retain only the words with $u(e)=c$.
+\end{definition}
+
+\begin{proposition}[Restrictions]
+Every nonempty restriction of a colored matroid is a colored matroid. In
+particular, every nonempty pinned family satisfies symmetric cycle exchange.
+\end{proposition}
+
+\begin{proof}
+Take two words in the restriction. Every entry used by a cyclic exchange is
+an entry of one of the two words at the same position, so the two resulting
+words still satisfy all allowed-color conditions. If a position is pinned,
+the two words agree there, and the position does not occur in an exchange.
+\end{proof}
+
+\subsection[deletionAndContraction]{Deletion and contraction}
+
+Deleting a position without specifying its color gives branches with different
+quota vectors. The minor operations are therefore indexed by a position-color
+pair $(e,c)$.
+
+\begin{definition}[Deletion and contraction]
+The \defin{deletion of $(e,c)$} is
+\[
+ \mathcal F\setminus(e,c)
+ \coloneqq
+ \{u\in\mathcal F:u(e)\ne c\}.
+\]
+The position $e$ remains, but color $c$ is no longer allowed there.
+
+The \defin{contraction of $(e,c)$} is
+\[
+ \mathcal F/(e,c)
+ \coloneqq
+ \{u|_{E\setminus\{e\}}:u\in\mathcal F,\ u(e)=c\}.
+\]
+Contraction removes $e$ and decreases the quota of color $c$ by one.
+\end{definition}
+
+Both operations may give the empty family. If $e$ is a loop of color $c$,
+then $\mathcal F/(e,c)$ is empty and
+$\mathcal F\setminus(e,c)=\mathcal F$. If $e$ is a coloop of color $c$,
+then $\mathcal F\setminus(e,c)$ is empty.
+
+\begin{proposition}[Assignment minors]
+Every nonempty deletion or contraction of a colored matroid is a colored
+matroid.
+\end{proposition}
+
+\begin{proof}
+Deletion is the restriction that forbids color $c$ at $e$. Contraction first
+pins $e$ to color $c$ and then removes the fixed position. Restrictions and
+pinning preserve symmetric cycle exchange.
+\end{proof}
+
+\begin{example}[Contractions at one position]
+For the seven-word family above, contraction at the first position gives
+\[
+\begin{array}{c|c}
+c&\mathcal F/(1,c)\\ \hline
+1&\{\mathtt{123},\mathtt{213},\mathtt{321}\}\\
+2&\{\mathtt{113},\mathtt{311}\}\\
+3&\{\mathtt{121},\mathtt{211}\}
+\end{array}
+\]
+The three rows partition $\mathcal F$ according to the color at position $1$.
+For example,
+\[
+ \mathcal F\setminus(1,1)
+ =\{\mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
+\]
+\end{example}
+
+The deletion--contraction identity is most transparent for the polynomial
+that records every position and its color.
+
+\begin{definition}[Assignment enumerator]
+The \defin{assignment enumerator} of $\mathcal F$ is
+\[
+ Z_{\mathcal F}(\mathbf z)
+ \coloneqq
+ \sum_{u\in\mathcal F}\prod_{e\in E}z_{e,u(e)}.
+\]
+\end{definition}
+
+\begin{proposition}[Deletion--contraction]
+For every position $e$ and color $c$,
+\[
+ Z_{\mathcal F}
+ =z_{e,c}Z_{\mathcal F/(e,c)}
+  +Z_{\mathcal F\setminus(e,c)}.
+\]
+Splitting according to all possible colors at $e$ gives
+\[
+ Z_{\mathcal F}
+ =\sum_c z_{e,c}Z_{\mathcal F/(e,c)}.
+\]
+\end{proposition}
+
+\begin{proof}
+Separate the words according to whether $u(e)=c$. More generally, each word
+belongs to exactly one branch determined by its color at $e$.
+\end{proof}
+
+\begin{proposition}[Ordinary matroid minors]
+Suppose $\mathcal F$ has two colors, with color-$1$ classes the bases of a
+matroid $M$. If $e$ is not a loop of $M$, then
+$\mathcal F/(e,1)$ records the bases of $M/e$. If $e$ is not a coloop of
+$M$, then $\mathcal F/(e,0)$ records the bases of $M\setminus e$.
+\end{proposition}
+
+\begin{proof}
+The color-$1$ classes in $\mathcal F/(e,1)$ are the sets
+$B\setminus\{e\}$ for bases $B$ containing $e$. These are the bases of
+$M/e$. In $\mathcal F/(e,0)$, the color-$1$ classes are the bases of $M$
+that avoid $e$, which are the bases of $M\setminus e$.
+\end{proof}
+
+\subsection[directSums]{Direct sums}
+
+Let $\mathcal F_1$ and $\mathcal F_2$ use the same colors on disjoint
+position sets $E_1$ and $E_2$.
+
+\begin{definition}[Direct sum]
+The \defin{direct sum} is
+\[
+ \mathcal F_1\oplus\mathcal F_2
+ \coloneqq
+ \{u_1\sqcup u_2:u_1\in\mathcal F_1,\ u_2\in\mathcal F_2\}.
+\]
+Its quota for each color is the sum of the two corresponding quotas.
+\end{definition}
+
+\begin{proposition}[Direct sums]
+The direct sum $\mathcal F_1\oplus\mathcal F_2$ is a colored matroid if and
+only if both factors are colored matroids. For every color $c$,
+\[
+ M(\mathcal F_1\oplus\mathcal F_2,c)
+ =M(\mathcal F_1,c)\oplus M(\mathcal F_2,c).
+\]
+On the right, the bases are the unions of one basis from each projection.
+Moreover,
+\[
+ Z_{\mathcal F_1\oplus\mathcal F_2}
+ =Z_{\mathcal F_1}Z_{\mathcal F_2}.
+\]
+\end{proposition}
+
+\begin{proof}
+For the forward construction, a prescribed disagreement belongs to one
+factor. Apply symmetric cycle exchange there and leave the other factor
+unchanged.
+
+Conversely, fix a word in one factor and compare two words that differ only
+in the other factor. Every exchange between them stays in the positions where
+they differ, and therefore gives the required exchange in that factor. The
+statements about color projections and assignment enumerators follow directly
+from the definition.
+\end{proof}
+
+\begin{example}
+Take
+\[
+ \mathcal F_1=\{\mathtt{123},\mathtt{231}\},
+ \qquad
+ \mathcal F_2=\{\mathtt{12},\mathtt{21}\}.
+\]
+Their direct sum is
+\[
+ \mathcal F_1\oplus\mathcal F_2
+ =\{\mathtt{12312},\mathtt{12321},
+     \mathtt{23112},\mathtt{23121}\},
+\]
+the five-position colored matroid from the introduction.
+\end{example}
