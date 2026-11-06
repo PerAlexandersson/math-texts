@@ -1,6 +1,6 @@
 \metatitle{Exchange graphs}
 \metadescription{Cycle exchanges, monotone paths, ordinary basis graphs, and
-direct sums of colored matroids.}
+canonical direct-sum decomposition of colored matroids.}
 
 \section[exchangeGraphs]{Exchange graphs}
 
@@ -139,3 +139,69 @@ Each factor has a single exchange edge. Their direct sum has exchange graph
 \]
 the Cartesian product of two edges.
 \end{example}
+
+\subsection[components]{Components and direct-sum decomposition}
+
+We can also recover the direct-sum factors from the exchanges. Form a graph
+on the position set $E$, joining distinct positions whenever some edge of
+$G(\mathcal F)$ changes both. We call its connected components
+$D_1,\dotsc,D_s$ the \defin{components} of $\mathcal F$, including isolated
+positions. Write
+\[
+ \defin{\mathcal F|_D}\coloneqq\{u|_D:u\in\mathcal F\}
+\]
+for the family of distinct restrictions to $D$.
+
+\begin{theorem}[Decomposition into components]
+Every colored matroid has a unique finest direct-sum decomposition by
+positions:
+\[
+ \mathcal F=\mathcal F|_{D_1}\oplus\dotsb\oplus\mathcal F|_{D_s}.
+\]
+Each factor is a colored matroid with fixed color quotas. Every other
+direct-sum decomposition groups some of these components together.
+\end{theorem}
+
+\begin{proof}
+Fix $u,v\in\mathcal F$ and a component $D_i$. If they disagree at a position
+of $D_i$, apply symmetric cycle exchange there and replace $u$ by the word
+obtained from it. The move is an edge of $G(\mathcal F)$, so every changed
+position lies in $D_i$. Each changed entry now agrees with $v$. Repeating
+installs $v|_{D_i}$ while leaving all other positions unchanged.
+
+We can therefore choose the restriction on each component independently.
+This proves the direct-sum equality. Fixing words on all the other components
+shows that each factor has fixed color quotas and satisfies symmetric cycle
+exchange.
+
+In any direct-sum decomposition, an exchange edge lies entirely in one
+factor, by the preceding proposition. Thus two positions joined in our graph
+must lie in the same factor, and so must every component $D_i$.
+\end{proof}
+
+In the square example, the components are $\{1,2,3\}$ and $\{4,5\}$.
+An isolated position is fixed to one color and contributes a one-word factor.
+
+The same decomposition can be read from the ordinary color projections.
+Recall that the components of an ordinary matroid are the ground sets of its
+finest direct-sum factors.
+
+\begin{proposition}[Components from color projections]
+Join two positions whenever they lie in a common component of
+$M(\mathcal F,c)$ for some color $c$. The connected components of this graph
+are exactly the components of $\mathcal F$.
+\end{proposition}
+
+\begin{proof}
+Let $D$ be a component of this graph. It is a union of components of each
+$M(\mathcal F,c)$, so $|B(u,c)\cap D|$ is independent of $u$ for every color
+$c$. Along an exchange edge, the disagreement arrows at positions in $D$
+are therefore balanced. As they form a subset of a directed simple cycle,
+they comprise either the whole cycle or none of it. Hence every exchange
+edge stays in one of these position sets.
+
+Conversely, a direct-sum decomposition of $\mathcal F$ induces a direct-sum
+decomposition of every color projection. Each ordinary matroid component
+therefore lies within one component of $\mathcal F$. The two partitions
+coincide.
+\end{proof}

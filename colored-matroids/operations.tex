@@ -81,6 +81,29 @@ words still satisfy all allowed-color conditions. If a position is pinned,
 the two words agree there, and the position does not occur in an exchange.
 \end{proof}
 
+\subsection[scoreMaximizers]{Maximizing a score}
+
+Give each position--color pair $(e,c)$ a real score $a_{e,c}$. The
+\defin{additive score} of a word is
+\[
+ a(u)\coloneqq\sum_{e\in E}a_{e,u(e)}.
+\]
+
+\begin{proposition}[Maximizing words]
+The words of a colored matroid maximizing an additive score form a colored
+matroid.
+\end{proposition}
+
+\begin{proof}
+Let $u,v$ both attain the maximum $m$, and apply symmetric cycle exchange.
+At each position, the two resulting words use the same pair of entries as
+the parents. Their total score is therefore $2m$. Neither score exceeds $m$,
+so both equal $m$.
+\end{proof}
+
+This gives the \href{polytope.htm#polytopeFaces}{faces of the assignment
+polytope}.
+
 \subsection[deletionAndContraction]{Deletion and contraction}
 
 Fix a position $e$ and a color $c$. We retain the words with $u(e)=c$ and

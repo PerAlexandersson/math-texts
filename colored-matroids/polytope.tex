@@ -1,30 +1,170 @@
 \metatitle{Assignment polytopes}
-\metadescription{Assignment-vector geometry and open polyhedral questions for colored matroids.}
+\metadescription{Faces and cycle edges of colored-matroid assignment polytopes,
+and the complete prefix-bound description for colored lattice-path matroids.}
 
 \section[polytope]{The assignment-vector embedding}
 
-A coloring can be represented by its zero-one vector in the coordinates
-$E\times C$. The convex hull of the vectors belonging to a family of
-permutations of a fixed word is its \defin{assignment polytope}. Fixed row and
-color sums supply immediate affine equations; the exchange axiom imposes
-additional geometry.
+We represent each word by a zero-one matrix, with one row for each position
+and one column for each color. Cyclic exchanges then become edges of a
+polytope.
+
+Throughout, $\mathcal F$ is a colored matroid on $E$ with colors $[k]$ and
+quotas $r_1,\dotsc,r_k$.
+
+\begin{definition}[Assignment polytope]
+For a word $u$ on $E$ with colors $[k]$, its \defin{assignment vector} is
+\[
+ \defin{\chi(u)_{e,c}}\coloneqq
+ \begin{cases}
+  1&\text{if }u(e)=c,\\
+  0&\text{otherwise}.
+ \end{cases}
+\]
+The \defin{assignment polytope} of $\mathcal F$ is
+\[
+ \defin{P(\mathcal F)}\coloneqq
+ \operatorname{conv}\{\chi(u):u\in\mathcal F\}.
+\]
+\end{definition}
+
+Its vertices are exactly the assignment vectors of the words. Indeed,
+$\chi(u)$ uniquely maximizes $\sum_e x_{e,u(e)}$ over these vectors. Every
+point of $P(\mathcal F)$ satisfies
+\[
+ x_{e,c}\geq0,\qquad
+ \sum_{c=1}^k x_{e,c}=1,\qquad
+ \sum_{e\in E}x_{e,c}=r_c.
+\]
+The last two equations record one color at each position and the prescribed
+color quotas.
+
+\section[polytopeFaces]{Faces}
+
+A nonempty \defin{face} of a polytope consists of the points maximizing a
+linear functional; we include the whole polytope as a face.
+
+\begin{proposition}[Faces are colored matroids]
+Every nonempty face of $P(\mathcal F)$ is $P(\mathcal H)$ for a colored
+matroid $\mathcal H\subseteq\mathcal F$.
+\end{proposition}
+
+\begin{proof}
+A linear functional $\sum_{e,c}a_{e,c}x_{e,c}$ gives the additive word score
+$\sum_e a_{e,u(e)}$. The words maximizing this score form a colored matroid
+by the \href{operations.htm#scoreMaximizers}{maximizer proposition}. Their
+assignment vectors are exactly the vertices of the face.
+\end{proof}
 
 \section[polytopeEdges]{Edges and cycle moves}
 
-Cyclic exchanges give sparse directions with entries in
-$\{-1,0,1\}$. This chapter will separate the proved implication from
-symmetric cycle exchange to simple-cycle edge directions from the open
-converse for arbitrary nonempty families of permutations of a fixed word.
+An \defin{edge} is a one-dimensional face.
+
+\begin{theorem}[Edges are cyclic exchanges]
+Two distinct vertices $\chi(u),\chi(v)$ of $P(\mathcal F)$ are joined by an
+edge if and only if their entire disagreement is one directed simple cycle
+on the colors.
+\end{theorem}
+
+\begin{proof}
+Suppose that the two vertices form an edge. Its word family is a colored
+matroid with just the two words $u,v$. Apply symmetric cycle exchange at any
+disagreement. The word obtained from $u$ must be $v$, so the exchange uses
+every disagreement.
+
+Conversely, suppose the disagreements form one directed simple cycle. Give
+score zero to the cells used by $u$ or $v$ and score $-1$ to all other cells.
+The maximizing words use only parent entries at each position. Any such word
+is obtained from $u$ by switching a subset of the disagreement positions.
+The quotas require the arrows in this subset to balance at every color.
+A subset of a directed simple cycle is balanced only when it is empty or
+the entire cycle. The maximizing face therefore has just $\chi(u),\chi(v)$
+as vertices and is their joining edge.
+\end{proof}
+
+Thus the \href{exchange-graphs.htm}{exchange graph} is exactly the graph of
+vertices and edges of $P(\mathcal F)$. The direction of each edge has entries
+in $\{-1,0,1\}$: one assignment is removed and one is added at each changed
+position. The
+\href{exchange-graphs.htm#components}{decomposition into components} gives
+\[
+ P(\mathcal F)=P(\mathcal F|_{D_1})\times\dotsm\times
+ P(\mathcal F|_{D_s}).
+\]
+
+\begin{example}[A square]
+For the four-word family
+\[
+ \mathcal F=\{\mathtt{12312},\mathtt{12321},
+             \mathtt{23112},\mathtt{23121}\},
+\]
+each factor on positions $\{1,2,3\}$ and $\{4,5\}$ has two words, so its
+assignment polytope is a segment. Hence $P(\mathcal F)$ is a product of two
+segments, with the square exchange graph shown in the
+\href{exchange-graphs.htm#directSumGraphs}{direct-sum example}.
+\end{example}
 
 \section[polytopeDescriptions]{Inequality descriptions}
 
-The principal question is whether every assignment polytope arising from
-symmetric cycle exchange admits a complete description, including its affine
-hull, with coefficients in $\{-1,0,1\}$. The site will record established
-classes, reductions, counterexamples to stronger formulations, and the exact
-remaining obligations.
+\subsection[latticePathDescription]{Colored lattice-path matroids}
 
-\begin{remark}
-The unrestricted coefficient description and the unrestricted edge converse
-are open. They must not be used as dependencies of proved statements.
-\end{remark}
+For the \href{lattice-paths.htm}{colored lattice-path class}, we have a
+complete description. Recall that $L_j$ is the allowed-color set at position
+$j$, and $\ell_c(s),u_c(s)$ are the integral prefix bounds at the constrained
+cuts $s$.
+
+\begin{proposition}[Prefix-bound description]
+The assignment polytope of a colored lattice-path matroid is exactly the
+set of real matrices satisfying the following constraints, for $j\in[n]$,
+$c\in[k]$, and every constrained cut $s$:
+\[
+\begin{aligned}
+ x_{j,c}&\geq0,\\
+ x_{j,c}&=0 &&(c\notin L_j),\\
+ \sum_{c=1}^k x_{j,c}&=1,\\
+ \sum_{j=1}^n x_{j,c}&=r_c,\\
+ \ell_c(s)\leq\sum_{j=1}^s x_{j,c}&\leq u_c(s).
+\end{aligned}
+\]
+This polytope is integral.
+\end{proposition}
+
+\begin{proof}
+Send one unit of flow from each position node to its allowed color chains.
+Along a color chain, the flow after position $s$ is
+$\sum_{j=1}^s x_{j,c}$. Prefix bounds become arc capacities, and the final
+demand on that chain is $r_c$. The chain flows are uniquely determined by
+$x$, so this identifies the displayed system with a network-flow polytope.
+Integral supplies, demands, and capacities give integral vertices. At each
+position an integral solution chooses one allowed color, so these vertices
+are precisely the admissible words.
+\end{proof}
+
+\begin{example}[Three colors]
+For the quota-$(2,2,2)$ family used in the
+\href{lattice-paths.htm#pathRegions}{three-dimensional slice example}, the
+allowed-color equations are
+\[
+ x_{1,3}=x_{2,3}=x_{5,1}=x_{6,1}=0.
+\]
+In addition to nonnegativity, row sums one, and column sums two, we impose
+\[
+ x_{1,1}+x_{2,1}\geq1,\qquad
+ \sum_{j=1}^4 x_{j,3}\leq1.
+\]
+These equations and inequalities describe its entire assignment polytope.
+\end{example}
+
+\subsection[generalPolytopeDescription]{The general case}
+
+A complete inequality description for arbitrary colored matroids remains
+open.
+
+\begin{question}
+Does every colored-matroid assignment polytope admit defining equations and
+inequalities whose coefficients all belong to $\{-1,0,1\}$?
+\end{question}
+
+The prefix-bound description answers this question for the lattice-path
+class. There is also an open converse to the edge theorem: if every edge of
+the assignment polytope of a nonempty fixed-quota family is a simple
+color-cycle move, must the family be a colored matroid?
