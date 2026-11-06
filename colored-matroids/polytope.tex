@@ -1,6 +1,6 @@
 \metatitle{Assignment polytopes}
 \metadescription{Faces and cycle edges of colored-matroid assignment polytopes,
-and the complete prefix-bound description for colored lattice-path matroids.}
+and lattice-path descriptions, flow optimization, and integer decomposition.}
 
 \section[polytope]{The assignment-vector embedding}
 
@@ -153,6 +153,46 @@ In addition to nonnegativity, row sums one, and column sums two, we impose
 \]
 These equations and inequalities describe its entire assignment polytope.
 \end{example}
+
+\subsection[latticePathFlow]{Optimization and integer decomposition}
+
+\begin{proposition}[Exact optimization]
+For a colored lattice-path matroid and scores $a_{j,c}$, a word maximizing
+$\sum_j a_{j,w_j}$ can be found by a minimum-cost flow.
+\end{proposition}
+
+\begin{proof}
+In the network above, give the arc assigning color $c$ at position $j$
+cost $-a_{j,c}$ and every chain arc cost zero. An integral minimum-cost
+flow exists, and its word maximizes the score.
+\end{proof}
+
+\begin{proposition}[Integer decomposition]
+The assignment polytope $P$ of a colored lattice-path matroid has the
+\defin{integer decomposition property}: for every integer $t\geq1$,
+each integer point $z\in tP$ can be written as
+\[
+ z=\chi(w_1)+\dotsb+\chi(w_t),
+\]
+where $w_1,\dotsc,w_t$ are admissible words.
+\end{proposition}
+
+\begin{proof}
+For $t\geq2$, lift $z$ to an integral flow $f$ in the network with all
+supplies, demands, and bounds multiplied by $t$. Write $\ell,u$ for
+finite integral arc bounds of the original network. We seek a flow $g$
+with the original supplies and demands satisfying, on every arc,
+\[
+ \begin{aligned}
+ \max\{\ell,f-(t-1)u\}&\leq g,\\
+ g&\leq\min\{u,f-(t-1)\ell\}.
+ \end{aligned}
+\]
+The flow $f/t$ is feasible, and the bounds are integral, so flow
+integrality gives an integral choice of $g$. It records one admissible
+word, while $f-g$ satisfies the $(t-1)$-fold bounds. Induction gives
+the decomposition, starting from $t=1$.
+\end{proof}
 
 \subsection[generalPolytopeDescription]{The general case}
 
