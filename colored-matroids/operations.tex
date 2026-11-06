@@ -225,6 +225,52 @@ Their direct sum is
 the five-position colored matroid from the introduction.
 \end{example}
 
+\begin{proposition}[Decomposition under two-cycle exchange]
+Suppose that for every $u,v\in\mathcal F$ and every position where they
+differ, a symmetric exchange can be chosen to be a two-cycle. After removing
+the positions whose colors are fixed, $\mathcal F$ is a direct sum of
+two-color families, each consisting of the bases of an ordinary matroid
+and their complements. The pair of colors may differ between factors.
+Conversely, every such direct sum admits two-cycle exchanges.
+\end{proposition}
+
+\begin{proof}
+We first show that each position takes at most two colors across the family.
+Suppose a position $e$ takes three colors, which we rename $1,2,3$.
+Choose $u$ with $u(e)=1$. Exchange toward words having colors $2$ and $3$
+at $e$. The resulting words $v,w$ are obtained from $u$ by swapping $e$
+with distinct positions $f,g$, respectively. On these positions we have
+\[
+\begin{array}{c|ccc}
+ &e&f&g\\ \hline
+u&1&2&3\\
+v&2&1&3\\
+w&3&2&1
+\end{array}
+\]
+The words $v,w$ agree elsewhere. Their disagreement graph is a three-cycle,
+so they admit no two-cycle exchange, a contradiction.
+
+Remove the fixed positions and group the others into sets $E_{ab}$
+according to their two possible colors $\{a,b\}$, with $a<b$.
+Every two-cycle exchange stays within one $E_{ab}$. Repeated exchanges
+toward a fixed word correct two disagreements at a time and connect any
+two words. Thus the number of positions of color $a$ in each $E_{ab}$
+is constant.
+
+We can also match any desired restriction to $E_{ab}$ occurring in the
+family without changing the other sets: prescribe a disagreement in
+$E_{ab}$ and repeat the same exchanges until the restrictions agree.
+Doing this for each pair shows that the restrictions vary independently,
+so $\mathcal F$ is their direct sum. In each factor, the sets of positions
+colored $a$ have the same size and satisfy basis exchange. They are
+therefore the bases of an ordinary matroid, with color $b$ recording
+their complements.
+
+Conversely, symmetric basis exchange in the factor containing a prescribed
+disagreement gives a two-cycle exchange in the direct sum.
+\end{proof}
+
 The \href{exchange-graphs.htm}{next chapter} shows that a direct sum becomes
 the Cartesian product of the two exchange graphs. Color-indexed minors lead to
 the distance polynomial on the \href{tutte.htm}{distance and Tutte polynomial
