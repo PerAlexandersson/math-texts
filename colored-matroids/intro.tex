@@ -170,6 +170,28 @@ This generalizes symmetric basis exchange by allowing the compensating
 changes to pass through several colors.
 \end{definition}
 
+\begin{definition}[One-sided cycle exchange]
+A fixed-quota family $\mathcal F$ has \defin{one-sided cycle exchange} if,
+for every $u,v\in\mathcal F$ and every position $i$ with $u_i\ne v_i$, there
+is a cyclic exchange containing $i$ such that the word obtained from $u$ by
+the exchange belongs to $\mathcal F$. The word obtained from $v$ using the
+same exchange is not required to belong to $\mathcal F$.
+\end{definition}
+
+Symmetric cycle exchange implies one-sided cycle exchange. The converse is
+open in general.
+
+\begin{conjecture}[One-sided exchange]
+Every nonempty fixed-quota family with one-sided cycle exchange is a colored
+matroid.
+\end{conjecture}
+
+A color is \defin{repeated} if its quota is at least $2$. The conjecture is
+proved when at most three colors are repeated, with any number of colors of
+quota $1$. In particular, it holds for every three-color family. A
+computer-assisted proof with checked certificates also covers families with
+at most four repeated colors when the sum of their quotas is at most $15$.
+
 The condition is imposed at every position where the two words differ, and
 both resulting words must belong to $\mathcal F$. With two colors, a cyclic
 exchange uses two positions and recovers ordinary matroid exchange. With three
