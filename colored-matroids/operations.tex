@@ -1,12 +1,12 @@
 \metatitle{Operations and minors}
-\metadescription{Loops, coloops, restrictions, deletion, contraction, and
-direct sums of colored matroids.}
+\metadescription{Loops, coloops, color-indexed minors, and direct sums of
+colored matroids.}
 
 \section[operations]{Operations and minors}
 
 The usual matroid operations extend to colored matroids. We define loops and
-coloops one color at a time, while deletion and contraction involve both a
-position and a color.
+coloops one color at a time. In the two-color case, deletion and contraction
+arise from the same operation by choosing the color of the removed position.
 
 \subsection[loopsAndColoops]{Loops and coloops}
 
@@ -61,45 +61,36 @@ the two words agree there, and the position does not occur in an exchange.
 
 \subsection[deletionAndContraction]{Deletion and contraction}
 
-Removing a position without fixing its color would give words with different
-quota vectors. We therefore define minors for a position-color pair $(e,c)$.
+Fix a position $e$ and a color $c$. We retain the words with $u(e)=c$ and
+then remove position $e$. Since the removed color is fixed, the remaining
+words have a common quota vector.
 
-\begin{definition}[Deletion and contraction]
-The \defin{deletion of $(e,c)$} is
+\begin{definition}[Minor at a position and color]
+The \defin{minor of $\mathcal F$ at $(e,c)$} is
 \[
- \mathcal F\setminus(e,c)
- \coloneqq
- \{u\in\mathcal F:u(e)\ne c\}.
-\]
-The position $e$ remains, but color $c$ is no longer allowed there.
-
-The \defin{contraction of $(e,c)$} is
-\[
- \mathcal F/(e,c)
+ \defin{\mathcal F/(e,c)}
  \coloneqq
  \{u|_{E\setminus\{e\}}:u\in\mathcal F,\ u(e)=c\}.
 \]
-Contraction removes $e$ and decreases the quota of color $c$ by one.
+It decreases the quota of color $c$ by one and leaves the other quotas
+unchanged.
 \end{definition}
 
-Both operations may give the empty family. If $e$ is a loop of color $c$,
-then $\mathcal F/(e,c)$ is empty and
-$\mathcal F\setminus(e,c)=\mathcal F$. If $e$ is a coloop of color $c$,
-then $\mathcal F\setminus(e,c)$ is empty.
+The minor $\mathcal F/(e,c)$ is empty exactly when $e$ is a loop of color
+$c$.
 
-\begin{proposition}[Closure under deletion and contraction]
-Every nonempty deletion or contraction of a colored matroid is a colored
+\begin{proposition}[Closure under minors]
+Every nonempty minor $\mathcal F/(e,c)$ of a colored matroid is a colored
 matroid.
 \end{proposition}
 
 \begin{proof}
-Deletion is the restriction that forbids color $c$ at $e$. Contraction first
-pins $e$ to color $c$ and then removes the fixed position. Restrictions and
-pinning preserve symmetric cycle exchange.
+First pin $e$ to color $c$, and then remove the fixed position. Pinning
+preserves symmetric cycle exchange, and the position $e$ occurs in no exchange.
 \end{proof}
 
-\begin{example}[Contractions at one position]
-For the seven-word family above, contraction at the first position gives
+\begin{example}[Three minors at one position]
+For the seven-word family above, the three minors at the first position are
 \[
 \begin{array}{c|c}
 c&\mathcal F/(1,c)\\ \hline
@@ -108,15 +99,11 @@ c&\mathcal F/(1,c)\\ \hline
 3&\{\mathtt{121},\mathtt{211}\}
 \end{array}
 \]
-The three rows partition $\mathcal F$ according to the color at position $1$.
-For example,
-\[
- \mathcal F\setminus(1,1)
- =\{\mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
-\]
+They are the three possible branches obtained by fixing the color at position
+$1$ and then removing that position.
 \end{example}
 
-\begin{proposition}[Ordinary matroid minors]
+\begin{proposition}[Deletion and contraction as color choices]
 Suppose $\mathcal F$ has two colors, with color-$1$ classes the bases of a
 matroid $M$. If $e$ is not a loop of $M$, then
 $\mathcal F/(e,1)$ records the bases of $M/e$. If $e$ is not a coloop of
@@ -129,6 +116,17 @@ $B\setminus\{e\}$ for bases $B$ containing $e$. These are the bases of
 $M/e$. In $\mathcal F/(e,0)$, the color-$1$ classes are the bases of $M$
 that avoid $e$, which are the bases of $M\setminus e$.
 \end{proof}
+
+The two choices of color give the two classical operations:
+\[
+\begin{array}{c|c}
+\text{color fixed at }e&\text{matroid operation}\\ \hline
+1&\text{contraction }M/e\\
+0&\text{deletion }M\setminus e
+\end{array}
+\]
+Thus deletion and contraction of an ordinary matroid become one operation on
+its two-color words.
 
 \subsection[directSums]{Direct sums}
 
