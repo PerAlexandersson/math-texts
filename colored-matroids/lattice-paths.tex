@@ -1,6 +1,6 @@
 \metatitle{Colored lattice-path matroids}
 \metadescription{Colored lattice-path matroids defined by prefix-count bounds,
-their assignment polytopes, and their regions in the integer box.}
+their assignment polytopes, and their cubical regions in the quota box.}
 
 \section[coloredLatticePaths]{Colored lattice-path matroids}
 
@@ -155,55 +155,128 @@ capacities, and is therefore integral. Its integral flows have one outgoing
 color at each position and are exactly the admissible words.
 \end{proof}
 
-\subsection[pathRegions]{Regions in the quota box}
+\subsection[pathRegions]{Cubical regions}
 
-Put
+Let
 \[
- [0,r_1]\times\dotsm\times[0,r_k]
- \subseteq\mathbb R^k.
+ Q=[0,r_1]\times\dotsm\times[0,r_k].
 \]
-At distance $s$ from the origin, a path lies in the integer simplex
+At distance $s$ from the origin, a path lies in the section
 \[
  \defin{\Delta_s}\coloneqq\left\{a\in\mathbb Z_{\geq0}^k:
  a_1+\dotsb+a_k=s,\quad a_c\leq r_c\right\}.
 \]
-At an unconstrained value of $s$, put $\ell_c(s)=0$ and $u_c(s)=r_c$.
-Prefix bounds retain the section
+For a nonempty prefix-bound family $\mathcal F$, let
 \[
- \left\{a\in\Delta_s:
- \ell_c(s)\leq a_c\leq u_c(s)
- \text{ for every }c\right\}.
+ \ell_c(s)=\min_{w\in\mathcal F}h_c(w,s),
+ \qquad
+ u_c(s)=\max_{w\in\mathcal F}h_c(w,s).
 \]
-Thus every section of the region is the intersection of $\Delta_s$ with an
-axis-parallel box.
+Replacing the original bounds by these actual extrema does not change
+$\mathcal F$. Its canonical vertex region is
+\[
+ R_{\mathcal F}=\left\{a\in Q\cap\mathbb Z^k:
+ \begin{array}{c}
+  \ell_c(|a|)\leq a_c\leq u_c(|a|)\\
+  \text{for every }c
+ \end{array}\right\}.
+\]
+Here $|a|=a_1+\dotsb+a_k$.
 
-\begin{proposition}[Prefix-bound regions]
-Let $R$ be a set of integer points in the quota box, with a nonempty section
-$R\cap\Delta_s$ for every $s$. Then $R$ is defined by prefix bounds if and
-only if, for every $s$,
+For each color $c$, collapse all the other directions to one direction:
+\[
+ \defin{\pi_c(a)}=\left(a_c,\sum_{d\neq c}a_d\right).
+\]
+This maps $Q$ onto the rectangle
+$[0,r_c]\times[0,n-r_c]$. The inequalities
+\[
+ \ell_c(x+y)\leq x\leq u_c(x+y)
+\]
+cut out an ordinary planar lattice-path corridor $D_c$ in this rectangle.
+Indeed, both $\ell_c$ and $u_c$ start at $0$, end at $r_c$, and increase by
+either $0$ or $1$ at each step.
+
+\begin{theorem}[Cubical-region characterization]
+Every nonempty prefix-bound family has a canonical region of the form
+\[
+ R=Q\cap\mathbb Z^k\cap\bigcap_{c=1}^k\pi_c^{-1}(D_c),
+\]
+where $D_c$ is an ordinary lattice-path corridor from $(0,0)$ to
+$(r_c,n-r_c)$. Conversely, any such intersection that contains a complete
+permitted path defines a nonempty prefix-bound family. Equivalently, every
+rank section is a simplex cut by a coordinate box:
 \[
  R\cap\Delta_s=
  \left\{a\in\Delta_s:
- \min_{b\in R\cap\Delta_s}b_c\leq a_c\leq
- \max_{b\in R\cap\Delta_s}b_c
- \text{ for every }c\right\}.
+ \begin{array}{c}
+  \ell_c(s)\leq a_c\leq u_c(s)\\
+  \text{for every }c
+ \end{array}\right\}.
 \]
-\end{proposition}
+\end{theorem}
 
 \begin{proof}
-For a region defined by prefix bounds, the right-hand side is unchanged after
-replacing every bound by the actual minimum or maximum in its section. The
-converse follows by taking these minima and maxima as the prefix bounds.
+Since $|a|=a_c+\sum_{d\neq c}a_d$, membership of $\pi_c(a)$ in $D_c$ is
+exactly the pair of inequalities
+$\ell_c(|a|)\leq a_c\leq u_c(|a|)$. Intersecting these conditions over all
+colors gives the displayed intersection, and restricting to $|a|=s$ gives
+the section formula. Conversely, the two boundary paths of each $D_c$ supply
+the corresponding lower and upper prefix bounds.
 \end{proof}
 
-The corresponding cubical region contains every unit cube whose vertices
-belong to $R$; the allowed-color sets specify which directed edges may be
-used at each step. This gives a concrete class of subcomplexes of the quota
-box.
+The corridors describe the vertices. The allowed-color sets describe the
+edges: at rank $j-1$, retain the edge
+\[
+ a\longrightarrow a+e_c
+\]
+precisely when both endpoints lie in $R$ and $c\in L_j$. The admissible words
+are exactly the monotone paths from $0$ to $(r_1,\dotsc,r_k)$ in this directed
+region. Its path-filled part is obtained by retaining the vertices and edges
+that occur on a complete path, and then filling every unit cube supported by
+this one-skeleton.
 
-\begin{question}
-Which cubical regions in the quota box have the property that all monotone
-paths from $0$ to $(r_1,\dotsc,r_k)$ form a colored matroid? In particular,
-when can such a region be presented by prefix bounds whose constrained cuts
-are crossed by at most two colors?
-\end{question}
+There is also a direct description in terms of deleted orthants. Write
+$a_{-c}$ for the vector obtained by omitting $a_c$, and put
+$|a_{-c}|=\sum_{d\neq c}a_d$. A forbidden quadrant of the $c$th planar
+corridor pulls back to a set of one of the two forms
+\[
+ \begin{gathered}
+  \left\{a:a_c\geq A,\ |a_{-c}|\leq B\right\},\\
+  \left\{a:a_c\leq A,\ |a_{-c}|\geq B\right\}.
+ \end{gathered}
+\]
+For example, inside $Q$,
+\[
+ \begin{aligned}
+  &\left\{a:a_c\geq A,\ |a_{-c}|\leq B\right\}\\
+  &\quad=
+  \bigcup_{\substack{q\in\mathbb Z_{\geq0}^{k-1}\\|q|=B}}
+  \left\{a:
+  \begin{array}{c}
+   a_c\geq A,\\[-2pt]
+   a_{-c}\leq q
+  \end{array}\right\},
+ \end{aligned}
+\]
+where $a_{-c}\leq q$ means coordinatewise inequality. The second form has
+the analogous expression with all inequalities reversed. Thus a planar
+corner becomes a complete family of mixed orthants:
+all anchors with the same total in the other coordinates occur together.
+This is the exact higher-dimensional analogue of removing everything on one
+side of a corner in a skew shape.
+
+More generally, for $S\subseteq[k]$ one may use
+\[
+ \pi_S(a)=\left(\sum_{c\in S}a_c,
+                    \sum_{c\notin S}a_c\right).
+\]
+The pullbacks of planar quadrants then have one sign on the coordinates in
+$S$ and the opposite sign on the coordinates outside $S$. The present
+prefix-count definition is the case $S=\{c\}$.
+
+Finally, suppose a prefix bound is imposed at the cut $s$. Every color that
+does not cross this cut has coordinate either $0$ or $r_c$ throughout the
+admissible section. Hence the mobile part of the section uses only the
+crossing colors. For a colored lattice-path matroid there are at most two of
+them, so each constrained section is an interval in a two-coordinate plane.
+The active pair may change from one cut to the next.
