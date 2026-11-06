@@ -9,7 +9,8 @@ graphs, paths, and vectors, respectively. For a colored matroid, the
 corresponding construction must describe the entire ordered partition. We
 begin with one general source of examples, followed by three classical
 constructions. For the classical matroid notions, see Oxley
-\cite{Oxley2011}.
+\cite{Oxley2011}. The propositions below verify symmetric cycle exchange for
+each class.
 
 \subsection[allowedColors]{Allowed colors}
 
@@ -70,17 +71,29 @@ M.~Noy,
 \href{https://arxiv.org/abs/math/0211188}{\emph{Lattice path matroids:
 enumerative aspects and Tutte polynomials}}.
 
-For several colors, choose a lattice-path matroid $M_c$ for each color $c$ on
-one common ordered ground set, with ranks summing to the size of the ground
-set. The corresponding nonempty
-\defin{full common-order lattice-path family} consists of all words satisfying
+The following construction gives a class with any number of colors. Fix one
+order on $E=[n]$. For each color $c$, choose an interval $I_c\subseteq[n]$
+and a quota $r_c$. Take every word for which
 \[
- B(u,c)\in\mathcal B(M_c)
- \qquad\text{for every color }c.
+ B(u,c)\subseteq I_c
+ \qquad\text{and}\qquad
+ |B(u,c)|=r_c
 \]
-The individual path conditions do not by themselves imply symmetric cycle
-exchange. Interval restrictions on the positions of the colors give a basic
-class for which exchange follows from the allowed-color construction.
+for every color $c$.
+
+\begin{proposition}[Interval lattice-path construction]
+Every nonempty family obtained in this way is a colored matroid. It is the
+full compatible partition family of lattice-path matroids in one common
+ground-set order.
+\end{proposition}
+
+\begin{proof}
+For color $c$, the $r_c$-subsets of $I_c$, with loops outside $I_c$, are the
+bases of a lattice-path matroid: draw paths with $r_c$ north steps whose
+positions range over the interval $I_c$. The compatible basis partitions are
+exactly the words allowed above. They satisfy symmetric cycle exchange by the
+allowed-color construction.
+\end{proof}
 
 \begin{example}[The seven-word family as lattice paths]
 Return to the seven-word family from the introduction, and order its positions
@@ -109,22 +122,80 @@ position order gives exactly
 \]
 \end{example}
 
-More general common-order path families can impose lower and upper bounds on
-the prefix count of each color. Symmetric cycle exchange then becomes a
-compatibility condition among the different path corridors.
+\subsection[representedLifts]{Representable lifts}
 
-\subsection[vectorConfigurations]{Vector configurations}
-
-Let $X_c$ be a full-row-rank $r_c\times E$ matrix over a field, where
-$r_1+\dotsb+r_k=|E|$. Retain every word for which each color class indexes a
-basis of its matrix:
+There is also a construction that starts with any ordinary matroid. Let $N$
+be a rank-$r$ matroid on $[n]$, choose a prime $p\geq n$, and choose distinct
+residues $s_1,\dotsc,s_n$ modulo $p$. Take colors
 \[
- \defin{\mathcal F(X_1,\dotsc,X_k)}
- \coloneqq
- \{u:\det X_c[:,B(u,c)]\ne0\text{ for every }c\}.
+ \ell_0,\dotsc,\ell_{p-1},\rho_0,\dotsc,\rho_{p-1}.
 \]
-This is the direct analogue of a represented matroid, with all compatible
-partitions into column bases retained.
+For each $j\in[n]$, introduce the $p$ positions
+\[
+ M_j=\{(\ell_i,\rho_{i+s_j}):i\in\mathbb Z/p\mathbb Z\}.
+\]
+These are pairwise disjoint perfect matchings between the $\ell$-colors and
+the $\rho$-colors.
+For a basis $B$ of $N$, color every position in $M_j$ by its $\ell$-endpoint
+when $j\in B$, and by its $\rho$-endpoint when $j\notin B$.
+
+\begin{theorem}[Matroid lift]
+The words obtained from the bases of $N$ form a colored matroid. Every
+$\ell$-color has quota $r$, and every $\rho$-color has quota $n-r$.
+If $N$ is representable, then every color projection of the lifted colored
+matroid is representable.
+\end{theorem}
+
+\begin{proof}
+Each matching $M_j$ contains every $\ell$-color and every $\rho$-color once,
+which gives the stated quotas. Take two bases $B,C$ and a prescribed
+disagreement in $M_j$, where after interchanging the parents we may assume
+$j\in B\setminus C$. Symmetric basis exchange gives
+$h\in C\setminus B$ such that
+\[
+ B\setminus\{j\}\cup\{h\}
+ \qquad\text{and}\qquad
+ C\setminus\{h\}\cup\{j\}
+\]
+are bases of $N$.
+
+The union of $M_j$ and $M_h$ is a cycle through all $2p$ colors. Indeed,
+following the two matchings changes the index of an $\ell$-color by the
+nonzero residue $s_j-s_h$, which generates $\mathbb Z/p\mathbb Z$. The
+disagreement arrows on this cycle alternate between the two matchings.
+Switching the cycle gives exactly the words associated with the two exchanged
+bases above, and the cycle contains the prescribed position.
+
+For a fixed $\ell_i$, its selected positions are indexed by the basis $B$ of
+$N$. For a fixed $\rho_i$, they are indexed by the complementary basis of
+$N^*$. Thus the color projections are relabeled copies of $N$ and $N^*$,
+with loops at nonincident positions. Representability is preserved by duality.
+\end{proof}
+
+\begin{example}[A graphic and representable lift]
+Take $N=U_{2,3}$, the rank-two graphic matroid of a triangle, and use the
+three shift matchings of $K_{3,3}$. The construction gives three words on
+nine positions and six colors. Each $\ell$-color has quota $2$, each
+$\rho$-color has quota $1$, and an exchange between two words switches the
+six-color cycle formed by the corresponding pair of matchings.
+\end{example}
+
+\begin{proposition}[Matrix realization of allowed colors]
+Every allowed-color colored matroid has matrices $X_c$ over $\mathbb R$ such
+that its words are exactly the compatible partitions satisfying
+\[
+ \det X_c[:,B(u,c)]\ne0
+ \qquad\text{for every color }c.
+\]
+\end{proposition}
+
+\begin{proof}
+For color $c$, put zero columns at positions where $c$ is forbidden. On the
+allowed positions, use distinct columns of an $r_c$-row Vandermonde matrix.
+Its bases are exactly the $r_c$-subsets of the allowed positions. Hence the
+compatible basis partitions are precisely the allowed-color words, which
+satisfy symmetric cycle exchange by the first proposition.
+\end{proof}
 
 \begin{example}[A matrix presentation of the seven-word family]
 Over $\mathbb R$, take
@@ -144,7 +215,7 @@ seven words above in the original position order. This matrix family is a
 colored matroid by the allowed-color construction.
 \end{example}
 
-For two colors, a matrix and a representation of its dual recover the usual
-notion of a representable matroid. With three or more colors, the matrices
-must also support compatible simultaneous exchanges: a nonempty matrix family
-need not satisfy symmetric cycle exchange.
+The matroid lift and the full matrix-partition construction give two classes
+of colored matroids built from vector configurations. In the two-color case,
+a matrix together with a representation of its dual recovers the usual notion
+of a representable matroid.
