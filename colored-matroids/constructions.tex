@@ -32,6 +32,83 @@ preserved, and each new entry was already allowed at that position in the
 other word. Both resulting words remain in the family.
 \end{proof}
 
+\subsection[matchingAssignments]{Matchings and assignments}
+
+The allowed-color construction has a bipartite matching interpretation.
+Put the positions on one side and the colors on the other, joining $e$ to
+$c$ when $c\in L_e$. A word chooses one incident edge at each position and
+exactly $r_c$ edges at color $c$.
+
+Equivalently, replace color $c$ by $r_c$ slots, each adjacent to the positions
+that allow $c$. A perfect matching assigns every position to a slot.
+Forgetting the labels of slots within each color gives the word. Symmetric
+cycle exchange reassigns positions around a cycle of distinct colors.
+
+The classical \defin{transversal matroid} records which subsets of positions
+can be matched to distinct slots \cite{Oxley2011}. Here we retain the colors
+of the assigned slots and fill every quota, giving a colored matching model.
+
+\begin{example}[Eight positions with quotas $(3,3,2)$]
+We assign colors $1,2,3$ to eight positions, using the colors three, three,
+and two times, respectively. The table gives the score of each allowed
+assignment; a dash means that the color is forbidden.
+\[
+\begin{array}{c|rrr}
+ \text{position}&\text{Color }1&\text{Color }2&\text{Color }3\\ \hline
+ 1&20&14&-\\
+ 2&19&-&13\\
+ 3&-&11&10\\
+ 4&18&12&-\\
+ 5&17&9&-\\
+ 6&16&8&-\\
+ 7&15&-&7\\
+ 8&-&5&6
+\end{array}
+\]
+We take all words respecting the quotas and allowed colors. This is a
+colored matroid by the allowed-color proposition. Write $a(w)$ for the sum
+of the eight assignment scores.
+
+Greedy scans the allowed position--color pairs in decreasing score order,
+accepting a pair whenever the partial assignment still extends to a feasible
+word. It first accepts color $1$ at positions $1,2,4$, with scores $20,19,18$.
+Color $1$ is now full, so it rejects the scores $17,16,15$. It completes to
+\[
+ u=\mathtt{11212233},\qquad a(u)=98,
+\]
+with color classes $\{1,2,4\}$, $\{3,5,6\}$, and $\{7,8\}$.
+
+Compare $u$ with $v=\mathtt{23321112}$. Positions $1,3,7$ give the cycle
+$1\to2\to3\to1$. Switching these positions in both words gives
+\[
+\begin{array}{c|cccccccc|r}
+ &1&2&3&4&5&6&7&8&\text{score}\\ \hline
+ u&\mathbf1&1&\mathbf2&1&2&2&\mathbf3&3&98\\
+ v&\mathbf2&3&\mathbf3&2&1&1&\mathbf1&2&102\\ \hline
+ u'&\mathbf2&1&\mathbf3&1&2&2&\mathbf1&3&99\\
+ v'&\mathbf1&3&\mathbf2&2&1&1&\mathbf3&2&101
+\end{array}
+\]
+Both resulting words are feasible, and their total score is unchanged.
+Continuing from $u'$ gives the improving path
+\[
+\begin{array}{c|c|r}
+ \text{word}&\text{positions changed}&\text{score}\\ \hline
+ \mathtt{11212233}&-&98\\
+ \mathtt{21312213}&1,3,7&99\\
+ \mathtt{23211213}&2,3,5&102\\
+ \mathtt{23221113}&4,6&104
+\end{array}
+\]
+The first two moves are three-color cycles; the last is a two-color swap.
+
+The final word is optimal. Subtract $7$ from every allowed score in color
+$1$. Every word loses exactly $21$, and the adjusted row maxima occur at
+colors $2,3,2,2,1,1,1,3$. These form the feasible word
+$\mathtt{23221113}$, so it attains the sum of all adjusted row maxima and
+maximizes the original score.
+\end{example}
+
 \subsection[graphOrientations]{Graph orientations}
 
 Let $G$ be a finite loopless multigraph whose vertices are the colors and
