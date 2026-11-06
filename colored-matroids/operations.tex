@@ -8,6 +8,28 @@ The usual matroid operations extend to colored matroids. We define loops and
 coloops one color at a time. In the two-color case, deletion and contraction
 arise from the same operation by choosing the color of the removed position.
 
+\subsection[symmetries]{Relabeling and color symmetry}
+
+Let $\phi\colon E\to E'$ be a bijection of position sets, and let $\sigma$ be
+a permutation of the colors. Relabeling a word replaces position $e$ by
+$\phi(e)$ and color $c$ by $\sigma(c)$.
+
+\begin{proposition}[Relabeling]
+Relabeling positions and permuting colors preserve colored matroids.
+\end{proposition}
+
+\begin{proof}
+For two relabeled words, the disagreement arrows are obtained by applying
+$\sigma$ to the colors in the original disagreement graph. Thus every cyclic
+exchange is carried to a cyclic exchange, and its two resulting words are the
+relabelings of the original resulting words.
+\end{proof}
+
+For two colors, permuting the colors recovers matroid duality. Indeed, if the
+color-$1$ class is a basis $B$ of $M$, then after interchanging $0$ and $1$
+the color-$1$ class is $E\setminus B$, a basis of $M^*$. Thus color
+permutation is the many-color analogue of matroid duality.
+
 \subsection[loopsAndColoops]{Loops and coloops}
 
 Let $\mathcal F$ be a colored matroid on $E$. For each color $c$, the sets
@@ -180,7 +202,7 @@ Their direct sum is
 the five-position colored matroid from the introduction.
 \end{example}
 
-Color-indexed minors and direct sums already have the formal features behind
-the Tutte polynomial: the minors replace deletion and contraction, while
-direct sums remain direct sums. They lead to the distance polynomial on the
-\href{tutte.htm}{next page}.
+The \href{exchange-graphs.htm}{next chapter} shows that a direct sum becomes
+the Cartesian product of the two exchange graphs. Color-indexed minors lead to
+the distance polynomial on the \href{tutte.htm}{distance and Tutte polynomial
+page}.
