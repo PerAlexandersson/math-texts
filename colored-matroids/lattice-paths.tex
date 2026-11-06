@@ -1,0 +1,209 @@
+\metatitle{Colored lattice-path matroids}
+\metadescription{Colored lattice-path matroids defined by prefix-count bounds,
+their assignment polytopes, and their regions in the integer box.}
+
+\section[coloredLatticePaths]{Colored lattice-path matroids}
+
+An ordinary lattice-path matroid consists of the north-step sets of all paths
+between two fixed north--east paths \cite{BoninMierNoy2003}. The two boundary
+paths give lower and upper bounds on the number of north steps in every
+prefix. We use the same description with one prefix count for each color.
+
+Fix quotas $r_1,\dotsc,r_k$ with sum $n$. A word
+$w=w_1\dotsm w_n$ with this content determines a path in $\mathbb Z^k$ by
+setting
+\[
+ \defin{h_c(w,j)}\coloneqq |\{i\leq j:w_i=c\}|,
+ \qquad
+ \defin{p_w(j)}\coloneqq
+ \bigl(h_1(w,j),\dotsc,h_k(w,j)\bigr).
+\]
+Thus $p_w(0)=0$, $p_w(n)=(r_1,\dotsc,r_k)$, and the $j$th step is the
+coordinate vector indexed by $w_j$.
+
+Choose a set $L_j\subseteq[k]$ of allowed colors at each position $j$.
+At selected cuts $j\in[n-1]$, choose integral prefix bounds
+\[
+ \ell_c(j)\leq h_c(w,j)\leq u_c(j)
+ \qquad(c\in[k]).
+\]
+We take every word with the prescribed content that respects the allowed
+colors and all the prefix bounds. A color \defin{crosses the cut $j$} if it
+is allowed at some position on each side of the cut.
+
+\begin{definition}[Colored lattice-path matroid]
+A \defin{colored lattice-path matroid} is a nonempty family obtained from
+allowed colors and prefix bounds as above, where at most two colors cross
+each cut carrying a prefix bound.
+\end{definition}
+
+Different pairs of colors may cross different cuts. The definition therefore
+allows a path to move in all $k$ coordinate directions, although each
+boundary condition concerns a part of the path in which at most two colors
+remain mobile.
+
+\begin{theorem}[Two-color cuts]
+Every colored lattice-path matroid is a colored matroid.
+\end{theorem}
+
+\begin{proof}
+We induct on the number of constrained cuts. With no constrained cuts, the
+family is an allowed-color family, so symmetric cycle exchange follows from
+the balanced disagreement graph.
+
+Let $j$ be the first constrained cut, and compare two words $u,v$. A color
+that does not cross $j$ has the same number of occurrences in $[j]$ in both
+words. If the two prefix-count vectors differ, their difference is therefore
+supported on the two colors crossing $j$, and has the form $(d,-d)$.
+
+If the prefix counts agree, take $d=0$ and add no positions. Otherwise, name
+the crossing colors $a,b$ so that $u$ has $d$ more occurrences of $a$ on the
+left and $v$ has $d$ more occurrences of $b$. Append $b^d$ to the left part
+of $u$ and $a^d$ to the left part of $v$, and prepend the opposite
+assignments to their right parts. The two extended words now have equal color
+quotas on each side.
+The left side has no constrained cut. On the right, if $r_c'$ is the extended
+quota of color $c$, the bound at a later cut $h$ is translated using
+\[
+ h_c(w,h)=r_c-r_c'+h_c(w',d+h-j),
+\]
+where $w'$ is the extended right part. The temporary colors already crossed
+any later cut at which they remain mobile: each was allowed on the original
+left side of that cut. Thus the translation introduces no new crossing color,
+and we may apply symmetric cycle exchange on each side by induction.
+
+If the exchange cycle through the prescribed disagreement avoids the
+temporary positions, it is already an exchange in the original words.
+Otherwise it uses one temporary arrow. The exchange cycle through the
+opposite temporary arrow on the other side joins to it after the two
+temporary arrows are removed. Since only the two crossing colors occur on
+both sides, the resulting directed cycle is simple. The two offspring satisfy
+the original allowed-color conditions and quotas. At the cut $j$, their two
+crossing-color counts lie between the corresponding counts of $u$ and $v$;
+the translated bounds handle all later cuts.
+\end{proof}
+
+\begin{proposition}[Two colors]
+Suppose there are two colors and both are allowed at every position. Then the
+colored lattice-path matroids are precisely ordinary lattice-path matroids,
+with a basis recorded by the positions of one color.
+\end{proposition}
+
+\begin{proof}
+Every cut is crossed by at most two colors. The lower and upper prefix counts
+of color $1$ are the height functions of the lower and upper boundary paths.
+Conversely, the paths between two such boundaries are exactly the binary
+words satisfying these prefix bounds.
+\end{proof}
+
+\begin{example}[Different pairs at different cuts]
+Take three colors with quotas $(2,2,2)$. Allow colors $1,2$ in the first two
+positions, all three colors in positions $3,4$, and colors $2,3$ in the last
+two positions. At the cut after position $2$, impose
+\[
+ h_1(w,2)\geq1,
+\]
+and at the cut after position $4$, impose
+\[
+ h_3(w,4)\leq1.
+\]
+Only colors $1,2$ cross the first cut, while only colors $2,3$ cross the
+second. The word $\mathtt{123123}$ is one of the resulting paths.
+\end{example}
+
+The restriction on constrained cuts is needed. With quotas $(2,1,1)$, take
+all words satisfying
+\[
+ h_1(w,2)\leq1.
+\]
+This removes the paths passing through $(2,0,0)$. The words
+$\mathtt{1213}$ and $\mathtt{3121}$ are allowed. The only cyclic exchange
+through their first position switches positions $1$ and $4$, and one of the
+two offspring is $\mathtt{1123}$. Hence this ten-word path family is not a
+colored matroid.
+
+\subsection[pathPolytope]{The path polytope}
+
+For every position $j$ and color $c$, let $x_{j,c}$ record whether the $j$th
+step has color $c$. The assignment polytope of a colored lattice-path matroid
+has the following description:
+\[
+\begin{aligned}
+ x_{j,c}&\geq0,
+ &x_{j,c}&=0 &&\text{if }c\notin L_j,\\
+ \sum_{c=1}^k x_{j,c}&=1,
+ &\sum_{j=1}^n x_{j,c}&=r_c,\\
+ \ell_c(s)&\leq\sum_{j\leq s}x_{j,c}\leq u_c(s)
+ &&&\text{at every constrained cut }s.
+\end{aligned}
+\]
+
+\begin{proposition}
+The polytope above is integral. Its vertices are the words of the colored
+lattice-path matroid.
+\end{proposition}
+
+\begin{proof}
+Use one node of supply one for each position. For every allowed pair $(j,c)$,
+send its flow to time $j$ on a chain belonging to color $c$. The flow on the
+chain arc from time $s$ to time $s+1$ is the color-$c$ prefix count through
+position $s$, so the prefix bounds become lower and upper arc capacities.
+The last node of the color-$c$ chain has demand $r_c$.
+
+This is a network-flow polytope with integral supplies, demands, and
+capacities, and is therefore integral. Its integral flows have one outgoing
+color at each position and are exactly the admissible words.
+\end{proof}
+
+\subsection[pathRegions]{Regions in the quota box}
+
+Put
+\[
+ [0,r_1]\times\dotsm\times[0,r_k]
+ \subseteq\mathbb R^k.
+\]
+At distance $s$ from the origin, a path lies in the integer simplex
+\[
+ \defin{\Delta_s}\coloneqq\left\{a\in\mathbb Z_{\geq0}^k:
+ a_1+\dotsb+a_k=s,\quad a_c\leq r_c\right\}.
+\]
+At an unconstrained value of $s$, put $\ell_c(s)=0$ and $u_c(s)=r_c$.
+Prefix bounds retain the section
+\[
+ \left\{a\in\Delta_s:
+ \ell_c(s)\leq a_c\leq u_c(s)
+ \text{ for every }c\right\}.
+\]
+Thus every section of the region is the intersection of $\Delta_s$ with an
+axis-parallel box.
+
+\begin{proposition}[Prefix-bound regions]
+Let $R$ be a set of integer points in the quota box, with a nonempty section
+$R\cap\Delta_s$ for every $s$. Then $R$ is defined by prefix bounds if and
+only if, for every $s$,
+\[
+ R\cap\Delta_s=
+ \left\{a\in\Delta_s:
+ \min_{b\in R\cap\Delta_s}b_c\leq a_c\leq
+ \max_{b\in R\cap\Delta_s}b_c
+ \text{ for every }c\right\}.
+\]
+\end{proposition}
+
+\begin{proof}
+For a region defined by prefix bounds, the right-hand side is unchanged after
+replacing every bound by the actual minimum or maximum in its section. The
+converse follows by taking these minima and maxima as the prefix bounds.
+\end{proof}
+
+The corresponding cubical region contains every unit cube whose vertices
+belong to $R$; the allowed-color sets specify which directed edges may be
+used at each step. This gives a concrete class of subcomplexes of the quota
+box.
+
+\begin{question}
+Which cubical regions in the quota box have the property that all monotone
+paths from $0$ to $(r_1,\dotsc,r_k)$ form a colored matroid? In particular,
+when can such a region be presented by prefix bounds whose constrained cuts
+are crossed by at most two colors?
+\end{question}
