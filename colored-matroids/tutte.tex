@@ -1,0 +1,195 @@
+\metatitle{Distance and Tutte polynomials}
+\metadescription{A distance polynomial for colored matroids, its tropical
+minor recurrence, and its specialization to the classical Tutte polynomial.}
+
+\section[distanceAndTutte]{Distance and Tutte polynomials}
+
+The color-indexed minors suggest looking for an analogue of the Tutte
+polynomial. Simply weighting the words of a colored matroid is too coarse:
+if the color quotas are $(r_1,\dotsc,r_k)$, then
+\[
+ \sum_{u\in\mathcal F}\prod_{e\in E}x_{u(e)}
+ =|\mathcal F|x_1^{r_1}\dotsm x_k^{r_k}.
+\]
+To retain the geometry of the family, we instead measure the distance from
+every coloring of $E$ to the allowed words.
+
+\subsection[distancePolynomial]{The distance polynomial}
+
+Let $\mathcal F$ be a colored matroid on $E$ with colors $[k]$. For
+$w\in[k]^E$, define its \defin{distance to $\mathcal F$} by
+\[
+ \defin{d_{\mathcal F}(w)}
+ \coloneqq
+ \min_{u\in\mathcal F}|\{e\in E:w(e)\ne u(e)\}|.
+\]
+
+\begin{definition}[Distance polynomial]
+The \defin{distance polynomial of $\mathcal F$} is
+\[
+ \defin{D_{\mathcal F}(x_1,\dotsc,x_k;t)}
+ \coloneqq
+ \sum_{w\in[k]^E}
+ t^{d_{\mathcal F}(w)}\prod_{e\in E}x_{w(e)}.
+\]
+The variables $x_1,\dotsc,x_k$ record the colors of $w$, while $t$ records
+the number of entries that must be changed to reach $\mathcal F$.
+\end{definition}
+
+The minor operation gives a recurrence for the distance itself.
+
+\begin{proposition}[Tropical minor recurrence]
+Fix $e\in E$, let $w(e)=a$, and write $w'$ for the restriction of $w$ to
+$E\setminus\{e\}$. Then
+\[
+ d_{\mathcal F}(w)
+ =
+ \min_{\substack{c\in[k]\\\mathcal F/(e,c)\ne\varnothing}}
+ \left(
+  \mathbf 1_{a\ne c}+d_{\mathcal F/(e,c)}(w')
+ \right),
+\]
+where $\mathbf 1_{a\ne c}$ is $0$ if $a=c$ and $1$ otherwise.
+\end{proposition}
+
+\begin{proof}
+Partition the words $u\in\mathcal F$ according to the color $c=u(e)$. For
+such a word, its disagreement with $w$ at $e$ contributes
+$\mathbf 1_{a\ne c}$, and the remaining disagreements are measured by the
+minor $\mathcal F/(e,c)$. Taking the minimum over the nonempty branches gives
+the formula.
+\end{proof}
+
+This is a min-plus, or tropical, recurrence. The proof uses only Hamming
+distance, so the same recurrence holds for every nonempty family of words.
+
+\subsection[basicProperties]{Basic properties}
+
+\begin{proposition}
+Let $\mathcal F$ have quotas $(r_1,\dotsc,r_k)$ on an $n$-element set.
+Then the distance polynomial has the following properties.
+\begin{enumerate}
+\item If $\mathcal F=\mathcal F_1\oplus\mathcal F_2$, then
+\[
+ D_{\mathcal F}(x_1,\dotsc,x_k;t)
+ =D_{\mathcal F_1}(x_1,\dotsc,x_k;t)
+  D_{\mathcal F_2}(x_1,\dotsc,x_k;t).
+\]
+\item Its two immediate specializations are
+\[
+ D_{\mathcal F}(x_1,\dotsc,x_k;0)
+ =|\mathcal F|x_1^{r_1}\dotsm x_k^{r_k}
+\]
+and
+\[
+ D_{\mathcal F}(x_1,\dotsc,x_k;1)
+ =(x_1+\dotsb+x_k)^n.
+\]
+\item After setting every $x_c=1$, the coefficient of $t^j$ counts the
+colorings at distance $j$ from $\mathcal F$. In particular, the constant
+coefficient is $|\mathcal F|$, and the degree is
+$\max_{w\in[k]^E}d_{\mathcal F}(w)$.
+\item If every word in $\mathcal F$ has color $c$ at $e$, then
+\[
+ D_{\mathcal F}(x_1,\dotsc,x_k;t)
+ =\left(x_c+t\sum_{a\ne c}x_a\right)
+  D_{\mathcal F/(e,c)}(x_1,\dotsc,x_k;t).
+\]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Distances add across a direct sum, which proves the first identity. At $t=0$
+only the words of $\mathcal F$ remain, while at $t=1$ all $k^n$ colorings
+remain. Setting the color variables to $1$ gives the distance distribution.
+For the last identity, changing the color at $e$ costs one unless the new
+color is $c$, independently of the remaining positions.
+\end{proof}
+
+Simultaneously permuting the colors of $\mathcal F$ and the corresponding
+variables leaves the polynomial unchanged. For two colors, exchanging the
+colors corresponds to matroid duality.
+
+\subsection[twoColors]{Two colors and the Tutte polynomial}
+
+Suppose that $M$ is a rank-$r$ matroid on an $n$-element set and that
+$\mathcal F$ is its family of basis words: color $1$ marks a basis and color
+$0$ its complement.
+
+\begin{proposition}
+For a binary word $w$, let $A$ be its set of color-$1$ positions. Then
+\[
+ d_{\mathcal F}(w)
+ =\bigl(r-r_M(A)\bigr)+\bigl(|A|-r_M(A)\bigr).
+\]
+Consequently,
+\[
+ D_{\mathcal F}(x_0,x_1;t)
+ =x_1^r x_0^{n-r}
+ T_M\left(1+t\frac{x_0}{x_1},
+           1+t\frac{x_1}{x_0}\right).
+\]
+Thus the two-color distance polynomial is a homogeneous form of the classical
+Tutte polynomial.
+\end{proposition}
+
+\begin{proof}
+For a basis $B$, the Hamming distance from $w$ to its basis word is
+$|A\mathbin{\triangle}B|$. The largest possible value of $|A\cap B|$ over all
+bases $B$ is $r_M(A)$, and hence
+\[
+ \min_{B\in\mathcal B(M)}|A\mathbin{\triangle}B|
+ =|A|+r-2r_M(A).
+\]
+This is the sum of the corank $r-r_M(A)$ and the nullity
+$|A|-r_M(A)$. Substituting this expression in the definition of
+$D_{\mathcal F}$ and comparing with
+\[
+ T_M(X,Y)
+ =\sum_{A\subseteq E}
+  (X-1)^{r-r_M(A)}(Y-1)^{|A|-r_M(A)}
+\]
+gives the stated identity. This is the corank--nullity expansion of the Tutte
+polynomial; see Oxley \cite{Oxley2011}.
+\end{proof}
+
+\subsection[linearRecurrence]{Why the recurrence is tropical}
+
+The classical Tutte polynomial has a linear deletion--contraction recurrence.
+The analogous identity
+\[
+ D_{\mathcal F}(x_1,\dotsc,x_k;t)
+ \stackrel{?}{=}
+ \sum_{\substack{c\in[k]\\\mathcal F/(e,c)\ne\varnothing}}
+ x_cD_{\mathcal F/(e,c)}(x_1,\dotsc,x_k;t)
+\]
+does not hold for every colored matroid.
+
+\begin{example}
+Take
+\[
+ \mathcal F=\{\mathtt{123},\mathtt{132},\mathtt{213}\}
+\]
+and remove position $e=2$. Each pair of words differs along a single color
+cycle, so this is a colored matroid. Its three minors at $e$ are
+\[
+ \mathcal F/(2,1)=\{\mathtt{23}\},\qquad
+ \mathcal F/(2,2)=\{\mathtt{13}\},\qquad
+ \mathcal F/(2,3)=\{\mathtt{12}\}.
+\]
+The coefficient of $x_2x_3^2t$ in $D_{\mathcal F}$ is $3$, contributed by
+$\mathtt{233}$, $\mathtt{323}$, and $\mathtt{332}$. The coefficient on the
+right-hand side of the proposed recurrence is $2$.
+
+The word $\mathtt{112}$ shows what goes wrong pointwise. Its distance from
+$\mathcal F$ is $1$, attained by $\mathtt{132}$. If we insist on keeping its
+color $1$ at position $2$, the only available word is $\mathtt{213}$, and
+after removing position $2$ the distance from $\mathtt{12}$ to
+$\mathtt{23}$ is $2$. A nearest word need not lie in the minor selected by
+the color of $w(e)$.
+\end{example}
+
+\begin{question}
+For which colored matroids, or which positions $e$, does the linear identity
+above hold?
+\end{question}
