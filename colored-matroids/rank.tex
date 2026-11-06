@@ -1,29 +1,174 @@
-\metatitle{Rank and projections}
-\metadescription{Ordinary color-projection matroids, joint counts, and rank questions for colored matroids.}
+\metatitle{Color projections and M-convexity}
+\metadescription{M-convex count vectors of color projections, their rank description,
+and the Lorentzian conjecture for weighted completion polynomials.}
 
 \section[rank]{Color projections}
 
-For a fixed color $c$, take all subsets of $E$ that occur as the $c$-fiber of
-a word in the family. Symmetric cycle exchange implies ordinary basis
-exchange for these subsets, and hence produces a matroid on $E$.
+Let $\mathcal F$ be a colored matroid on $E$ with colors $1,\dotsc,k$ and
+quotas $r_1,\dotsc,r_k$. We write
+\[
+ B(u,c)\coloneqq\{e\in E:u(e)=c\}.
+\]
+The \href{intro.htm}{color-projection proposition} shows that
+$\{B(u,c):u\in\mathcal F\}$ is the basis family of an ordinary matroid,
+which we denote by $M_c$. Thus retaining one color and merging all the
+others gives the two-color matroid associated with $M_c$ and its dual.
 
-This projection construction is the first bridge to ordinary matroid theory
-and is already represented in the accompanying Lean development.
+\subsection[mergingColors]{Merging colors}
 
-\section[jointRankData]{Joint cell counts}
+\begin{example}[Merging two colors can destroy exchange]
+The family
+\[
+ \mathcal F=\{\mathtt{1324},\mathtt{3241}\}
+\]
+is a colored matroid: the disagreement is the single cycle
+$1\to3\to2\to4\to1$, and exchanging it interchanges the two words.
+After replacing every $4$ by $3$, we obtain
+\[
+ \{\mathtt{1323},\mathtt{3231}\}.
+\]
+The disagreement now consists of the cycles $1\to3\to1$ and
+$3\to2\to3$. Exchanging either gives $\mathtt{3321}$ and
+$\mathtt{1233}$, neither of which belongs to the family.
+\end{example}
 
-One can retain more information by counting how a coloring meets subsets of
-positions and subsets of colors. These joint counts lead to rank-like
-inequalities and relaxations of the assignment polytope.
+\section[mConvexCounts]{M-convex count vectors}
 
-They give exact descriptions for important subclasses, including full
-basis-partition families and families with a determining color. They do not
-describe every colored-matroid assignment polytope, even after the affine hull
-is included.
+Fix a color $c$ and a partition $E=D_1\sqcup\dotsb\sqcup D_m$.
+We record how many positions of each part receive color $c$:
+\[
+ \defin{\mathcal V_c}\coloneqq
+ \{(|B(u,c)\cap D_1|,\dotsc,|B(u,c)\cap D_m|):u\in\mathcal F\}.
+\]
 
-\section[intrinsicRankAxioms]{Intrinsic rank axioms}
+\begin{definition}[M-convexity]
+A nonempty finite set $\mathcal V\subseteq\mathbb Z_{\geq0}^m$ of
+constant coordinate sum is \defin{M-convex} if, whenever
+$\mathbf a,\mathbf b\in\mathcal V$ and $a_i>b_i$, there is an index $j$
+with $a_j<b_j$ such that
+\[
+ \mathbf a-\mathbf e_i+\mathbf e_j\in\mathcal V,
+ \qquad
+ \mathbf b+\mathbf e_i-\mathbf e_j\in\mathcal V.
+\]
+Here $\mathbf e_i$ is the $i$th unit vector.
+\end{definition}
 
-Finding an intrinsic rank formalism for colored matroids remains open. A
-successful theory must distinguish valid positive classes from the known
-failure of unrestricted subset-count reconstruction, and it must expose the
-data needed by exchange rather than assuming it implicitly.
+This is symmetric basis exchange for integer vectors rather than just
+zero-one vectors \cite{Murota2003}.
+
+\begin{proposition}[Counts of a color projection]
+The set $\mathcal V_c$ is M-convex. More precisely, put
+\[
+ f(J)\coloneqq\operatorname{rk}_{M_c}
+ \left(\bigcup_{i\in J}D_i\right)
+ \qquad(J\subseteq[m]).
+\]
+The set $\mathcal V_c$ consists exactly of the integer vectors
+$\mathbf a\in\mathbb Z_{\geq0}^m$ satisfying
+\[
+ \begin{gathered}
+ \sum_{i=1}^m a_i=r_c,\\
+ \sum_{i\in J}a_i\leq f(J)\qquad(J\subseteq[m]).
+ \end{gathered}
+\]
+\end{proposition}
+
+\begin{proof}
+We show that the displayed inequalities characterize the counts of bases
+of $M_c$. Necessity follows from the definition of matroid rank.
+
+For sufficiency, take an integer vector $\mathbf a$ satisfying them.
+Let $N$ be the partition matroid in which an independent set contains at
+most $a_i$ elements of $D_i$. The matroid intersection theorem
+\cite{Oxley2011} gives a common independent set of size $r_c$ if
+\[
+ \operatorname{rk}_{M_c}(X)+
+ \sum_i\min(a_i,|D_i\setminus X|)\geq r_c
+ \qquad(X\subseteq E).
+\]
+To verify this, put $J=\{i:a_i>|D_i\setminus X|\}$. Then
+\[
+ \sum_{i\in J}a_i\leq f(J)
+ \leq\operatorname{rk}_{M_c}(X)+\sum_{i\in J}|D_i\setminus X|.
+\]
+Adding $\sum_{i\notin J}a_i$ gives the required inequality.
+A common independent set of size $r_c$ is a basis of $M_c$ and has
+exactly $a_i$ elements in each $D_i$.
+
+The function $f$ is integer-valued, nondecreasing, and submodular, with
+$f(\varnothing)=0$. Hence the displayed count set is the basis set of
+an integral polymatroid. The symmetric exchange theorem for discrete
+polymatroids gives M-convexity; see
+\href{https://arxiv.org/html/math/0307236v1}{J.~Herzog and T.~Hibi,
+Theorems 3.4 and 4.1}.
+\end{proof}
+
+Taking singleton parts recovers ordinary symmetric basis exchange.
+Taking $D_1=S$ and $D_2=E\setminus S$ shows that the possible values of
+$|B(u,c)\cap S|$ form an integer interval.
+
+\section[lorentzianConjecture]{The Lorentzian conjecture}
+
+M-convexity describes which count vectors occur. We now also count how
+many words give each vector.
+
+Fix a color $c$ and positive weights $w_{e,a}$ for the assignments with
+$a\ne c$. Define the \defin{weighted completion polynomial}
+\[
+ \defin{Q_c(\mathbf x;\mathbf w)}\coloneqq
+ \sum_{u\in\mathcal F}
+ \left(\prod_{e:u(e)\ne c}w_{e,u(e)}\right)
+ \prod_{e:u(e)=c}x_e.
+\]
+It is homogeneous of degree $r_c$. When all weights are $1$, the
+coefficient of $\prod_{e\in B}x_e$ counts the words whose color-$c$
+class is $B$.
+
+\begin{definition}[Lorentzian polynomial]
+Let $f$ be a nonzero homogeneous polynomial of degree $d$ with nonnegative
+coefficients. Its \defin{exponent support} is the set of vectors
+$\boldsymbol\alpha$ whose monomials have positive coefficient.
+For $d\geq2$, we call $f$ \defin{Lorentzian} if its exponent support is
+M-convex and every partial derivative of total order $d-2$ has a Hessian
+with at most one positive eigenvalue. The Hessian is the matrix of second
+partial derivatives. Nonnegative homogeneous polynomials of degree zero
+or one are also Lorentzian \cite{BrandenHuh2020}.
+\end{definition}
+
+\begin{conjecture}[Lorentzian completion polynomials]
+For every colored matroid $\mathcal F$, every color $c$, and every choice
+of positive assignment weights, $Q_c(\mathbf x;\mathbf w)$ is Lorentzian.
+\end{conjecture}
+
+Its support is already M-convex by the color-projection proposition.
+The conjecture asks for the stronger inequalities on completion counts.
+In two colors, each basis has a unique completion. If $a$ is the other
+color, then
+\[
+ Q_c(\mathbf x;\mathbf w)=
+ \left(\prod_{e\in E}w_{e,a}\right)
+ \sum_{B\in\mathcal B(M_c)}\prod_{e\in B}\frac{x_e}{w_{e,a}},
+\]
+so the conjecture follows from the Lorentzian theorem for ordinary
+matroid basis polynomials \cite{BrandenHuh2020}.
+
+For the partition $D_1,\dotsc,D_m$, substituting $x_e=z_i$ for $e\in D_i$
+gives a polynomial with exponent support $\mathcal V_c$. Nonnegative
+linear substitutions preserve Lorentzianity, so the conjecture would also
+make these count polynomials Lorentzian. With two parts and all weights
+equal to $1$, write this polynomial as
+\[
+ \sum_{j=0}^{r_c}a_j z_1^jz_2^{r_c-j}.
+\]
+The resulting inequality is
+\[
+ \left(\frac{a_j}{\binom{r_c}{j}}\right)^2\geq
+ \frac{a_{j-1}}{\binom{r_c}{j-1}}
+ \frac{a_{j+1}}{\binom{r_c}{j+1}}
+ \qquad(1\leq j<r_c).
+\]
+Thus the conjecture strengthens the integer-interval statement to
+ultra-log-concavity. The \href{log-concavity.htm}{width-three poset chapter}
+proves Lorentzianity for a full three-color family and applies it to
+descent counts.
