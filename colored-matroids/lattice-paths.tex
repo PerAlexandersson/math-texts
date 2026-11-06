@@ -224,6 +224,23 @@ the section formula. Conversely, the two boundary paths of each $D_c$ supply
 the corresponding lower and upper prefix bounds.
 \end{proof}
 
+\begin{example}[Slices of a three-dimensional region]
+Consider again the family with quotas $(2,2,2)$ from the example above. The
+first two positions allow colors $1,2$, the middle two allow all three colors,
+and the last two allow colors $2,3$. We impose $h_1(w,2)\geq1$ and
+$h_3(w,4)\leq1$. The seven sections of its canonical region are shown below.
+\end{example}
+
+\svgimg[width=1]{svg-images/lattice-slices.svg}{Seven slices of the three-dimensional region}
+
+The open circles are the integer points of $\Delta_s$, and the solid circles
+are the points of $R_{\mathcal F}\cap\Delta_s$. The dashed lines join the
+retained points; the axes $x,y,z$ in the middle panel are the three color
+counts. The ambient section grows from a point to a triangle, becomes a hexagon
+at $s=3$, and then contracts to $(2,2,2)$. The retained part of the middle
+section is the shaded quadrilateral. At the constrained cuts $s=2$ and $s=4$,
+it is a line segment.
+
 The corridors describe the vertices. The allowed-color sets describe the
 edges: at rank $j-1$, retain the edge
 \[

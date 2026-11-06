@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="540" viewBox="0 0 600 540">
+  <style>
+    .hull { fill: none; stroke: #888; stroke-width: 2; stroke-linejoin: round; }
+    .region { fill: none; stroke: #666; stroke-width: 3; stroke-dasharray: 5 3;
+      stroke-linejoin: round; }
+    .area { fill: #888; fill-opacity: 0.25; stroke-width: 2; }
+    .point { fill: none; stroke: #999; stroke-width: 2; }
+    .kept { fill: #666; stroke: #666; stroke-width: 2; }
+    text { fill: #777; font: 18px serif; text-anchor: middle; }
+    .axis { font-size: 14px; font-style: italic; }
+  </style>
+
+  <g transform="translate(10 0)">
+    <circle class="point" cx="90" cy="65" r="6"/>
+    <circle class="kept" cx="90" cy="65" r="6"/>
+    <text x="90" y="148">s = 0</text>
+  </g>
+
+  <g transform="translate(210 0)">
+    <polygon class="hull" points="90,35 116,80 64,80"/>
+    <line class="region" x1="90" y1="35" x2="116" y2="80"/>
+    <circle class="point" cx="90" cy="35" r="6"/>
+    <circle class="point" cx="116" cy="80" r="6"/>
+    <circle class="point" cx="64" cy="80" r="6"/>
+    <circle class="kept" cx="90" cy="35" r="6"/>
+    <circle class="kept" cx="116" cy="80" r="6"/>
+    <text x="90" y="148">s = 1</text>
+  </g>
+
+  <g transform="translate(410 0)">
+    <polygon class="hull" points="90,5 142,95 38,95"/>
+    <line class="region" x1="90" y1="5" x2="116" y2="50"/>
+    <circle class="point" cx="90" cy="5" r="6"/>
+    <circle class="point" cx="116" cy="50" r="6"/>
+    <circle class="point" cx="64" cy="50" r="6"/>
+    <circle class="point" cx="142" cy="95" r="6"/>
+    <circle class="point" cx="90" cy="95" r="6"/>
+    <circle class="point" cx="38" cy="95" r="6"/>
+    <circle class="kept" cx="90" cy="5" r="6"/>
+    <circle class="kept" cx="116" cy="50" r="6"/>
+    <text x="90" y="148">s = 2</text>
+  </g>
+
+  <g transform="translate(110 180)">
+    <polygon class="hull" points="64,20 116,20 142,65 116,110 64,110 38,65"/>
+    <polygon class="region area" points="64,20 116,20 142,65 90,65"/>
+    <circle class="point" cx="64" cy="20" r="6"/>
+    <circle class="point" cx="116" cy="20" r="6"/>
+    <circle class="point" cx="142" cy="65" r="6"/>
+    <circle class="point" cx="116" cy="110" r="6"/>
+    <circle class="point" cx="64" cy="110" r="6"/>
+    <circle class="point" cx="38" cy="65" r="6"/>
+    <circle class="point" cx="90" cy="65" r="6"/>
+    <circle class="kept" cx="64" cy="20" r="6"/>
+    <circle class="kept" cx="116" cy="20" r="6"/>
+    <circle class="kept" cx="142" cy="65" r="6"/>
+    <circle class="kept" cx="90" cy="65" r="6"/>
+    <text class="axis" x="90" y="12">x</text>
+    <text class="axis" x="154" y="69">y</text>
+    <text class="axis" x="26" y="69">z</text>
+    <text x="90" y="148">s = 3</text>
+  </g>
+
+  <g transform="translate(310 180)">
+    <polygon class="hull" points="38,35 142,35 90,125"/>
+    <line class="region" x1="90" y1="35" x2="142" y2="35"/>
+    <circle class="point" cx="38" cy="35" r="6"/>
+    <circle class="point" cx="90" cy="35" r="6"/>
+    <circle class="point" cx="142" cy="35" r="6"/>
+    <circle class="point" cx="64" cy="80" r="6"/>
+    <circle class="point" cx="116" cy="80" r="6"/>
+    <circle class="point" cx="90" cy="125" r="6"/>
+    <circle class="kept" cx="90" cy="35" r="6"/>
+    <circle class="kept" cx="142" cy="35" r="6"/>
+    <text x="90" y="148">s = 4</text>
+  </g>
+
+  <g transform="translate(110 360)">
+    <polygon class="hull" points="64,50 116,50 90,95"/>
+    <line class="region" x1="64" y1="50" x2="116" y2="50"/>
+    <circle class="point" cx="64" cy="50" r="6"/>
+    <circle class="point" cx="116" cy="50" r="6"/>
+    <circle class="point" cx="90" cy="95" r="6"/>
+    <circle class="kept" cx="64" cy="50" r="6"/>
+    <circle class="kept" cx="116" cy="50" r="6"/>
+    <text x="90" y="148">s = 5</text>
+  </g>
+
+  <g transform="translate(310 360)">
+    <circle class="point" cx="90" cy="65" r="6"/>
+    <circle class="kept" cx="90" cy="65" r="6"/>
+    <text x="90" y="148">s = 6</text>
+  </g>
+</svg>
