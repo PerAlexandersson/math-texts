@@ -1,0 +1,198 @@
+\metatitle{Graphs and colored matroids}
+\metadescription{Graphic matroids in two colors, prescribed-indegree
+orientations, directed-cycle exchange, and circuits described by cuts.}
+
+\section[graphsAndColoredMatroids]{Graphs and colored matroids}
+
+Graphs enter the theory in two related ways. Spanning trees give the usual
+graphic matroid in two colors. With more colors, fixed-indegree orientations
+give a family in which symmetric cycle exchange is literally reversal of a
+directed cycle.
+
+\subsection[graphicMatroids]{The classical graphic matroid}
+
+Let $G=(V,E)$ be a finite connected graph. Its graphic matroid $M(G)$ has
+edge set $E$; its bases are the spanning trees, its independent sets are the
+forests, and its circuits are the edge sets of graph cycles. The circuits of
+the dual matroid are the bonds, that is, the minimal nonempty edge cuts.
+
+For every spanning tree $T$, color its edges $1$ and the remaining edges
+$0$. This gives the binary word
+\[
+ u_T(e)=
+ \begin{cases}
+ 1,&e\in T,\\
+ 0,&e\notin T.
+ \end{cases}
+\]
+
+\begin{proposition}[The graphic matroid in two colors]
+The words $u_T$, as $T$ ranges over the spanning trees of $G$, form a
+two-color colored matroid. Its color-$1$ projection is $M(G)$, and its
+color-$0$ projection is the cographic matroid $M(G)^*$.
+
+If a partial assignment colors the edges of $I$ by $1$ and the edges of $J$
+by $0$, then it is independent if and only if $I$ is a forest and
+$G\setminus J$ is connected. Its monochromatic circuits are graph cycles in
+color $1$ and bonds in color $0$.
+\end{proposition}
+
+\begin{proof}
+The spanning trees are the bases of $M(G)$, so the two-color result gives
+symmetric cycle exchange and identifies the two projections as $M(G)$ and
+$M(G)^*$.
+
+A set $I$ is independent in $M(G)$ precisely when it is a forest. A set $J$
+is independent in $M(G)^*$ precisely when it is contained in the complement
+of a spanning tree, which is equivalent to $G\setminus J$ containing a
+spanning tree. The latter condition says that $G\setminus J$ is connected.
+The description of the circuits follows from the ordinary graphic and
+cographic matroids.
+\end{proof}
+
+Thus the usual graphic matroid is fully present: forests are independent,
+spanning trees are bases, graph cycles are circuits, and bonds are
+cocircuits. The second color records the dual at the same time.
+
+\subsection[fixedIndegreeOrientations]{Fixed-indegree orientations}
+
+Now let the vertex set of a finite loopless multigraph $G$ be the set of
+colors. Each edge is a position and may receive either of its endpoint
+colors. Equivalently, we orient the edge toward the vertex giving its color.
+Fix nonnegative integers $r_v$, for $v\in V$, with
+\[
+ \sum_{v\in V}r_v=|E|,
+\]
+and take all orientations with indegree $r_v$ at every vertex $v$.
+
+\begin{proposition}[Directed-cycle exchange]
+Every nonempty fixed-indegree orientation family is a colored matroid. For
+two orientations and any edge on which they disagree, symmetric cycle
+exchange is obtained by reversing a directed cycle containing that edge.
+\end{proposition}
+
+\begin{proof}
+Keep the edges on which the two orientations disagree and orient them as in
+the first orientation. At every vertex, the indegree equals the outdegree:
+the two original orientations have the same indegree there. Every edge of a
+finite balanced directed graph lies on a directed cycle. Reverse such a
+cycle through the prescribed edge in both orientations. All indegrees remain
+unchanged, so both resulting orientations belong to the family.
+\end{proof}
+
+\begin{example}[The triangle]
+Order the edges of a triangle as
+\[
+ a=12,\qquad b=23,\qquad c=31.
+\]
+There are two orientations with indegree one at every vertex. Their words in
+the order $(a,b,c)$ are
+\[
+ \mathtt{231}\qquad\text{and}\qquad\mathtt{123}.
+\]
+They are the two directed cycles, and symmetric cycle exchange reverses all
+three edges.
+\end{example}
+
+\subsection[orientationIndependence]{Independence and cuts}
+
+In the orientation model, an independent partial assignment is a partial
+orientation that can be completed to the prescribed indegrees. This has a
+cut description.
+
+For $X\subseteq V$, let $E(X)$ be the set of edges with both endpoints in
+$X$, and let $\delta(X)$ be the set of edges with one endpoint in $X$. If
+$\tau$ is a partial orientation, let $i_\tau(X)$ be the number of already
+oriented edges of $\delta(X)$ that point into $X$.
+
+\begin{proposition}[Cut criterion]
+A partial orientation $\tau$ extends to an orientation with indegrees
+$(r_v)_{v\in V}$ if and only if
+\[
+ i_\tau(X)
+ \leq
+ \sum_{v\in X}r_v-|E(X)|
+ \qquad\text{for every }X\subseteq V.
+\]
+\end{proposition}
+
+\begin{proof}
+Let $F$ be the set of edges already oriented and let $R=E\setminus F$. At a
+vertex $v$, the remaining edges must contribute
+\[
+ b_v=r_v-d^-_\tau(v)
+\]
+incoming edges. Assigning every edge of $R$ to its chosen head is a matching
+problem: make one vertex for each edge of $R$, and make $b_v$ slots at every
+vertex $v$; an edge may be matched to a slot at either endpoint.
+
+Hall's condition for this matching is
+\[
+ \sum_{v\in X}b_v\geq |R(X)|
+ \qquad\text{for every }X\subseteq V.
+\]
+Indeed, every collection of remaining edges lies inside the subgraph on the
+union of its endpoints. Now
+\[
+ \sum_{v\in X}d^-_\tau(v)
+ =|F\cap E(X)|+i_\tau(X),
+ \qquad
+ |R(X)|=|E(X)|-|F\cap E(X)|.
+\]
+Substitution gives exactly the displayed cut inequalities.
+\end{proof}
+
+\begin{corollary}[Circuits are minimal overloaded cuts]
+Let $C$ be a circuit in a fixed-indegree orientation family. There is a set
+$X\subseteq V$ such that every edge prescribed by $C$ crosses $\delta(X)$
+and points into $X$, and
+\[
+ |C|=\sum_{v\in X}r_v-|E(X)|+1.
+\]
+Conversely, every inclusion-minimal partial orientation violating a cut
+inequality is a circuit.
+\end{corollary}
+
+\begin{proof}
+Since $C$ does not extend, it violates the cut inequality for some $X$. If
+one of its assignments were not an edge directed across the cut into $X$,
+removing that assignment would leave the same violation, contrary to
+minimality. Removing any assignment must repair the inequality, so the left
+side exceeds the right side by exactly one. The converse follows from the
+cut criterion.
+\end{proof}
+
+For the triangle with indegrees $(1,1,1)$, directing both edges incident to
+one vertex into that vertex is a circuit: its prescribed indegree is already
+two. Directing both edges away from one vertex is another circuit, detected
+by the cut consisting of the other two vertices. The bases are the two
+directed cycles, the exchanges are directed cycles, and the circuits are
+minimal cut overloads.
+
+\subsection[treePartitions]{Why spanning-tree partitions are different}
+
+It is tempting to require every color class to be a spanning tree. This does
+not always satisfy symmetric cycle exchange, even with two colors.
+
+\begin{example}[Two spanning trees]
+In $K_4$, let
+\[
+ T=\{12,23,34\},
+ \qquad
+ T'=\{12,13,24\}.
+\]
+Both $T$ and $T'$ have spanning-tree complements. Consider the two binary
+words whose color-$1$ classes are $T$ and $T'$, and prescribe exchange at
+$34\in T\setminus T'$. The possible incoming edges from $T'$ are $13$ and
+$24$.
+
+Replacing $34$ by $13$ produces the triangle $\{12,13,23\}$. Replacing it
+by $24$ produces the tree $\{12,23,24\}$, but its complement
+$\{13,14,34\}$ is a triangle. Neither exchange gives two valid ordered
+partitions into spanning trees.
+\end{example}
+
+The fixed-indegree orientation construction succeeds because its feasibility
+conditions are preserved by reversing directed cycles. Constructions that
+encode an arbitrary ordinary graphic matroid using more colors are described
+on the \href{constructions.htm}{constructions and examples} page.

@@ -1,0 +1,160 @@
+\metatitle{Independence and circuits in colored matroids}
+\metadescription{Partial colorings, circuits, and the recovery of ordinary
+matroid independence and duality in two colors.}
+
+\section[independenceAndCircuits]{Independence and circuits}
+
+For an ordinary matroid, every independent set extends to a basis, and the
+circuits are the minimal sets that do not. The same definitions apply to
+partial colorings, where we ask whether the prescribed colors extend to a
+word of the colored matroid.
+
+Let $\mathcal F$ be a colored matroid on $E$ with colors $1,\dotsc,k$. For a
+word $u\in\mathcal F$, write
+\[
+ \defin{\widehat B(u)}=\{(e,u_e):e\in E\}.
+\]
+
+\begin{definition}[Independent partial assignments and circuits]
+A \defin{partial assignment} is a set
+$\tau\subseteq E\times[k]$ containing at most one pair with first coordinate
+$e$, for every $e\in E$. It is \defin{independent} if
+\[
+ \tau\subseteq\widehat B(u)
+\]
+for some $u\in\mathcal F$. A \defin{circuit} is an inclusion-minimal partial
+assignment that is not independent.
+\end{definition}
+
+Every subset of an independent partial assignment is independent. The
+maximal independent partial assignments are exactly the sets
+$\widehat B(u)$, for $u\in\mathcal F$.
+
+\subsection[twoColorIndependence]{Two colors}
+
+The preceding definitions recover ordinary matroid independence without any
+change of meaning. Suppose that the colors are $1$ and $0$, and let $M$ be
+the matroid whose bases are the color-$1$ classes. Its dual $M^*$ has the
+color-$0$ classes as bases.
+
+\begin{proposition}[Classical matroid independence]
+Let $\tau$ prescribe color $1$ on $I$ and color $0$ on $J$, where
+$I,J\subseteq E$ are disjoint. Then $\tau$ is independent if and only if
+\[
+ I\text{ is independent in }M
+ \qquad\text{and}\qquad
+ J\text{ is independent in }M^*.
+\]
+Consequently, every circuit uses a single color. The color-$1$ circuits are
+the circuits of $M$, while the color-$0$ circuits are the circuits of $M^*$,
+or equivalently the cocircuits of $M$.
+\end{proposition}
+
+\begin{proof}
+If $\tau$ extends to a word, then $I$ lies in its color-$1$ basis and $J$
+lies in its complementary color-$0$ basis. Thus the two sets are independent
+in $M$ and $M^*$, respectively.
+
+Conversely, suppose that $I$ is independent in $M$ and $J$ is independent
+in $M^*$. Some basis of $M^*$ contains $J$, so its complementary basis of
+$M$ avoids $J$. Hence the restriction of $M$ to $E\setminus J$ has full
+rank. Extend $I$ to a basis of this restriction. Its indicator word extends
+$\tau$.
+
+It follows that a nonextendible partial assignment contains either a circuit
+of $M$ colored $1$ or a circuit of $M^*$ colored $0$. Minimality gives the
+last assertion.
+\end{proof}
+
+Taking $J=\varnothing$ shows that a set of positions colored $1$ is
+independent precisely when it is an ordinary independent set of $M$. Taking
+$I=\varnothing$ gives the corresponding statement for the dual. Thus bases,
+independent sets, circuits, cocircuits, and duality all occur inside the
+two-color theory.
+
+\subsection[mixedCircuits]{Mixed circuits}
+
+For three or more colors, the individual color projections do not contain
+all the independence information.
+
+\begin{proposition}[Monochromatic circuits]
+Fix a color $c$. A circuit whose assignments all have color $c$ is exactly
+an ordinary circuit of the color-$c$ projection matroid, with all its
+positions assigned color $c$.
+\end{proposition}
+
+\begin{proof}
+A set $I$ is independent in the color-$c$ projection if and only if it is
+contained in $B(u,c)$ for some $u\in\mathcal F$. This is equivalent to the
+partial assignment $I\times\{c\}$ being independent. Minimal nonextendible
+sets therefore agree on both sides.
+\end{proof}
+
+Mixed circuits record compatibility between several color classes. Consider
+the seven-word colored matroid
+\[
+ \mathcal F={\mathtt{1123},\mathtt{1213},\mathtt{1321},
+ \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
+\]
+
+\begin{example}[A mixed circuit]
+The partial assignment
+\[
+ \{(1,3),(2,1),(3,1)\}
+\]
+is a circuit. The two occurrences of color $1$ force the remaining colors
+$2$ and $3$ onto positions $1$ and $4$, but color $3$ is already prescribed
+at position $1$ and no word places color $2$ at position $4$.
+
+Removing the assignments at positions $1$, $2$, and $3$ gives partial
+assignments extending to $\mathtt{2113}$, $\mathtt{3211}$, and
+$\mathtt{3121}$, respectively. The color-$1$ positions $\{2,3\}$ and the
+color-$3$ position $\{1\}$ are separately independent in their projection
+matroids; their joint prescription is not.
+\end{example}
+
+\subsection[conditionalCircuits]{Conditional circuits}
+
+Mixed circuits become ordinary circuits after the other colors have been
+fixed.
+
+\begin{proposition}[Circuits after pinning]
+Let $C$ be a circuit, and let $c$ be a color occurring in $C$. Put
+\[
+ I=\{e:(e,c)\in C\},
+ \qquad
+ \tau=C\setminus(I\times\{c\}).
+\]
+Pin the assignments in $\tau$ and take the color-$c$ projection of the
+remaining family. Then $I$ is a circuit of this ordinary matroid.
+\end{proposition}
+
+\begin{proof}
+The proper subset $\tau$ extends to a word. No completion after pinning
+$\tau$ can contain every position of $I$ in color $c$, since that would
+extend $C$. If $e\in I$, minimality of $C$ gives a completion of
+$C\setminus\{(e,c)\}$. Thus $I\setminus\{e\}$ is independent after pinning
+$\tau$. Hence $I$ is an ordinary circuit in the conditional color
+projection.
+\end{proof}
+
+There is also a direct remnant of basis exchange for arbitrary partial
+assignments.
+
+\begin{proposition}[Adding one assignment]
+Suppose $\sigma\subseteq\tau$ are independent partial assignments and
+$a\notin\tau$, while $\sigma\cup\{a\}$ is independent. We can remove at most
+one assignment of each color from $\tau$ so that $a$ can be added and the
+result remains independent.
+\end{proposition}
+
+\begin{proof}
+Choose a word $u$ extending $\tau$ and a word $v$ extending
+$\sigma\cup\{a\}$. If $u$ already contains $a$, there is nothing to prove.
+Otherwise, apply symmetric cycle exchange at the position of $a$. The two
+words agree on every assignment of $\sigma$, so the exchange avoids those
+positions. Remove from $\tau$ the assignments changed in the first word.
+The resulting partial assignment together with $a$ extends to the exchanged
+word. Since the exchange cycle uses each color at most once, at most one
+assignment of each color was removed.
+\end{proof}
