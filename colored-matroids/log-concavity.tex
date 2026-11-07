@@ -1,6 +1,6 @@
 \metatitle{Ultra-log-concavity for rigid width-three posets}
-\metadescription{A three-color matroid encoding of ultra-log-concavity for
-P-Eulerian polynomials of rigid width-three posets.}
+\metadescription{A three-color encoding by disjoint matroid bases proving
+ultra-log-concavity for P-Eulerian polynomials of rigid width-three posets.}
 
 \section[widthThreeLogConcavity]{Ultra-log-concavity for rigid width-three posets}
 
@@ -21,6 +21,7 @@ Let $P$ be a naturally labeled poset on $[n]=\{1,\dotsc,n\}$. A linear
 extension is a permutation $\sigma=\sigma_1\dotsm\sigma_n$ compatible with
 the order of $P$. Write $\mathcal L(P)$ for the set of linear extensions. A
 position $i<n$ is a descent if $\sigma_i>\sigma_{i+1}$.
+We write $x\parallel y$ when $x$ and $y$ are incomparable in $P$.
 
 \begin{definition}[$P$-Eulerian polynomial]
 The \defin{$P$-Eulerian polynomial} is
@@ -100,11 +101,13 @@ For a word $u:E\to\{0,1,2\}$, write
 \[
  B(u,c)\coloneqq\{e\in E:u(e)=c\}.
 \]
-Let $M_1$ and $M_2$ be matroids on $E$. Consider the family
+Let $M_1$ and $M_2$ be matroids on $E$. We write $\mathcal F(M_1,M_2)$
+for the family of words $u:E\to\{0,1,2\}$ satisfying
 \[
- \mathcal F(M_1,M_2)\coloneqq
- \{u:E\longrightarrow\{0,1,2\}:
- B(u,1)\in\mathcal B(M_1),\ B(u,2)\in\mathcal B(M_2)\}.
+ \begin{aligned}
+ B(u,1)&\in\mathcal B(M_1),\\
+ B(u,2)&\in\mathcal B(M_2).
+ \end{aligned}
 \]
 The remaining positions have color $0$. Put
 \[
@@ -118,18 +121,39 @@ and define the generating polynomial
 \]
 
 \begin{proposition}[Lorentzian generating polynomial]
-If $\mathcal F(M_1,M_2)$ is nonempty, then $Q_{\mathcal F}$ is Lorentzian and
-homogeneous of degree $R$.
+If $\mathcal F(M_1,M_2)$ is nonempty, then $Q_{\mathcal F}$ is
+\href{rank.htm#lorentzianConjecture}{Lorentzian} and homogeneous of degree $R$.
 \end{proposition}
 
 \begin{proof}
-Apply the basis-generating differential operators of $M_1$ and $M_2$ to the
-squarefree monomial $\prod_{e\in E}x_e$. Terms in which the two bases overlap
-vanish, and the surviving monomial records the complementary color-$0$ class.
-Using the dual basis polynomial, each basis-generating differential operator
-can be written as a product of operators $\partial_{x_e}+\partial_{z_e}$
-followed by the specialization $\mathbf z=0$. These operations preserve
-Lorentzianity by the Brändén--Huh theory \cite{BrandenHuh2020}.
+Write $b_M(\mathbf x)=\sum_{B\in\mathcal B(M)}\prod_{e\in B}x_e$ for the
+basis polynomial of a matroid $M$. Replacing each variable by its partial
+derivative gives
+\[
+ Q_{\mathcal F}(\mathbf x)
+ =b_{M_1}(\partial_{\mathbf x})b_{M_2}(\partial_{\mathbf x})
+   \prod_{e\in E}x_e.
+\]
+Overlapping bases give zero; disjoint bases leave the monomial on their
+complement.
+
+To see why these operators preserve Lorentzianity, use the dual matroid:
+\[
+ \begin{gathered}
+ b_M(\partial_{\mathbf x})f(\mathbf x)
+ \\
+ =\left.
+ \prod_{e\in E}(\partial_{x_e}+\partial_{z_e})
+ \bigl(f(\mathbf x)b_{M^*}(\mathbf z)\bigr)
+ \right|_{\mathbf z=0}.
+ \end{gathered}
+\]
+After expansion, a term survives at $\mathbf z=0$ exactly when the
+$z$-derivatives select a basis of $M^*$; the remaining derivatives select
+its complementary basis of $M$. Matroid basis polynomials are Lorentzian;
+products, nonnegative directional derivatives, and specialization at zero
+preserve Lorentzianity \cite{BrandenHuh2020}. Starting from $\prod_{e\in E}x_e$
+therefore proves the claim. Nonemptiness ensures that the result is nonzero.
 \end{proof}
 
 \subsection[rigidWidthThreeTheorem]{The theorem}
@@ -145,7 +169,7 @@ $(w_0,\dotsc,w_{n-h})$ is ultra-log-concave of order $n-h$ with no internal
 zeros.
 \end{theorem}
 
-\begin{proof}
+\begin{proof}[Sketch]
 The chains $X$ and $Y$ give two transversal matroids on a common set of
 positions. A linear extension of $P$ determines a word in the corresponding
 family $\mathcal F(M_1,M_2)$, whose color-$0$ class has size $n-h$. The

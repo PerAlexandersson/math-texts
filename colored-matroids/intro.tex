@@ -94,7 +94,7 @@ the matroid and its dual in the two color classes.
 
 We now generalize this set-partition viewpoint. Instead of dividing $E$ into a
 basis and its complement, we divide it into an ordered list of $k$ color
-classes. Their sizes remain fixed, but no single class determines all the
+classes. Their sizes remain fixed, but one class need not determine the
 others. The exchange rule must therefore move several colors compatibly.
 
 Fix colors $1,\dotsc,k$ and nonnegative integers $r_1,\dotsc,r_k$ with sum
@@ -199,10 +199,8 @@ quota $1$. In particular, it holds for every three-color family. A
 computer-assisted proof with checked certificates also covers families with
 at most four repeated colors when the sum of their quotas is at most $15$.
 
-The condition is imposed at every position where the two words differ, and
-both resulting words must belong to $\mathcal F$. With two colors, a cyclic
-exchange uses two positions and recovers ordinary matroid exchange. With three
-colors, it uses either two or three positions.
+With two colors, a cyclic exchange uses two positions. With three colors,
+it uses either two or three positions.
 
 \begin{proposition}[Two colors]
 Let $\mathcal F$ be a nonempty family of binary words with $r$ symbols $1$
@@ -362,11 +360,15 @@ Consider the family
  \mathcal F=\{\mathtt{1123},\mathtt{1213},\mathtt{1321},
  \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
 \]
+These are exactly the words of content $1^2 2\,3$ with $u_3\ne3$ and
+$u_4\ne2$. Thus this is an
+\href{constructions.htm#allowedColors}{allowed-color family}, which satisfies
+symmetric cycle exchange.
+
 Take $u=\mathtt{2311}$ and $v=\mathtt{1123}$. At positions $1$ and $3$, the
 pairs of symbols are $(2,1)$ and $(1,2)$. Interchanging those positions gives
 \[
  u'=\mathtt{1321},\qquad v'=\mathtt{2113},
 \]
-which are again members of $\mathcal F$. Unlike the previous example, the
-resulting words are different from the original two words.
+which are again members of $\mathcal F$.
 \end{example}

@@ -4,6 +4,7 @@ canonical direct-sum decomposition of colored matroids.}
 
 \section[exchangeGraphs]{Exchange graphs}
 
+Let $\mathcal F$ be a colored matroid on $E$.
 For an ordinary matroid, single-element exchanges connect all bases. The same
 phenomenon holds for colored matroids, with simple color cycles replacing
 single-element exchanges.
@@ -58,8 +59,9 @@ matroid $M(\mathcal F,c)$. For a basis $B$ of this matroid, write
 \]
 
 \begin{proposition}[Lifting basis exchanges]
-Suppose that $B$ and $B\setminus\{e\}\cup\{f\}$ are bases of
-$M(\mathcal F,c)$. From every word $u\in\mathcal F(c,B)$, there is an edge of
+Suppose that $B$ is a basis of $M(\mathcal F,c)$, that $e\in B$ and
+$f\notin B$, and that $B\setminus\{e\}\cup\{f\}$ is also a basis.
+From every word $u\in\mathcal F(c,B)$, there is an edge of
 $G(\mathcal F)$ to a word in
 $\mathcal F(c,B\setminus\{e\}\cup\{f\})$.
 \end{proposition}

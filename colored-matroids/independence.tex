@@ -93,7 +93,7 @@ sets therefore agree on both sides.
 Mixed circuits record compatibility between several color classes. Consider
 the seven-word colored matroid
 \[
- \mathcal F={\mathtt{1123},\mathtt{1213},\mathtt{1321},
+ \mathcal F=\{\mathtt{1123},\mathtt{1213},\mathtt{1321},
  \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
 \]
 
@@ -144,8 +144,8 @@ assignments.
 \begin{proposition}[Adding one assignment]
 Suppose $\sigma\subseteq\tau$ are independent partial assignments and
 $a\notin\tau$, while $\sigma\cup\{a\}$ is independent. We can remove at most
-one assignment of each color from $\tau$ so that $a$ can be added and the
-result remains independent.
+one assignment of each color from $\tau\setminus\sigma$ so that $a$ can be
+added and the result remains independent.
 \end{proposition}
 
 \begin{proof}

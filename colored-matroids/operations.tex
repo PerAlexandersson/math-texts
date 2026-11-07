@@ -117,7 +117,7 @@ The \defin{minor of $\mathcal F$ at $(e,c)$} is
  \coloneqq
  \{u|_{E\setminus\{e\}}:u\in\mathcal F,\ u(e)=c\}.
 \]
-It decreases the quota of color $c$ by one and leaves the other quotas
+When nonempty, its quota of color $c$ is $r_c-1$; the other quotas are
 unchanged.
 \end{definition}
 
@@ -162,21 +162,15 @@ $M/e$. In $\mathcal F/(e,0)$, the color-$1$ classes are the bases of $M$
 that avoid $e$, which are the bases of $M\setminus e$.
 \end{proof}
 
-The two choices of color give the two classical operations:
-\[
-\begin{array}{c|c}
-\text{color fixed at }e&\text{matroid operation}\\ \hline
-1&\text{contraction }M/e\\
-0&\text{deletion }M\setminus e
-\end{array}
-\]
+If $e$ is a loop or coloop, only one color choice gives a nonempty minor;
+it records $M\setminus e=M/e$.
 Thus deletion and contraction of an ordinary matroid become one operation on
 its two-color words.
 
 \subsection[directSums]{Direct sums}
 
-Let $\mathcal F_1$ and $\mathcal F_2$ use the same colors on disjoint
-position sets $E_1$ and $E_2$.
+Let $\mathcal F_1$ and $\mathcal F_2$ be nonempty fixed-quota families using
+the same colors on disjoint position sets $E_1$ and $E_2$.
 
 \begin{definition}[Direct sum]
 The \defin{direct sum} is
@@ -226,7 +220,8 @@ the five-position colored matroid from the introduction.
 \end{example}
 
 \begin{proposition}[Decomposition under two-cycle exchange]
-Suppose that for every $u,v\in\mathcal F$ and every position where they
+Let $\mathcal F$ be a colored matroid. Suppose that for every
+$u,v\in\mathcal F$ and every position where they
 differ, a symmetric exchange can be chosen to be a two-cycle. After removing
 the positions whose colors are fixed, $\mathcal F$ is a direct sum of
 two-color families, each consisting of the bases of an ordinary matroid

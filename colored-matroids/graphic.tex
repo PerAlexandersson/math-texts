@@ -96,9 +96,8 @@ three edges.
 
 \subsection[orientationIndependence]{Independence and cuts}
 
-In the orientation model, an independent partial assignment is a partial
-orientation that can be completed to the prescribed indegrees. This has a
-cut description.
+Fix a nonempty orientation family. A partial orientation is independent if
+it can be completed to the prescribed indegrees. This has a cut description.
 
 For $X\subseteq V$, let $E(X)$ be the set of edges with both endpoints in
 $X$, and let $\delta(X)$ be the set of edges with one endpoint in $X$. If
@@ -122,7 +121,8 @@ vertex $v$, the remaining edges must contribute
 \[
  b_v=r_v-d^-_\tau(v)
 \]
-incoming edges. Assigning every edge of $R$ to its chosen head is a matching
+incoming edges. The cut inequality for $X=\{v\}$ gives $b_v\geq0$, and
+$\sum_{v\in V}b_v=|R|$. Assigning every edge of $R$ to its chosen head is a matching
 problem: make one vertex for each edge of $R$, and make $b_v$ slots at every
 vertex $v$; an edge may be matched to a slot at either endpoint.
 
@@ -142,9 +142,12 @@ union of its endpoints. Now
 Substitution gives exactly the displayed cut inequalities.
 \end{proof}
 
+Assigning an edge a color other than its endpoints gives a one-element
+circuit. The remaining circuits are partial orientations described by cuts.
+
 \begin{corollary}[Circuits are minimal overloaded cuts]
-Let $C$ be a circuit in a fixed-indegree orientation family. There is a set
-$X\subseteq V$ such that every edge prescribed by $C$ crosses $\delta(X)$
+Let $C$ be a circuit consisting of endpoint assignments. There is a set
+$X\subseteq V$ such that every edge prescribed by $C$ belongs to $\delta(X)$
 and points into $X$, and
 \[
  |C|=\sum_{v\in X}r_v-|E(X)|+1.
