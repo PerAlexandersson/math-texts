@@ -58,8 +58,9 @@ supported on the two colors crossing $j$, and has the form $(d,-d)$.
 
 If the prefix counts agree, take $d=0$ and add no positions. Otherwise, name
 the crossing colors $a,b$ so that $u$ has $d$ more occurrences of $a$ on the
-left and $v$ has $d$ more occurrences of $b$. Append $b^d$ to the left part
-of $u$ and $a^d$ to the left part of $v$, and prepend the opposite
+left and $v$ has $d$ more occurrences of $b$, with $d>0$. Give every
+temporary position the allowed-color set $\{a,b\}$. Append $b^d$ to the left
+part of $u$ and $a^d$ to the left part of $v$, and prepend the opposite
 assignments to their right parts. The two extended words now have equal color
 quotas on each side.
 The left side has no constrained cut. On the right, if $r_c'$ is the extended
@@ -76,9 +77,12 @@ If the exchange cycle through the prescribed disagreement avoids the
 temporary positions, it is already an exchange in the original words.
 Otherwise it uses one temporary arrow. The exchange cycle through the
 opposite temporary arrow on the other side joins to it after the two
-temporary arrows are removed. Since only the two crossing colors occur on
-both sides, the resulting directed cycle is simple. The two offspring satisfy
-the original allowed-color conditions and quotas. At the cut $j$, their two
+temporary arrows are removed. Each cycle uses exactly one temporary arrow
+because all such arrows on its side have the same direction, and the cycle
+visits each color once. Only $a,b$ can occur on both sides of the cut,
+so the remaining paths have disjoint internal colors. Their union is a
+simple directed cycle containing the prescribed disagreement. The two offspring
+satisfy the original allowed-color conditions and quotas. At the cut $j$, their two
 crossing-color counts lie between the corresponding counts of $u$ and $v$;
 the translated bounds handle all later cuts.
 \end{proof}
@@ -90,10 +94,24 @@ with a basis recorded by the positions of one color.
 \end{proposition}
 
 \begin{proof}
-Every cut is crossed by at most two colors. The lower and upper prefix counts
-of color $1$ are the height functions of the lower and upper boundary paths.
-Conversely, the paths between two such boundaries are exactly the binary
-words satisfying these prefix bounds.
+Every cut is crossed by at most two colors. Let $\mathcal F$ be the
+nonempty binary family, and put
+\[
+ \begin{aligned}
+ L(s)&=\min_{w\in\mathcal F}h_1(w,s),\\
+ U(s)&=\max_{w\in\mathcal F}h_1(w,s).
+ \end{aligned}
+\]
+Both functions start at zero, end at $r_1$, and increase by zero or one
+at each step, since every prefix-count function has these properties.
+They therefore define two north--east boundary paths.
+
+Every word of $\mathcal F$ lies between these paths. Conversely, a binary
+word with the prescribed content and $L(s)\le h_1(w,s)\le U(s)$ satisfies
+all the original bounds: this holds directly for color $1$, and for color
+$2$ it follows from $h_2(w,s)=s-h_1(w,s)$. Hence $\mathcal F$ consists
+exactly of the paths between the two boundaries. Starting with two boundary
+paths gives the converse construction.
 \end{proof}
 
 \begin{example}[Different pairs at different cuts]
@@ -144,15 +162,10 @@ lattice-path matroid.
 \end{proposition}
 
 \begin{proof}
-Use one node of supply one for each position. For every allowed pair $(j,c)$,
-send its flow to time $j$ on a chain belonging to color $c$. The flow on the
-chain arc from time $s$ to time $s+1$ is the color-$c$ prefix count through
-position $s$, so the prefix bounds become lower and upper arc capacities.
-The last node of the color-$c$ chain has demand $r_c$.
-
-This is a network-flow polytope with integral supplies, demands, and
-capacities, and is therefore integral. Its integral flows have one outgoing
-color at each position and are exactly the admissible words.
+The \href{polytope.htm#latticePathDescription}{prefix-bound description}
+identifies this system with a network-flow polytope whose extra chain
+coordinates are uniquely determined by $x$. Its proof gives integrality
+and identifies the vertices with admissible words.
 \end{proof}
 
 \subsection[pathRegions]{Cubical regions}
@@ -173,7 +186,8 @@ For a nonempty prefix-bound family $\mathcal F$, let
  u_c(s)=\max_{w\in\mathcal F}h_c(w,s).
 \]
 Replacing the original bounds by these actual extrema does not change
-$\mathcal F$. Its canonical vertex region is
+$\mathcal F$, with the allowed-color sets kept fixed. Its canonical vertex
+region is
 \[
  R_{\mathcal F}=\left\{a\in Q\cap\mathbb Z^k:
  \begin{array}{c}
@@ -192,7 +206,8 @@ $[0,r_c]\times[0,n-r_c]$. The inequalities
 \[
  \ell_c(x+y)\leq x\leq u_c(x+y)
 \]
-cut out an ordinary planar lattice-path corridor $D_c$ in this rectangle.
+cut out an ordinary planar lattice-path corridor $D_c$ in this rectangle,
+where we interpolate $\ell_c,u_c$ linearly between integer arguments.
 Indeed, both $\ell_c$ and $u_c$ start at $0$, end at $r_c$, and increase by
 either $0$ or $1$ at each step.
 
@@ -254,15 +269,16 @@ this one-skeleton.
 
 There is also a direct description in terms of deleted orthants. Write
 $a_{-c}$ for the vector obtained by omitting $a_c$, and put
-$|a_{-c}|=\sum_{d\neq c}a_d$. A forbidden quadrant of the $c$th planar
-corridor pulls back to a set of one of the two forms
+$|a_{-c}|=\sum_{d\neq c}a_d$. A forbidden quadrant with integer corner
+coordinates $A,B$ in the $c$th planar corridor pulls back to a set of
+one of the two forms
 \[
  \begin{gathered}
   \left\{a:a_c\geq A,\ |a_{-c}|\leq B\right\},\\
   \left\{a:a_c\leq A,\ |a_{-c}|\geq B\right\}.
  \end{gathered}
 \]
-For example, inside $Q$,
+For lattice points $a\in Q\cap\mathbb Z^k$, for example,
 \[
  \begin{aligned}
   &\left\{a:a_c\geq A,\ |a_{-c}|\leq B\right\}\\

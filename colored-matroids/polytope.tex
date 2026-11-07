@@ -129,14 +129,26 @@ This polytope is integral.
 \end{proposition}
 
 \begin{proof}
-Send one unit of flow from each position node to its allowed color chains.
-Along a color chain, the flow after position $s$ is
-$\sum_{j=1}^s x_{j,c}$. Prefix bounds become arc capacities, and the final
-demand on that chain is $r_c$. The chain flows are uniquely determined by
-$x$, so this identifies the displayed system with a network-flow polytope.
-Integral supplies, demands, and capacities give integral vertices. At each
-position an integral solution chooses one allowed color, so these vertices
-are precisely the admissible words.
+Create a node $p_j$ supplying one unit for each position $j$, and a chain
+$v_{c,1},\dotsc,v_{c,n}$ for each color $c$. For every allowed pair $(j,c)$,
+add an arc $p_j\to v_{c,j}$ carrying $x_{j,c}$, with bounds zero and one.
+The final node $v_{c,n}$ has demand $r_c$; the other color nodes have
+balance zero. Conservation forces the chain arc $v_{c,s}\to v_{c,s+1}$
+to carry $\sum_{j\le s}x_{j,c}$.
+
+Give each chain arc bounds $0,r_c$, together with the prescribed prefix
+bounds when present. These extra coordinates are uniquely determined by
+$x$, so this is an affine bijection with the displayed system.
+
+To see integrality, suppose a feasible flow has a nonintegral arc.
+Integer node balances rule out a node incident with exactly one such arc.
+The undirected graph of nonintegral arcs therefore contains a cycle.
+We can perturb the flow around this cycle in either direction: conservation
+is preserved, and the nonintegral arc values lie strictly between their
+integer bounds. Such a flow is not a vertex. Thus every vertex is integral,
+and the unit supply at each position selects one allowed color.
+Conversely, every admissible word gives a feasible zero-one assignment,
+which is a vertex since it uniquely maximizes its matching-cell score.
 \end{proof}
 
 \begin{example}[Three colors]
