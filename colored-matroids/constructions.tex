@@ -237,34 +237,31 @@ with loops at nonincident positions. Representability is preserved by duality.
 \end{proof}
 
 \begin{corollary}[Long exchanges and weighted marginals]
-In the matroid lift, every nontrivial valid simple cycle exchange has
-length exactly $2p$. Every weighted completion polynomial is a positive
-scalar times a positive diagonal substitution of the basis polynomial
+In the matroid lift, every cyclic exchange with both resulting words
+in the family has length $2p$. Every weighted completion polynomial is
+a positive scalar times a positive diagonal substitution of the basis polynomial
 of $N$ or $N^*$. Hence all of them are Lorentzian.
 \end{corollary}
 
 \begin{proof}
-Every word has one state on each whole matching $M_j$: all its positions
-receive their $\ell$-endpoints or all receive their $\rho$-endpoints.
-An exchange with valid offspring must therefore switch every position
-of each matching it changes. Preserving quotas requires at least one
-matching to change in each direction, so at least $2p$ positions change.
-A simple cycle uses each of the $2p$ colors at most once, giving equality.
+Each matching $M_j$ receives either all its $\ell$-endpoints or all its
+$\rho$-endpoints. An exchange with resulting words in the family must
+switch whole matchings, at least one in each direction. Thus at least
+$2p$ positions change. A cyclic exchange uses each color at most once,
+giving equality.
 
-For a target $\ell_i$, write $x_j$ for the target variable at the
-unique position of $M_j$ incident with $\ell_i$. Let $a_j$ be the
-product of the hidden weights in the $\ell$-state of $M_j$, omitting
-that target position, and let $b_j$ be the product of all hidden
-weights in its $\rho$-state. If
+Distinguish color $\ell_i$, and write $x_j$ for its variable on $M_j$.
+Let $a_j$ be the product of the weights at the other $\ell$-endpoints
+of $M_j$, and $b_j$ the product at all its $\rho$-endpoints. With
 \[
  b_N(\mathbf x)=\sum_{B\in\mathcal B(N)}\prod_{j\in B}x_j,
 \]
-then term by term the target polynomial is
+the completion polynomial is
 \[
  \left(\prod_{j=1}^n b_j\right)
  b_N((a_jx_j/b_j)_{j=1}^n).
 \]
-For a target $\rho_i$, interchange the two states and use the
+For color $\rho_i$, interchange the two choices and use the
 complementary basis, giving the same formula with $N^*$.
 Matroid basis polynomials are Lorentzian, and positive diagonal
 substitutions preserve Lorentzianity
@@ -272,12 +269,10 @@ substitutions preserve Lorentzianity
 \end{proof}
 
 For example, $N=U_{3,6}$ and $p=7$ give twenty words on forty-two
-positions with fourteen colors, each of quota three. Every nontrivial
-valid exchange uses all fourteen colors. Thus valid exchanges can
-have arbitrarily large minimum length even in families satisfying
-the full weighted Lorentzian conjecture. The
-\href{reductions.htm#binaryLists}{binary-list reduction} retains such
-families and their restrictions on valid orientations.
+positions with fourteen colors, each of quota three. Every cyclic
+exchange with resulting words in the family uses all fourteen
+colors. Thus the weighted Lorentzian property permits arbitrarily
+large minimum exchange length.
 
 \begin{example}[A graphic and representable lift]
 Take $N=U_{2,3}$, the rank-two graphic matroid of a triangle, and use the
