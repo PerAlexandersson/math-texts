@@ -1,6 +1,7 @@
 \metatitle{Distance and Tutte polynomials}
 \metadescription{A distance polynomial for colored matroids, its tropical
-minor recurrence, its joint-rank expression, and the classical Tutte polynomial.}
+minor recurrence, the classical Tutte polynomial, permutation codes,
+and cyclic Latin-square transversals.}
 
 \section[distanceAndTutte]{Distance and Tutte polynomials}
 
@@ -231,3 +232,160 @@ the color of $w_e$.
 For which colored matroids, or which positions $e$, does the linear identity
 above hold?
 \end{question}
+
+\section[permutationDistances]{Permutation matroids and codes}
+
+A \href{permutations.htm}{permutation matroid} $\mathcal F\subseteq S_n$
+is also a \defin{permutation code}: a collection of permutations measured by
+Hamming distance. A received word may repeat colors, whereas a received
+permutation uses each color once. The distance polynomial records both
+settings.
+
+\subsection[permutationCovering]{Distances from permutations}
+
+We extract the words using every color once by defining
+\[
+ \begin{aligned}
+ \defin{Q_{\mathcal F}(t)}
+ &\coloneqq[x_1\dotsm x_n]D_{\mathcal F}(\mathbf x;t)\\
+ &=\sum_{\pi\in S_n}t^{d_{\mathcal F}(\pi)}.
+ \end{aligned}
+\]
+Thus $Q_{\mathcal F}(0)=|\mathcal F|$ and $Q_{\mathcal F}(1)=n!$.
+Its degree is the \defin{permutation covering radius}: the largest
+distance from a permutation to $\mathcal F$.
+The specialization $D_{\mathcal F}(1,\dotsc,1;t)$ instead ranges over
+all $n^n$ words.
+
+\subsection[cyclicLatinTransversals]{Cyclic shifts and Latin transversals}
+
+Let $p$ be an odd prime, and label positions and colors by $\mathbb F_p$.
+The cyclic translation family
+\[
+ C_p=\{i\mapsto i+a:a\in\mathbb F_p\}
+\]
+is a \href{permutations.htm#permutationGroups}{permutation matroid}:
+two distinct translations differ by one $p$-cycle.
+For $\pi\in S_p$, let
+\[
+ \defin{m_a(\pi)}\coloneqq
+ |\{i\in\mathbb F_p:\pi(i)-i=a\}|.
+\]
+A \defin{transversal} of a Latin square chooses one cell in each row
+and column, using every symbol once.
+
+\begin{proposition}
+The distance from $\pi$ to the translation family is
+\[
+ d_{C_p}(\pi)=p-\max_{a\in\mathbb F_p}m_a(\pi).
+\]
+The polynomial $Q_{C_p}(t)$ has degree $p-1$, and its leading
+coefficient counts the transversals of the cyclic Latin square
+$L(i,j)=j-i$.
+\end{proposition}
+
+\begin{proof}
+The translation by $a$ agrees with $\pi$ in exactly $m_a(\pi)$
+positions, proving the distance formula. Since $\sum_a m_a(\pi)=p$,
+the distance is at most $p-1$, with equality precisely when every
+$m_a(\pi)=1$.
+
+The cells $(i,\pi(i))$ already
+use every row and column once; their symbols are $\pi(i)-i$.
+Thus they form a transversal exactly when every $m_a(\pi)=1$.
+The permutation $\pi(i)=2i$ has this property, so the degree is $p-1$.
+\end{proof}
+
+This covering-radius connection appears in P.~J.~Cameron's
+\href{https://doi.org/10.1016/j.ejc.2009.03.044}{Permutation codes},
+Proposition~1.6. The transversal counts for odd cyclic orders are
+\oeis{A006717}; order $p$ corresponds
+to index $(p-1)/2$.
+
+\begin{example}
+For five positions,
+\[
+ Q_{C_5}(t)=5+50t^2+50t^3+15t^4.
+\]
+The constant term counts the five translations. No two permutations
+differ at exactly one position. Swapping two entries of a translation
+gives the $5\binom52=50$ permutations at distance two; these are
+distinct because different translations have distance five.
+The cyclic Latin square of order five has $15$ transversals, giving
+the coefficient of $t^4$. The remaining $50$ permutations have distance
+three.
+\end{example}
+
+\subsection[fullPermutationDistance]{The full permutation family}
+
+For $\mathcal F=S_n$, the permutation polynomial is the constant $n!$,
+but distances from arbitrary words give a Stirling-number expansion.
+Write ${n\brace k}$ for the number of partitions of $[n]$ into $k$
+nonempty blocks, and $(n)_k=n!/(n-k)!$.
+
+\begin{proposition}
+For $n\ge1$, a word $w\in[n]^n$ using $k$ distinct colors has
+$d_{S_n}(w)=n-k$. Consequently,
+\[
+ D_{S_n}(1,\dotsc,1;t)
+ =\sum_{k=1}^n(n)_k{n\brace k}t^{n-k}.
+\]
+\end{proposition}
+
+\begin{proof}
+A permutation agrees with $w$ at most once for each used color.
+We attain $k$ agreements by retaining one occurrence of each color
+and filling the remaining positions with the missing colors.
+There are $(n)_k{n\brace k}$ words using $k$ colors: partition the
+positions into their color classes, then assign distinct colors to
+the blocks.
+\end{proof}
+
+For a uniformly chosen map $[n]\to[n]$, division by $n^n$ gives the
+probability distribution of the number of changes needed to obtain a
+bijection.
+
+\subsection[stableSetDecoding]{Nearest words by stable-set optimization}
+
+Let $G$ be even-hole-free and use the
+\href{stable-sets.htm#contactConstruction}{cycle construction}
+$\mathcal F_G=\{\sigma_S:S\text{ stable in }G\}$ on $\Omega$.
+Its generator $\tau_v$ moves the positions in $Y_v$.
+For a received word $w\in\Omega^\Omega$, define its agreement gain by
+\[
+ \defin{g_v(w)}\coloneqq
+ \sum_{e\in Y_v}
+ \left(\mathbf1_{w_e=\tau_v(e)}-\mathbf1_{w_e=e}\right).
+\]
+
+\begin{proposition}
+Finding a nearest word in $\mathcal F_G$ is a maximum-weight stable-set
+problem, with weights $g_v(w)$. More precisely,
+\[
+ \begin{gathered}
+ d_{\mathcal F_G}(w)=d_{\{\operatorname{id}\}}(w)\\
+ {}-\max_{S\text{ stable in }G}\sum_{v\in S}g_v(w).
+ \end{gathered}
+\]
+\end{proposition}
+
+\begin{proof}
+For a stable set $S$, its generator supports are disjoint. Replacing
+the identity by $\sigma_S$ therefore adds exactly
+$\sum_{v\in S}g_v(w)$ agreements with $w$. Maximizing this gain
+minimizes the number of disagreements.
+\end{proof}
+
+For a forest, we can find a nearest word by a tree dynamic program.
+Root each component. Let $a_v$ and $b_v$ be the largest weights of
+stable sets in the subtree at $v$, respectively including and excluding
+$v$. Then
+\[
+ \begin{aligned}
+ a_v&=g_v(w)+\sum_{u\text{ child of }v}b_u,\\
+ b_v&=\sum_{u\text{ child of }v}\max(a_u,b_u).
+ \end{aligned}
+\]
+The optimal weight is the sum of $\max(a_v,b_v)$ over the roots.
+These recurrences also recover an optimizing stable set and hence
+a nearest permutation $\sigma_S$.
