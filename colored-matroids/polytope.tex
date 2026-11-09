@@ -1,5 +1,5 @@
 \metatitle{Assignment polytopes}
-\metadescription{Faces, cycle directions and normal cones of assignment polytopes,
+\metadescription{Faces, cycle directions, facet tests and normal cones of assignment polytopes,
 with lattice-path descriptions, flow optimization, and integer decomposition.}
 
 \section[polytope]{The assignment-vector embedding}
@@ -137,6 +137,36 @@ A score is maximized at $\chi(u)$ precisely when it is nonpositive
 on every direction of this cone, giving the normal-cone formula.
 \end{proof}
 
+\subsection[cycleFacetTest]{Faces and facets from cycle directions}
+
+\begin{corollary}[A facet test]
+Let $d=\dim P(\mathcal F)$, and suppose an assignment score $a$ is
+maximized at $\chi(u)$. Put
+\[
+ \mathcal D_0(u,a)=
+ \{\delta\in\mathcal D(u):a\cdot\delta=0\}.
+\]
+The maximizing face has dimension
+$\dim\operatorname{span}\mathcal D_0(u,a)$.
+For $d\geq1$, it is a facet exactly when this dimension is $d-1$.
+Moreover, $a\cdot x=a\cdot\chi(u)$ is an affine equation of
+$P(\mathcal F)$ exactly when $a$ vanishes on every direction in
+$\mathcal D(u)$.
+\end{corollary}
+
+\begin{proof}
+The maximizing words form a colored matroid. Its neighbors at $u$
+are exactly the original neighbors whose directions have score zero.
+Apply the cycle-direction theorem to this face. The assertion about
+affine equations follows from the affine-hull formula.
+\end{proof}
+
+For \href{permutations.htm#rootCycles}{permutation matroids rooted at
+the identity}, these ranks are ranks of columns of the feasible-cycle
+matrix $D$. The corresponding stable-set models give
+\href{stable-sets.htm#stableSetCoefficients}{exact coefficient bounds}
+for an explicit class of realizations.
+
 \section[polytopeDescriptions]{Inequality descriptions}
 
 \subsection[latticePathDescription]{Colored lattice-path matroids}
@@ -247,7 +277,15 @@ Does every colored-matroid assignment polytope admit defining equations and
 inequalities whose coefficients all belong to $\{-1,0,1\}$?
 \end{question}
 
+The \href{projections.htm}{column-projection theorem} gives three-column
+images requiring arbitrarily large integer coefficients, even when the
+full polytope has a binary description.
+
 \begin{question}[Edge characterization]
 If every edge of the assignment polytope of a nonempty fixed-quota family
 is a simple color-cycle move, must the family be a colored matroid?
 \end{question}
+
+For singleton quotas, the
+\href{permutations.htm#birkhoffEdges}{Birkhoff-edge theorem} proves this
+characterization.

@@ -1,0 +1,339 @@
+\metatitle{Stable-set polytopes and permutation matroids}
+\metadescription{Even-hole-free graphs classify permutation-matroid polytopes
+with a simple vertex; cycle constructions give exact facet coefficient bounds.}
+
+\section[stableSetModels]{Stable-set models}
+
+The \href{permutations.htm#rootCycles}{root-cycle reconstruction} expresses
+every permutation-matroid polytope as an affine image of a stable-set
+polytope. We characterize when a stable-set polytope itself has a
+permutation realization, and hence classify all permutation-matroid
+polytopes having a simple vertex.
+
+Throughout, graphs are finite and simple. Recall that
+$\operatorname{STAB}(G)$ is the convex hull of the stable-set indicators
+in $\mathbb R^{V(G)}$. Write $X(u)$ for the assignment matrix of a
+permutation and $I=X(\operatorname{id})$.
+A \defin{hole} is an induced cycle of length at
+least four. A graph is \defin{even-hole-free} if every hole has odd length.
+
+\begin{theorem}[Stable-set realizations]
+For a graph $G$, the following are equivalent:
+\begin{enumerate}
+\item $G$ is even-hole-free.
+\item $\operatorname{STAB}(G)$ is affinely isomorphic to a
+permutation-matroid assignment polytope.
+\item Such an isomorphism can be chosen to identify the full affine
+integer lattices.
+\end{enumerate}
+\end{theorem}
+
+We prove the construction and the obstruction separately.
+
+\subsection[contactConstruction]{A cycle for each graph vertex}
+
+For every edge $vw$ of $G$, take one position $p_{vw}$. Let $Y_v$
+contain the positions for edges incident with $v$, adding private
+positions until
+\[
+ |Y_v|=\ell_v\coloneqq\max(2,\deg_G(v)).
+\]
+Let $\Omega$ be their union, and choose a cycle $\tau_v$ on $Y_v$,
+fixing the remaining positions. Adjacent generator supports meet at
+one position; nonadjacent supports are disjoint.
+For a stable set $S$, put
+\[
+ \begin{gathered}
+ \sigma_S=\prod_{v\in S}\tau_v,\\
+ \mathcal F_G=\{\sigma_S:S\text{ stable in }G\}.
+ \end{gathered}
+\]
+The factors in this product have disjoint supports.
+
+\begin{lemma}[Cycles meeting in a tree]
+Suppose the support-intersection graph of a collection of permutation
+cycles is a tree, and adjacent supports meet in one point. Their product
+is one cycle on the union of their supports, in any factor order and
+with any factors inverted.
+\end{lemma}
+
+\begin{proof}
+Induct on the number of factors. A leaf cycle meets the union of the
+remaining supports in one point. Move it to the front by conjugating
+it past preceding factors. Its private points stay fixed under those
+factors, so its support still meets the remaining union in one point.
+By induction the remaining product is one cycle. Two cycles meeting
+in one point multiply to one cycle on their union.
+\end{proof}
+
+\begin{proof}[Construction]
+Let $S,T$ be stable sets in an even-hole-free graph. The induced graph
+$G[S\triangle T]$ is bipartite and is a forest: a shortest cycle would
+be an even hole. Common generators cancel, and the lemma gives one
+nontrivial cycle of $\sigma_S^{-1}\sigma_T$ for each tree component.
+Switching that relative cycle exchanges the memberships of the component
+between $S$ and $T$. Both resulting sets are stable. Thus
+$\mathcal F_G$ satisfies symmetric cycle exchange.
+
+Put $\delta_v=X(\tau_v)-I$. Since generators in a stable set have
+disjoint supports,
+\[
+ X(\sigma_S)=I+\sum_{v\in S}\delta_v.
+\]
+Every off-diagonal arc of $\tau_v$ belongs to no other generator:
+sharing an arc would require two shared support positions. Choose one
+such assignment cell $q_v$. Then
+\[
+ \Phi(z)=I+\sum_v z_v\delta_v,
+ \qquad z_v=x_{q_v}
+\]
+give inverse affine maps between $\operatorname{STAB}(G)$ and
+$P(\mathcal F_G)$. Both maps are integral on their affine spaces,
+so they identify the full affine integer lattices.
+\end{proof}
+
+\subsection[evenHoleObstruction]{The even-hole obstruction}
+
+\begin{proof}[Necessity]
+Suppose an affine isomorphism realizes $\operatorname{STAB}(G)$
+as $P(\mathcal F)$ for a permutation matroid. Relabel so that $0$
+maps to $I$. The edge $[0,e_v]$ maps to a single cycle $\tau_v$,
+with support $Y_v$, length $\ell_v$, and direction
+$\delta_v=X(\tau_v)-I$.
+
+If $v,w$ are nonadjacent, $e_v+e_w$ is a stable-set vertex.
+Its image $I+\delta_v+\delta_w$ would have a diagonal entry $-1$
+at a shared support position. Hence $Y_v\cap Y_w=\varnothing$.
+
+For adjacent $v,w$, $[e_v,e_w]$ is an edge, so
+$\tau_v^{-1}\tau_w$ is a single cycle. Write
+\[
+ \begin{aligned}
+ m_{vw}&=|Y_v\cap Y_w|,\\
+ q_{vw}&=|\{e\in Y_v\cap Y_w:\tau_v(e)=\tau_w(e)\}|.
+ \end{aligned}
+\]
+Its length is $\ell_v+\ell_w-m_{vw}-q_{vw}$.
+Comparing permutation signs gives
+\[
+ m_{vw}+q_{vw}\equiv1\pmod2.
+\]
+
+Now suppose $W$ induces an even hole, with alternating stable sets
+$S,T$. These two sets form an edge of $\operatorname{STAB}(G)$:
+set outside coordinates to zero and maximize cardinality on the hole.
+No position lies in three supports indexed by $W$, since every three
+hole vertices contain a nonadjacent pair. Therefore the number of
+disagreements between the two image permutations is
+\[
+ L=\sum_{v\in W}\ell_v
+   -\sum_{vw\in E(G[W])}(m_{vw}+q_{vw}).
+\]
+Their relative permutation is one cycle. Comparing its sign with
+the product of the generator signs gives
+\[
+ \begin{aligned}
+ &\sum_{vw\in E(G[W])}(m_{vw}+q_{vw})\\
+ &\qquad\equiv |W|-1\pmod2.
+ \end{aligned}
+\]
+The left side is even, since the hole has evenly many edges and
+each summand is odd. The right side is odd, a contradiction.
+\end{proof}
+
+\section[simpleVertexClassification]{One simple vertex}
+
+\begin{corollary}[The simple-vertex classification]
+Up to real affine isomorphism, the permutation-matroid polytopes
+having at least one simple vertex are exactly
+$\operatorname{STAB}(G)$ for even-hole-free graphs $G$.
+\end{corollary}
+
+\begin{proof}
+At a simple vertex, the
+\href{permutations.htm#rootCycles}{feasible cycle directions} are
+independent, so root reconstruction is an affine isomorphism with
+$\operatorname{STAB}(H)$. The theorem forces $H$ to be even-hole-free.
+Conversely, $0$ is simple in every stable-set polytope, with incident
+edges $[0,e_v]$. The construction realizes it as a permutation matroid.
+\end{proof}
+
+\begin{example}[A path and a square pyramid]
+For the path $a-b-c$, take
+\[
+ \tau_a=(1\ 3),\qquad
+ \tau_b=(1\ 2),\qquad
+ \tau_c=(2\ 4).
+\]
+Its stable sets give the five-word permutation matroid
+\[
+ \{\mathtt{1234},\mathtt{3214},\mathtt{2134},
+   \mathtt{1432},\mathtt{3412}\}.
+\]
+The polytope is a square pyramid. The identity has three neighbors
+and is simple; $\mathtt{2134}$ is the apex and has four neighbors.
+\end{example}
+
+\begin{corollary}[Simple polytopes]
+If every vertex of a permutation-matroid polytope is simple, the
+family splits on disjoint position and color blocks into simplex
+families. Its polytope is a product of simplices.
+\end{corollary}
+
+\begin{proof}
+Use a root to identify the polytope with $\operatorname{STAB}(H)$.
+If $H$ contains an induced path $a-v-b$, the vertex $e_v$ has its
+$|V(H)|$ incident edges to $0$, to $e_w$ for neighbors $w$ of $v$,
+and to $e_v+e_w$ for its other vertices $w\ne v$.
+It also has an edge to $e_a+e_b$.
+The latter is exposed on that path by weights $1,2,1$, with outside
+coordinates fixed to zero. Thus $e_v$ is not simple.
+
+A graph with no induced three-vertex path is a disjoint union of
+cliques. Its stable-set polytope is a product of simplices.
+Cycles from distinct cliques have disjoint supports, so reconstruction
+also splits the actual permutation family into those blocks.
+\end{proof}
+
+The polytope conclusion is a special case of V.~Kaibel and M.~Wolff's
+\href{https://doi.org/10.1006/eujc.1999.0328}{theorem on simple zero-one
+polytopes}. Here the root cycles also identify the blocks of the family.
+
+\section[stableSetCoefficients]{Facet coefficients in assignment coordinates}
+
+An affine classification does not fix the coefficients of inequalities
+in the original cells. For an arbitrary simple root of a permutation
+matroid, let $D$ have the feasible cycle directions as columns.
+Its stable-set isomorphism is $x=I+Dz$. Let
+$\alpha\cdot z\leq b$ be a primitive integral stable-set facet.
+An assignment score $A$ represents this facet exactly when
+\[
+ D^TA=\lambda\alpha\qquad\text{for some }\lambda>0.
+\]
+The corresponding inequality is
+\[
+ \langle A,x\rangle
+ \leq\langle A,I\rangle+\lambda b.
+\]
+If $A$ is integral, then $D^TA$ is integral; primitivity of $\alpha$
+and Bezout's identity imply $\lambda\in\mathbb Z_{>0}$.
+Thus a ternary representative asks for
+\[
+ \begin{gathered}
+ D^TA=\lambda\alpha,\\
+ A\in\{-1,0,1\}^{\Omega\times\Omega},\qquad
+ \lambda\in\mathbb Z_{>0}.
+ \end{gathered}
+\]
+For an arbitrary realization, overlapping cycles couple these equations.
+
+For the contact construction, the generator arcs are disjoint and we
+can solve them independently. Since stable-set polytopes are downward
+closed, every noncoordinate facet has a nonnegative normal.
+Here a \defin{binary description} uses
+equations and upper inequalities with coefficients in $\{0,1\}$;
+a \defin{ternary description} allows coefficients in $\{-1,0,1\}$.
+
+\begin{theorem}[Exact coefficient radius]
+Use the contact construction with lengths $\ell_v$.
+For a primitive noncoordinate facet
+\[
+ \sum_v\alpha_v z_v\leq b,\qquad \alpha_v\geq0,
+\]
+a binary assignment representative exists exactly when
+$\alpha_v\leq\ell_v$ for every $v$. A ternary representative exists
+exactly when $\alpha_v\leq2\ell_v$ for every $v$.
+More generally, the smallest integer $M\geq0$ allowing an integral assignment
+normal in $[-M,M]$ is
+\[
+ \max_v\left\lceil\frac{\alpha_v}{2\ell_v}\right\rceil.
+\]
+\end{theorem}
+
+\begin{proof}
+Each $\delta_v$ has $\ell_v$ positive and $\ell_v$ negative entries.
+An integer normal bounded by $M$ therefore satisfies
+\[
+ \lambda\alpha_v=\langle A,\delta_v\rangle
+ \leq2M\ell_v.
+\]
+For binary normals the upper bound is $\ell_v$. Since $\lambda$
+is a positive integer, these are necessary bounds.
+
+Conversely, put coefficient $-M$ on every diagonal cell. On the
+$\ell_v$ off-diagonal arcs of $\tau_v$, choose integer coefficients
+in $[-M,M]$ summing to $\alpha_v-M\ell_v$. This is possible whenever
+$0\leq\alpha_v\leq2M\ell_v$. Distinct generators have disjoint arc
+sets, so these choices give $D^TA=\alpha$. For binary normals, put
+zero on the diagonal and coefficient one on $\alpha_v$ arcs of
+each generator. This proves both sufficiency statements and the formula.
+\end{proof}
+
+The affine hull of this construction already has binary defining
+equations. Equate all off-diagonal arc entries belonging to each
+generator, set unused off-diagonal cells to zero, and impose row sums.
+These equations describe exactly $I+D\mathbb R^{V(G)}$.
+Arc equalities compare distinct rows. For $i\ne k$, the equality
+$x_{i,j}=x_{k,l}$ can be written using a row sum as
+\[
+ x_{i,j}+\sum_{d\ne l}x_{k,d}=1.
+\]
+Coordinate nonnegativity also has a binary upper form
+$\sum_{d\ne j}x_{i,d}\leq1$.
+Consequently, the facet bounds above characterize complete binary or
+ternary descriptions for this realization.
+
+\section[stableSetRank]{Joint rank and graph independence}
+
+Choose one generator arc $q_v$ per vertex. For $U\subseteq V(G)$,
+list the cells $q_v$ with $v\in U$. With
+$S_c=\{e:q_v=(e,c)\text{ for some }v\in U\}$, their
+\href{rank-flats.htm#jointRank}{joint rank} is
+\[
+ R(S_1,\dotsc,S_{|\Omega|})=\alpha(G[U]),
+\]
+where $\alpha$ is the graph independence number. Indeed, each selected
+cell has value one exactly when its generator is selected.
+Thus joint rank contains graph independence as a restriction.
+Writing $\alpha(U)=\alpha(G[U])$, the path $a-b-c$ gives
+\[
+ \begin{aligned}
+ \alpha(\{a,b\})+\alpha(\{b,c\})&=2,\\
+ \alpha(\{a,b,c\})+\alpha(\{b\})&=3,
+ \end{aligned}
+\]
+exhibiting the failure of ordinary submodularity.
+
+\section[matchingPolytopes]{Repeated quotas and matching polytopes}
+
+\begin{theorem}[Bipartite matching polytopes]
+Every bipartite matching polytope is affinely lattice-isomorphic to
+a colored-matroid assignment polytope.
+\end{theorem}
+
+\begin{proof}
+Let the bipartite graph have parts $A,B$. Use positions $A\sqcup B$,
+a background color $0$ of quota $|A|$, and a singleton color $c_b$
+for each $b\in B$. At position $a\in A$, allow $0$ and the colors
+$c_b$ of its neighbors. At position $b\in B$, allow $0,c_b$.
+The full family satisfying these lists and quotas is a colored
+matroid by the \href{constructions.htm#allowedColors}{allowed-color theorem}.
+
+Each $c_b$ either stays at $b$ or occupies one neighboring position
+$a$. The latter choices form precisely a matching, with coordinates
+$z_{ab}=x_{a,c_b}$. The remaining entries are
+\[
+ \begin{aligned}
+ x_{a,0}&=1-\sum_bz_{ab},\\
+ x_{b,c_b}&=1-\sum_az_{ab},\\
+ x_{b,0}&=\sum_az_{ab},
+ \end{aligned}
+\]
+and zero in forbidden cells. These integral affine maps are inverse
+on the two polytopes and their full affine lattices.
+\end{proof}
+
+Matchings of $K_{2,2}$ are stable sets of its line graph $C_4$.
+The construction therefore realizes $\operatorname{STAB}(C_4)$ with
+quotas $(2,1,1)$. The even-hole obstruction excludes every permutation
+realization of this same polytope.

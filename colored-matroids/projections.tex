@@ -1,0 +1,189 @@
+\metatitle{Projections of assignment polytopes}
+\metadescription{Arbitrary finite relations as projections of permutation
+matroid simplices, and unbounded integer coefficients in three retained columns.}
+
+\section[columnProjections]{Retaining color columns}
+
+Retaining $r$ columns of an assignment polytope is different from working
+with $r$ actual colors. The other colors can encode arbitrary relations
+between the retained columns. We prove a universality theorem and then
+give three-column projections with unbounded necessary integer coefficients.
+
+Call a description \defin{binary} if its equations and upper
+inequalities have coefficients in $\{0,1\}$. A \defin{ternary}
+description allows coefficients in $\{-1,0,1\}$.
+
+\section[projectionUniversality]{Arbitrary finite relations}
+
+Let $I_1,\dotsc,I_r$ be disjoint finite sets and let
+$\mathcal R\subseteq I_1\times\dotsb\times I_r$ be nonempty. With
+standard basis vectors indexed by the disjoint union, write
+\[
+ P_{\mathcal R}=
+ \operatorname{conv}\left\{\sum_{j=1}^r e_{i_j}:
+ (i_1,\dotsc,i_r)\in\mathcal R\right\}.
+\]
+
+\begin{theorem}[Universality of column projections]
+There is a permutation matroid whose projection onto $r$ selected
+color columns is $P_{\mathcal R}$, after removing fixed zero coordinates.
+Its full assignment polytope is a simplex with a complete binary
+description in its assignment coordinates.
+\end{theorem}
+
+\begin{proof}
+Choose a prime $p>\max(|\mathcal R|,r)$. On $\mathbb F_p$, choose
+a distinct translation for each tuple of $\mathcal R$, and extend
+all translations by fixed points on disjoint copies of
+$I_1\sqcup\dotsb\sqcup I_r$.
+Choose distinct core colors $c_1,\dotsc,c_r$. For the tuple
+$(i_1,\dotsc,i_r)$, swap color $c_j$ with the entry at position
+$i_j$, for each $j$.
+
+Initially, every pair of words differs by one $p$-cycle. Take two
+current words $u,v$ and consider their swaps for color $c_j$.
+The target positions are fixed in
+both current words, since this pool has not previously been used.
+If the targets agree, applying the same transposition of colors
+to both words leaves their relative permutation unchanged. If they
+differ, say they are $a,b$, the new relative permutation is
+\[
+ (u^{-1}(c_j)\ b\ a)\,u^{-1}v.
+\]
+This inserts the two fixed points into its existing cycle.
+The position $u^{-1}(c_j)$ lies on the cycle: the original translations put
+$c_j$ in distinct core positions, and earlier swaps moved other colors.
+Thus every pair still differs by exactly one nontrivial cycle.
+The resulting family is a permutation matroid, since its prescribed
+exchange interchanges the two parents. Its selected columns record
+exactly the tuples of $\mathcal R$.
+
+One core color was not selected. It occurs at a distinct core position
+in every word and is unaffected by the swaps. Write $\lambda_t$ for
+these actual assignment coordinates, one per word $u_t$. They are
+the simplex barycentric coordinates. A complete binary description,
+with the last equation for every cell $(e,c)$, is
+\[
+ \begin{gathered}
+ \sum_t\lambda_t=1,\qquad
+ \sum_{s\ne t}\lambda_s\leq1,\\
+ x_{e,c}+\sum_{\{t:(u_t)_e\ne c\}}\lambda_t=1.
+ \end{gathered}
+\]
+The first two conditions give nonnegative barycentric coordinates;
+the last equations express every cell as their corresponding sum.
+If a cell itself is $\lambda_t$, that coordinate is absent from
+the sum in its equation, so all coefficients remain zero or one.
+\end{proof}
+
+\section[threeColumnObstruction]{Three columns and unbounded coefficients}
+
+For an integer $m\geq1$, take the relation
+\[
+ \mathcal R_m=\{(i,j,i+j):0\leq i,j\leq m\}.
+\]
+Use three coordinate parts $a_0,\dotsc,a_m$,
+$b_0,\dotsc,b_m$, and $c_0,\dotsc,c_{2m}$. Let $P_m$ be the
+convex hull of
+\[
+ e_{a_i}+e_{b_j}+e_{c_{i+j}},\qquad0\leq i,j\leq m.
+\]
+By universality, $P_m$ is a three-column projection of a
+binary-described permutation-matroid simplex.
+
+\begin{theorem}[Affine equations and coefficient bounds]
+The affine hull of $P_m$ is given by the three part sums equal to one
+and the equation
+\[
+ \sum_{i=0}^m i\,x_{a_i}
+ +\sum_{j=0}^m j\,x_{b_j}
+ -\sum_{k=0}^{2m}k\,x_{c_k}=0.
+\]
+In particular, $\dim P_m=4m-1$. Every complete description of $P_m$
+by integer equations and inequalities needs a coefficient of absolute
+value at least $m$. The affine hull itself has minimum integer
+coefficient radius exactly $m$.
+\end{theorem}
+
+\begin{proof}
+An affine equation with coefficient arrays $\alpha_i,\beta_j,\gamma_k$
+is constant with value $\delta$ on the vertices exactly when
+\[
+ \alpha_i+\beta_j+\gamma_{i+j}=\delta.
+\]
+Comparing $(i,j)$ with $(i-1,j+1)$ shows that every successive
+difference of $\alpha$ and $\beta$ is the same number $t$.
+Consequently all equations have the form
+\[
+ \begin{aligned}
+ \alpha_i&=\alpha+ti,\\
+ \beta_j&=\beta+tj,\\
+ \gamma_k&=\gamma-tk.
+ \end{aligned}
+\]
+These four parameters give exactly the four stated independent equations.
+There are $4m+3$ coordinates, giving dimension $4m-1$.
+
+For integral coefficients, $t$ is an integer. If $t\ne0$, the
+$\gamma$ coefficients have range at least $2m$, requiring an absolute
+value at least $m$. Hence any integer equation of smaller radius
+is a combination of the three part sums. At a relative interior
+point, the tight inequalities of a complete description must generate
+all affine equations. Such smaller normals therefore cannot describe
+$P_m$, even if inequalities as well as equations are allowed.
+
+Finally, the fourth equation can be written
+\[
+ \begin{aligned}
+ &\sum_{i=0}^m i\,x_{a_i}+\sum_{j=0}^m j\,x_{b_j}\\
+ &\qquad+\sum_{k=0}^{2m}(m-k)x_{c_k}=m,
+ \end{aligned}
+\]
+with all coefficients in $[-m,m]$.
+\end{proof}
+
+\subsection[ternaryWitness]{A point satisfying every ternary inequality}
+
+For $m=2$, let
+\[
+ \begin{aligned}
+ z_A=z_B&=(1/3,1/3,1/3),\\
+ z_C&=(1/6,2/9,1/3,2/9,1/18).
+ \end{aligned}
+\]
+
+\begin{proposition}[A ternary obstruction]
+The point $z$ lies outside $P_2$ but satisfies every valid inequality
+whose normal belongs to $\{-1,0,1\}^{11}$.
+\end{proposition}
+
+\begin{proof}
+The average $\bar z$ of the nine vertices has
+\[
+ \begin{gathered}
+ \bar z_C=(1,2,3,2,1)/9,\\
+ z=\bar z+\frac1{18}(e_{c_0}-e_{c_4}).
+ \end{gathered}
+\]
+For a ternary normal $a$, write
+$h(a)=\max_{v\in\operatorname{vert}(P_2)}a\cdot v$.
+If $a$ is constant on the vertices, the affine-equation classification
+forces $t=0$, so its coefficients are constant within each part.
+The perturbation then has score zero.
+
+Otherwise the vertex scores are integers and not all equal, giving
+\[
+ h(a)-a\cdot\bar z
+ =\frac19\sum_v(h(a)-a\cdot v)\geq\frac19.
+\]
+The perturbation changes the score by at most $2/18$, so
+$a\cdot z\leq h(a)$. But the required weighted-balance equation
+evaluates to $2/9$ at $z$, proving $z\notin P_2$.
+\end{proof}
+
+This example has a lift with $22$ positions and $22$ singleton colors:
+take $p=11$ in the construction and add the $3+3+5$ pool positions.
+The full polytope is an eight-dimensional simplex with a binary
+description; its three-column image has dimension seven.
+The \href{polytope.htm#generalPolytopeDescription}{coefficient question
+for full assignment polytopes} remains a separate problem.

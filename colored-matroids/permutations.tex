@@ -1,0 +1,302 @@
+\metatitle{Permutation matroids}
+\metadescription{Singleton color quotas, relative-cycle closure, reconstruction
+from one vertex, Birkhoff edges, enumeration, and permutation groups.}
+
+\section[permutationMatroids]{Permutation matroids}
+
+\begin{definition}[Permutation matroid]
+A \defin{permutation matroid} is a colored matroid in which every color
+has quota one. Its words form a nonempty family $\mathcal F\subseteq S_n$.
+\end{definition}
+
+We view a permutation $u$ as a map from positions to colors, with entry
+$u_e=u(e)$, and compose maps from right to left. Write $X(u)=\chi(u)$ for
+its \href{polytope.htm#polytope}{assignment matrix}. The convex hull of all
+permutation matrices is the \defin{Birkhoff polytope} $B_n$.
+
+The singleton quotas make every prescribed exchange unique. This gives
+both a closure operation and a reconstruction from the neighbors of one
+word. When one vertex is simple, the resulting polytopes are exactly
+\href{stable-sets.htm#simpleVertexClassification}{stable-set polytopes of
+graphs with no even hole}, up to real affine isomorphism.
+
+\section[relativeCycles]{Closure under relative cycles}
+
+\begin{theorem}[Relative-cycle closure]
+A nonempty family $\mathcal F\subseteq S_n$ is a permutation matroid
+if and only if, for every $u,v\in\mathcal F$ with disjoint nontrivial
+cycle decomposition
+\[
+ u^{-1}v=c_1\dotsm c_r,
+\]
+we have
+\[
+ u\prod_{j\in J}c_j\in\mathcal F
+ \qquad\text{for every }J\subseteq[r].
+\]
+\end{theorem}
+
+\begin{proof}
+The disagreement cycle through a position in $\operatorname{supp}(c_j)$
+is unique: its color arrows are the image of $c_j$ under $u$.
+Symmetric cycle exchange therefore forces the switch of this cycle.
+Starting at $u$, switch the cycles indexed by $J$ one at a time,
+comparing the current word with $v$. This gives the displayed word.
+Conversely, the choices $J=\{j\}$ and $J=[r]\setminus\{j\}$ give
+both offspring for a prescribed disagreement in $c_j$.
+\end{proof}
+
+For example, containing $\mathtt{1234}$ and $\mathtt{2143}$ forces
+$\mathtt{2134}$ and $\mathtt{1243}$. Every nonempty subset of $S_3$
+is a permutation matroid, since two permutations on three positions
+differ on at most one nontrivial cycle.
+
+\begin{corollary}[Intersections and completion]
+Every nonempty intersection of permutation matroids on the same positions
+and colors is a permutation matroid. Every nonempty seed family has a
+unique smallest permutation matroid containing it.
+\end{corollary}
+
+\begin{proof}
+Each family in the intersection contains the forced recombinations of
+every pair in the intersection. For a seed family, intersect all
+permutation matroids containing it; $S_n$ is one such family.
+\end{proof}
+
+One-sided cycle exchange also suffices: apply it to both ordered pairs
+$(u,v)$ and $(v,u)$. Uniqueness gives the two offspring of the same cycle.
+
+\section[birkhoffEdges]{The polyhedral characterization}
+
+\begin{lemma}[Cube edges]
+A nonempty polytope whose vertices are cube vertices and whose edges are
+cube edges is a face of the cube.
+\end{lemma}
+
+\begin{proof}
+Let a coordinate vary on the polytope. At each vertex, some other vertex
+has the opposite value of this coordinate. The direction to that vertex
+is a nonnegative combination of incident edge directions. Since these
+are coordinate directions, one incident edge must flip the chosen
+coordinate. Thus every varying coordinate can be flipped at every
+vertex. All combinations of these flips occur, giving a cube face.
+\end{proof}
+
+\begin{theorem}[Birkhoff edges]
+A nonempty family $\mathcal F\subseteq S_n$ is a permutation matroid
+if and only if every edge of $P(\mathcal F)$ is an edge of $B_n$.
+Its graph is then the induced Birkhoff graph on $\mathcal F$: two words
+are adjacent exactly when their relative permutation has one
+nontrivial cycle.
+\end{theorem}
+
+\begin{proof}
+For a permutation matroid, the
+\href{polytope.htm#polytopeEdges}{cycle-edge theorem} identifies its
+edges with single relative cycles, which are edges of $B_n$.
+
+Conversely, take $u,v\in\mathcal F$. Restrict each position to its
+two parent entries. The resulting face of $B_n$ is a cube, with one
+coordinate for each nontrivial cycle of $u^{-1}v$. Its vertices are
+the relative-cycle recombinations. Its intersection with $P(\mathcal F)$
+is a face of $P(\mathcal F)$, has only cube edges, and contains the
+opposite corners $X(u),X(v)$. By the lemma it is the whole cube.
+Relative-cycle closure proves symmetric cycle exchange.
+
+Finally, an edge of $B_n$ with both endpoints in $P(\mathcal F)$ remains
+an edge of this subpolytope, by restricting an exposing score.
+\end{proof}
+
+\section[rootCycles]{Reconstruction from one vertex}
+
+Let $\mathcal F$ be a permutation matroid, and relabel colors so that
+a chosen word is the identity. Let $\mathcal C$
+be the feasible permutations having exactly one nontrivial cycle.
+We identify each such permutation with that cycle. These are precisely
+the neighbors of the identity.
+
+Let $H$ be the graph on $\mathcal C$ in which two cycles are adjacent
+when their supports intersect. A \defin{stable set} of a graph is a set
+of pairwise nonadjacent vertices. Its \defin{stable-set polytope} is
+\[
+ \operatorname{STAB}(H)=
+ \operatorname{conv}\{\mathbf1_S:S\text{ stable}\}.
+\]
+
+\begin{theorem}[Reconstruction]
+The feasible root cycles determine the family:
+\[
+ \mathcal F=
+ \left\{\prod_{\gamma\in S}\gamma:
+ S\text{ is a stable set of }H\right\}.
+\]
+These products give a bijection between stable sets and feasible words.
+\end{theorem}
+
+\begin{proof}
+Compare a feasible word with the identity. Relative-cycle closure puts
+each of its individual cycles in $\mathcal C$, and these have disjoint
+supports. Conversely, suppose a product of disjoint feasible cycles has
+already been constructed. Compare it with a further feasible cycle on
+a disjoint support and switch that cycle. The enlarged product is
+feasible. Uniqueness is ordinary disjoint-cycle decomposition.
+\end{proof}
+
+Write
+\[
+ \delta_\gamma=X(\gamma)-I,
+ \qquad D=[\,\delta_\gamma\,]_{\gamma\in\mathcal C},
+\]
+regarding matrices as vectors with $n^2$ entries.
+Disjoint cycles change disjoint rows, so reconstruction gives
+\[
+ \begin{gathered}
+ P(\mathcal F)=I+D\operatorname{STAB}(H),\\
+ \dim P(\mathcal F)=\operatorname{rank}D.
+ \end{gathered}
+\]
+The map is bijective on vertices. It is an affine isomorphism precisely
+when the columns of $D$ are independent.
+
+\begin{example}[An affine image]
+For $\mathcal F=S_3$, the five nonidentity permutations are cycles
+with pairwise intersecting supports. Thus $H=K_5$, and its stable-set
+polytope is a five-dimensional simplex. Its image is the four-dimensional
+$B_3$. The directions satisfy
+\[
+ \delta_{(123)}+\delta_{(132)}
+ =\delta_{(12)}+\delta_{(13)}+\delta_{(23)}.
+\]
+\end{example}
+
+A vertex of a $d$-dimensional polytope is \defin{simple} if it has
+exactly $d$ incident edges. The identity has $|\mathcal C|$ incident
+edges, so it is simple exactly when the columns of $D$ are independent.
+The \href{stable-sets.htm}{stable-set chapter} classifies this case
+and describes its assignment-coordinate facets.
+
+\section[permutationEnumeration]{Small families}
+
+We count nonempty families. Isomorphisms independently relabel positions
+and colors, sending $\mathcal F$ to $\alpha\mathcal F\beta$ with
+$\alpha,\beta\in S_n$.
+
+Exact enumeration gives the following counts.
+\[
+\begin{array}{r|r|r}
+ n&\text{Labeled}&\text{Classes}\\\hline
+ 1&1&1\\
+ 2&3&2\\
+ 3&63&9\\
+ 4&29\,411&107\\
+ 5&130\,459\,889&10\,743
+\end{array}
+\]
+For four positions, only relative cycle type $(2,2)$ forces new words;
+for five positions, the types are $(2,2)$ and $(3,2)$.
+There are respectively $18$ and $1050$ exchange squares, and the families
+are exactly the sets that complete each square when they contain a
+diagonal pair. Enumerating these closed sets gives the labeled counts;
+Burnside's lemma for $S_n\times S_n$ gives the class counts.
+
+For every $n\geq2$, two-word families have $n-1$ isomorphism classes,
+indexed by the length of their unique nontrivial relative cycle.
+Their labeled count is
+\[
+ \frac{n!}{2}\sum_{\ell=2}^n\binom n\ell(\ell-1)!.
+\]
+Normalize one word to the identity; conjugacy then leaves only the
+cycle length. For the labeled count, choose the first word and its
+relative cycle, and divide by two.
+
+\section[threeParentClosure]{Two parents and three parents}
+
+For $s\geq2$, call a nonempty permutation family
+\defin{closed under $s$-parent recombination} if every equality
+\[
+ \sum_{i=1}^sX(u_i)=\sum_{i=1}^sX(v_i)
+\]
+with $u_1,\dotsc,u_s\in\mathcal F$ forces
+$v_1,\dotsc,v_s\in\mathcal F$. Repetitions are allowed,
+and all $v_i$ are permutations.
+
+\begin{theorem}[Recombination closure]
+Two-parent closure is equivalent to being a permutation matroid.
+Three-parent closure is equivalent to being the complete vertex family
+of a nonempty face of $B_n$.
+\end{theorem}
+
+\begin{proof}
+A decomposition of $X(u)+X(v)$ chooses independently on each alternating
+cycle of its bipartite support. Thus two-parent closure is relative-cycle
+closure.
+
+Three-parent closure implies two-parent closure by adjoining a repeated
+feasible word to a two-parent equality. The cases $n\leq2$ are immediate;
+assume $n\geq3$. Put
+\[
+ M=\sum_{u\in\mathcal F}X(u),\qquad N=|\mathcal F|.
+\]
+If a permutation $v$ uses only cells occurring in $\mathcal F$, then
+$M-X(v)$ is a nonnegative integer matrix with all row and column sums
+$N-1$. Repeatedly choosing a supported perfect matching decomposes it
+into $N-1$ permutation matrices.
+
+By T.~Yamaguchi, M.~Ogawa and A.~Takemura,
+\href{https://arxiv.org/abs/1304.1237}{Theorem 2.1},
+decompositions of an integer matrix into permutation matrices are
+connected by moves replacing at most three summands. Starting with the
+decomposition defining $M$, closure keeps every summand feasible along
+a path to the decomposition containing $v$. Hence $v\in\mathcal F$.
+The family therefore contains every perfect matching on its occurring
+cell support, which is the vertex family of a Birkhoff face.
+Conversely, recombination preserves the zero cells defining such a face.
+\end{proof}
+
+For instance, $\{\mathtt{123},\mathtt{231},\mathtt{312}\}$ is a
+permutation matroid, but its three matrices sum to the same matrix as
+those of $\mathtt{213},\mathtt{132},\mathtt{321}$.
+It is not three-parent closed.
+
+\section[permutationGroups]{Subgroups and cosets}
+
+\begin{theorem}[Group families]
+A subgroup $G\leq S_n$ is a permutation matroid exactly when, on
+disjoint supports, it is an independent direct product of natural
+symmetric groups and regular cyclic groups of prime order.
+The same classification applies after independent position and color
+relabelings.
+\end{theorem}
+
+\begin{proof}
+Relative-cycle closure applied to $\operatorname{id},g$ says that each
+individual cycle of every $g\in G$ belongs to $G$. Conversely, this
+condition applied to $u^{-1}v\in G$ supplies all recombinations.
+These are the cycle-closed groups classified by P.~J.~Cameron,
+\href{https://emis.muni.cz/journals/JACO/Volume5_4/b38540n353g51u18.fulltext.pdf}{Theorem 1(a)}.
+\end{proof}
+
+A symmetric block gives a Birkhoff polytope; a regular cyclic block
+of prime order $p$ gives a $(p-1)$-simplex, since its shift matrices
+have disjoint supports. Thus the group polytopes are products of
+Birkhoff polytopes and simplices. On a cyclic block indexed by
+$\mathbb Z/p\mathbb Z$, their equations are
+\[
+ \begin{gathered}
+ x_{i,i+t}=x_{0,t},\qquad x_{0,t}\geq0,\\
+ \sum_t x_{0,t}=1.
+ \end{gathered}
+\]
+Together with support zeros and the doubly stochastic descriptions of
+symmetric blocks, this gives complete ternary descriptions.
+
+These descriptions can also be made binary. For a cyclic block, replace
+the equalities and nonnegativity by
+\[
+ \begin{gathered}
+ \sum_t x_{0,t}=1,\qquad \sum_{s\ne t}x_{0,s}\leq1,\\
+ x_{i,i+t}+\sum_{s\ne t}x_{0,s}=1\qquad(i\ne0).
+ \end{gathered}
+\]
+For symmetric blocks, keep the row and column sums and write
+nonnegativity as $\sum_{d\ne c}x_{e,d}\leq1$.
