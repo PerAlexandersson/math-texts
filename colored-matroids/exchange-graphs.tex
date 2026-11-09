@@ -1,6 +1,6 @@
 \metatitle{Exchange graphs}
-\metadescription{Cycle exchanges, monotone paths, ordinary basis graphs, and
-canonical direct-sum decomposition of colored matroids.}
+\metadescription{Monotone paths, disjoint cycle decompositions, score optimization,
+ordinary basis graphs, and direct-sum decomposition of colored matroids.}
 
 \section[exchangeGraphs]{Exchange graphs}
 
@@ -31,7 +31,7 @@ in $G(\mathcal F)$ such that, at every step, $u_{j+1}$ agrees with $v$ at
 strictly more positions than $u_j$ does. In particular,
 \[
  t\leq
- \left\lfloor\frac{\lvert\{e\in E:u(e)\ne v(e)\}\rvert}{2}\right\rfloor.
+ \left\lfloor\frac{\lvert\{e\in E:u_e\ne v_e\}\rvert}{2}\right\rfloor.
 \]
 \end{proposition}
 
@@ -47,6 +47,46 @@ removed. Repeating this step reaches $v$ and gives the stated bound.
 In particular, the exchange graph of every colored matroid is connected. The
 proof gives more: once a position agrees with the destination word, the path
 never changes it again.
+
+\subsection[disjointCycles]{Disjoint cycles from a fixed word}
+
+Keeping one word fixed gives a decomposition that we can use for additive
+scores and \href{polytope.htm#cycleCones}{polytope directions}.
+
+\begin{lemma}[Disjoint-cycle decomposition]
+For $u,v\in\mathcal F$, their disagreement positions can be partitioned
+into simple color cycles $C_1,\dotsc,C_s$ such that switching any one
+$C_i$ from $u$ gives a word $u^{C_i}\in\mathcal F$. For every additive
+score $a$,
+\[
+ a(v)-a(u)=\sum_{i=1}^s\bigl(a(u^{C_i})-a(u)\bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+Keep $u$ fixed and start with $v_0=v$. Apply symmetric cycle exchange
+to $u,v_0$. The word obtained from $u$ is $u^{C_1}\in\mathcal F$;
+the word obtained from $v_0$ agrees with $u$ on $C_1$. Repeat with
+this second word. Previously corrected positions never change, so
+the cycles are disjoint and exhaust the disagreement. On each remaining
+position, the second word still has its original entry from $v$.
+Thus every selected cycle is a cycle of the original disagreement,
+and additivity gives the score identity.
+\end{proof}
+
+\subsection[scoreOptimization]{Optimizing by cyclic exchanges}
+
+\begin{theorem}[Optimality criterion]
+A word $u$ maximizes an additive score on $\mathcal F$ if and only if
+none of its neighbors in $G(\mathcal F)$ has a larger score.
+\end{theorem}
+
+\begin{proof}
+If $a(v)>a(u)$ for some $v\in\mathcal F$, the disjoint-cycle
+decomposition has positive total gain. One cycle therefore gives
+a neighboring word $u^{C_i}$ with larger score. The converse follows
+from the definition of a maximum.
+\end{proof}
 
 \subsection[colorProjections]{Color projections and basis graphs}
 

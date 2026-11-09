@@ -1,194 +1,105 @@
 \metatitle{Constructions and examples}
-\metadescription{Colored matroids from allowed colors, graph orientations,
-lattice paths, and vector configurations, including lifts requiring long exchanges.}
+\metadescription{Allowed-color words and their matching, orientation, path,
+and matrix models; lifts of ordinary matroids and weighted assignments.}
 
 \section[constructions]{Constructions and examples}
 
-Graphic, lattice-path, and representable matroids describe their bases by
-graphs, paths, and vectors, respectively. For a colored matroid, the
-corresponding construction must describe the entire ordered partition. We
-begin with one general source of examples, followed by three classical
-constructions. For the classical matroid notions, see Oxley
-\cite{Oxley2011}. The propositions below verify symmetric cycle exchange for
-each class.
+We give two constructions: words with allowed colors and prescribed quotas,
+and lifts of arbitrary ordinary matroids. Matchings, orientations, interval
+paths, and the matrix presentation below describe the first construction.
+A weighted example at the end illustrates optimization by cyclic exchanges.
 
-\subsection[allowedColors]{Allowed colors}
+\section[allowedColors]{The allowed-color construction}
 
-Fix color quotas $r_1,\dotsc,r_k$. At each position $e\in E$, choose a set
-$L_e\subseteq[k]$ of allowed colors, and retain every word with the prescribed
-quotas such that $u(e)\in L_e$.
+Fix quotas $r_1,\dotsc,r_k$. At each position $e$, choose allowed colors
+$L_e\subseteq[k]$, and take every word with $u_e\in L_e$ and the prescribed
+quotas.
 
-\begin{proposition}[Allowed-color construction]
+\begin{theorem}[Allowed-color construction]
 Every nonempty family obtained in this way is a colored matroid.
-\end{proposition}
+\end{theorem}
 
 \begin{proof}
-For two words $u,v$, draw an arrow $u(e)\to v(e)$ for every position where
-they differ. The arrows form a balanced directed multigraph on the colors,
-because $u$ and $v$ have the same quotas. Every arrow therefore lies on a
-directed simple cycle. Choose one containing the prescribed position and
-interchange the two entries at all positions of the cycle. The quotas are
-preserved, and each new entry was already allowed at that position in the
-other word. Both resulting words remain in the family.
+For two words $u,v$, draw an arrow $u_e\to v_e$ at each disagreement.
+The resulting directed multigraph is balanced because the quotas agree.
+Every arrow lies on a directed simple cycle. Switch one through the
+prescribed position. The quotas are preserved, and each new entry was
+already allowed at that position in the other word.
 \end{proof}
 
-\subsection[matchingAssignments]{Matchings and assignments}
+\subsection[matchingAssignments]{Matchings}
 
-The allowed-color construction has a bipartite matching interpretation.
-Put the positions on one side and the colors on the other, joining $e$ to
-$c$ when $c\in L_e$. A word chooses one incident edge at each position and
-exactly $r_c$ edges at color $c$.
+Join position $e$ to color $c$ when $c\in L_e$. A word chooses one
+incident edge at each position and exactly $r_c$ edges at color $c$.
+Equivalently, replace color $c$ by $r_c$ labeled slots with identical
+neighbors. A perfect matching assigns positions to slots; forgetting slot
+labels gives the word.
 
-Equivalently, replace color $c$ by $r_c$ slots, each adjacent to the positions
-that allow $c$. A perfect matching assigns every position to a slot.
-Forgetting the labels of slots within each color gives the word. Symmetric
-cycle exchange reassigns positions around a cycle of distinct colors.
-
-The classical \defin{transversal matroid} records which subsets of positions
-can be matched to distinct slots \cite{Oxley2011}. Here we retain the colors
-of the assigned slots and fill every quota, giving a colored matching model.
-
-\begin{example}[Eight positions with quotas $(3,3,2)$]
-We assign colors $1,2,3$ to eight positions, using the colors three, three,
-and two times, respectively. The table gives the score of each allowed
-assignment; a dash means that the color is forbidden.
-\[
-\begin{array}{c|rrr}
- \text{position}&\text{Color }1&\text{Color }2&\text{Color }3\\ \hline
- 1&20&14&-\\
- 2&19&-&13\\
- 3&-&11&10\\
- 4&18&12&-\\
- 5&17&9&-\\
- 6&16&8&-\\
- 7&15&-&7\\
- 8&-&5&6
-\end{array}
-\]
-We take all words respecting the quotas and allowed colors. This is a
-colored matroid by the allowed-color proposition. Write $a(w)$ for the sum
-of the eight assignment scores.
-
-Greedy scans the allowed position--color pairs in decreasing score order,
-accepting a pair whenever the partial assignment still extends to a feasible
-word. It first accepts color $1$ at positions $1,2,4$, with scores $20,19,18$.
-Color $1$ is now full, so it rejects the scores $17,16,15$. It completes to
-\[
- u=\mathtt{11212233},\qquad a(u)=98,
-\]
-with color classes $\{1,2,4\}$, $\{3,5,6\}$, and $\{7,8\}$.
-
-Compare $u$ with $v=\mathtt{23321112}$. Positions $1,3,7$ give the cycle
-$1\to2\to3\to1$. Switching these positions in both words gives
-\[
-\begin{array}{c|cccccccc|r}
- &1&2&3&4&5&6&7&8&\text{score}\\ \hline
- u&\mathbf1&1&\mathbf2&1&2&2&\mathbf3&3&98\\
- v&\mathbf2&3&\mathbf3&2&1&1&\mathbf1&2&102\\ \hline
- u'&\mathbf2&1&\mathbf3&1&2&2&\mathbf1&3&99\\
- v'&\mathbf1&3&\mathbf2&2&1&1&\mathbf3&2&101
-\end{array}
-\]
-Both resulting words are feasible, and their total score is unchanged.
-Continuing from $u'$ gives the improving path
-\[
-\begin{array}{c|c|r}
- \text{word}&\text{positions changed}&\text{score}\\ \hline
- \mathtt{11212233}&-&98\\
- \mathtt{21312213}&1,3,7&99\\
- \mathtt{23211213}&2,3,5&102\\
- \mathtt{23221113}&4,6&104
-\end{array}
-\]
-The first two moves are three-color cycles; the last is a two-color swap.
-
-The final word is optimal. Subtract $7$ from every allowed score in color
-$1$. Every word loses exactly $21$, and the adjusted row maxima occur at
-colors $2,3,2,2,1,1,1,3$. These form the feasible word
-$\mathtt{23221113}$, so it attains the sum of all adjusted row maxima and
-maximizes the original score.
-\end{example}
+The ordinary \defin{transversal matroid} records which position sets can
+be matched to distinct slots \cite{Oxley2011}. Here we fill every quota
+and retain the colors of the slots.
 
 \subsection[graphOrientations]{Graph orientations}
 
-Let $G$ be a finite loopless multigraph whose vertices are the colors and
-whose edges are the positions. Color each edge by one of its endpoints, or
-equivalently orient the edge toward its color. Fix an indegree at every
-vertex and take all orientations with those indegrees. This is the
-allowed-color construction with $L_e$ equal to the endpoints of $e$.
+When each list consists of the endpoints of an edge, the positions form
+an edge set and the colors a vertex set. Orient each edge toward its
+assigned color. Quotas prescribe indegrees, so the words are all
+orientations with those indegrees. Cyclic exchange reverses a directed
+cycle. The \href{graphic.htm}{graph chapter} gives the corresponding cut
+criterion and circuits.
 
-In this model, the disagreement graph of two words is a balanced directed
-subgraph of $G$. A cyclic exchange reverses a directed cycle in both
-orientations. The \href{graphic.htm}{graphs and colored matroids} page gives
-the cut criterion for partial orientations and compares this construction
-with the ordinary graphic matroid.
+\subsection[latticePaths]{Interval paths}
 
-\subsection[latticePaths]{Lattice paths}
+Order $E=[n]$, choose an interval $I_c$ for each color, and require
+$B(u,c)\subseteq I_c$. For each color, the permitted sets are the bases
+of a uniform rank-$r_c$ matroid on $I_c$, with loops elsewhere.
+This is an ordinary lattice-path matroid: the north-step positions can
+be any $r_c$ positions in the interval. Taking all compatible partitions
+is exactly the allowed-color construction. For ordinary lattice-path
+matroids, see \cite{BoninMierNoy2003}.
 
-An ordinary lattice-path matroid is specified by two north--east paths with
-the same endpoints. Its bases are the sets of positions of the north steps
-of paths lying between the two boundaries; see J.~Bonin, A.~de Mier, and
-M.~Noy,
-\href{https://arxiv.org/abs/math/0211188}{\emph{Lattice path matroids:
-enumerative aspects and Tutte polynomials}}.
+Prefix-count bounds give a larger construction; see
+\href{lattice-paths.htm}{colored lattice-path matroids}.
 
-The following construction gives a class with any number of colors. Fix one
-order on $E=[n]$. For each color $c$, choose an interval $I_c\subseteq[n]$
-and a quota $r_c$. Take every word for which
+\subsection[matrixPresentations]{Matrix presentations}
+
+\begin{proposition}[Matrix realization of allowed colors]
+Every allowed-color colored matroid has matrices $X_c$ over $\mathbb R$ such
+that its words are exactly the compatible partitions satisfying, for every $c$,
 \[
- B(u,c)\subseteq I_c
- \qquad\text{and}\qquad
- |B(u,c)|=r_c
+ \det X_c[:,B(u,c)]\ne0.
 \]
-for every color $c$.
-
-\begin{proposition}[Interval lattice-path construction]
-Every nonempty family obtained in this way is a colored matroid. It is the
-full compatible partition family of lattice-path matroids in one common
-ground-set order.
 \end{proposition}
 
 \begin{proof}
-For color $c$, the $r_c$-subsets of $I_c$, with loops outside $I_c$, are the
-bases of a lattice-path matroid: draw paths with $r_c$ north steps whose
-positions range over the interval $I_c$. The compatible basis partitions are
-exactly the words allowed above. They satisfy symmetric cycle exchange by the
-allowed-color construction.
+For color $c$, put zero columns at positions where $c$ is forbidden. On the
+allowed positions, use distinct columns of an $r_c$-row Vandermonde matrix.
+Its bases are exactly the $r_c$-subsets of the allowed positions. Hence the
+compatible basis partitions are precisely the allowed-color words, which
+satisfy symmetric cycle exchange by the allowed-color theorem.
 \end{proof}
 
-\begin{example}[The seven-word family as lattice paths]
-Return to the seven-word family from the introduction, and order its positions
-as
+\begin{example}[One family with interval and matrix presentations]
+Take quotas $(2,1,1)$ on four positions. Allow color $1$ everywhere,
+color $2$ on $\{1,2,3\}$, and color $3$ on $\{1,2,4\}$. This is the
+\href{independence.htm#mixedCircuits}{seven-word family}. Its matrix
+presentation is
 \[
- 3,1,2,4.
+ \begin{gathered}
+ X_1=\begin{pmatrix}1&1&1&1\\0&1&2&3\end{pmatrix},\\
+ X_2=\begin{pmatrix}1&1&1&0\end{pmatrix},\\
+ X_3=\begin{pmatrix}1&1&0&1\end{pmatrix}.
+ \end{gathered}
 \]
-In this order, color $1$ may occur anywhere, color $2$ may occur in the first
-three positions, and color $3$ may occur in the last three positions. The
-words are
-\[
- \mathtt{2113},\ \mathtt{1123},\ \mathtt{2131},\
- \mathtt{1213},\ \mathtt{2311},\ \mathtt{1231},\ \mathtt{1321}.
-\]
-The color-$1$ positions are the bases of $U_{2,4}$. The color-$2$ and
-color-$3$ positions are the bases of rank-one lattice-path matroids supported
-on the intervals $[1,3]$ and $[2,4]$, respectively.
-
-Draw color $1$ as a north step and colors $2,3$ as two types of east step.
-The words become paths across a two-by-two rectangle, with the two east-step
-types restricted to their respective intervals. Returning to the original
-position order gives exactly
-\[
- \{\mathtt{1123},\mathtt{1213},\mathtt{1321},\mathtt{2113},
-   \mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
-\]
+Every two columns of $X_1$ are independent; $X_2,X_3$ allow exactly
+the stated singleton choices. Ordering the positions as $3,1,2,4$
+also gives an interval presentation: color $2$ is allowed in the
+first three positions and color $3$ in the last three.
 \end{example}
 
-Prefix-count bounds give a larger path construction; see
-\href{lattice-paths.htm}{colored lattice-path matroids}.
+\section[representedLifts]{Lifts of ordinary matroids}
 
-\subsection[representedLifts]{Representable lifts}
-
-There is also a construction that starts with any ordinary matroid. Let $N$
+We now start with any ordinary matroid. Let $N$
 be a rank-$r$ matroid on $[n]$, choose a prime $p\geq n$, and choose distinct
 residues $s_1,\dotsc,s_n$ modulo $p$. Take colors
 \[
@@ -282,43 +193,70 @@ $\rho$-color has quota $1$, and an exchange between two words switches the
 six-color cycle formed by the corresponding pair of matchings.
 \end{example}
 
-\begin{proposition}[Matrix realization of allowed colors]
-Every allowed-color colored matroid has matrices $X_c$ over $\mathbb R$ such
-that its words are exactly the compatible partitions satisfying
-\[
- \det X_c[:,B(u,c)]\ne0
- \qquad\text{for every color }c.
-\]
-\end{proposition}
+\section[weightedAssignments]{Weighted assignments}
 
-\begin{proof}
-For color $c$, put zero columns at positions where $c$ is forbidden. On the
-allowed positions, use distinct columns of an $r_c$-row Vandermonde matrix.
-Its bases are exactly the $r_c$-subsets of the allowed positions. Hence the
-compatible basis partitions are precisely the allowed-color words, which
-satisfy symmetric cycle exchange by the first proposition.
-\end{proof}
+The \href{exchange-graphs.htm#scoreOptimization}{optimality criterion}
+says that improving cyclic exchanges lead to an optimum. Greedy acceptance
+of high-scoring assignments can stop short of it, as the following example
+shows.
 
-\begin{example}[A matrix presentation of the seven-word family]
-Over $\mathbb R$, take
+\begin{example}[Eight positions with quotas $(3,3,2)$]
+We assign colors $1,2,3$ to eight positions, using the colors three, three,
+and two times, respectively. The table gives the score of each allowed
+assignment; a dash means that the color is forbidden.
 \[
- X_1=
- \begin{pmatrix}
- 1&1&1&1\\
- 0&1&2&3
- \end{pmatrix},\qquad
- X_2=\begin{pmatrix}1&1&1&0\end{pmatrix},\qquad
- X_3=\begin{pmatrix}1&1&0&1\end{pmatrix}.
+\begin{array}{c|rrr}
+ \text{position}&\text{Color }1&\text{Color }2&\text{Color }3\\ \hline
+ 1&20&14&-\\
+ 2&19&-&13\\
+ 3&-&11&10\\
+ 4&18&12&-\\
+ 5&17&9&-\\
+ 6&16&8&-\\
+ 7&15&-&7\\
+ 8&-&5&6
+\end{array}
 \]
-Every pair of columns of $X_1$ is a basis. A basis of $X_2$ is a singleton
-from $\{1,2,3\}$, while a basis of $X_3$ is a singleton from
-$\{1,2,4\}$. The compatible basis partitions are therefore precisely the
-seven words above in the original position order. This matrix family is a
-colored matroid by the allowed-color construction.
+We take all words respecting the quotas and allowed colors. This is a
+colored matroid by the allowed-color proposition. Write $a(w)$ for the sum
+of the eight assignment scores.
+
+Greedy scans the allowed position--color pairs in decreasing score order,
+accepting a pair whenever the partial assignment still extends to a feasible
+word. It first accepts color $1$ at positions $1,2,4$, with scores $20,19,18$.
+Color $1$ is now full, so it rejects the scores $17,16,15$. It completes to
+\[
+ u=\mathtt{11212233},\qquad a(u)=98,
+\]
+with color classes $\{1,2,4\}$, $\{3,5,6\}$, and $\{7,8\}$.
+
+Compare $u$ with $v=\mathtt{23321112}$. Positions $1,3,7$ give the cycle
+$1\to2\to3\to1$. Switching these positions in both words gives
+\[
+\begin{array}{c|cccccccc|r}
+ &1&2&3&4&5&6&7&8&\text{score}\\ \hline
+ u&\mathbf1&1&\mathbf2&1&2&2&\mathbf3&3&98\\
+ v&\mathbf2&3&\mathbf3&2&1&1&\mathbf1&2&102\\ \hline
+ u'&\mathbf2&1&\mathbf3&1&2&2&\mathbf1&3&99\\
+ v'&\mathbf1&3&\mathbf2&2&1&1&\mathbf3&2&101
+\end{array}
+\]
+Both resulting words are feasible, and their total score is unchanged.
+Continuing from $u'$ gives the improving path
+\[
+\begin{array}{c|c|r}
+ \text{word}&\text{positions changed}&\text{score}\\ \hline
+ \mathtt{11212233}&-&98\\
+ \mathtt{21312213}&1,3,7&99\\
+ \mathtt{23211213}&2,3,5&102\\
+ \mathtt{23221113}&4,6&104
+\end{array}
+\]
+The first two moves are three-color cycles; the last is a two-color swap.
+
+The final word is optimal. Subtract $7$ from every allowed score in color
+$1$. Every word loses exactly $21$, and the adjusted row maxima occur at
+colors $2,3,2,2,1,1,1,3$. These form the feasible word
+$\mathtt{23221113}$, so it attains the sum of all adjusted row maxima and
+maximizes the original score.
 \end{example}
-
-Representable matroid lifts and the allowed-color matrix construction give
-two classes of colored matroids built from vector configurations. In the
-two-color case,
-a matrix together with a representation of its dual recovers the usual notion
-of a representable matroid.

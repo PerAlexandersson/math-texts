@@ -81,12 +81,9 @@ for every $S\subseteq E$,
 Choose a word $u$ maximizing the combined score, with $a(u)$ largest
 among ties. Suppose $a(u)<h$, and choose $v$ with $a(v)=h$.
 
-Keep $u$ fixed and apply symmetric cycle exchange to $u,v$. The word
-obtained from $v$ now agrees with $u$ on the exchanged positions.
-Repeat with that word. This partitions the original disagreement into
-disjoint cycles, each of which can be switched individually from $u$.
-Their total score gain is $a(v)-a(u)>0$, so one has integer gain at
-least one.
+The \href{exchange-graphs.htm#disjointCycles}{disjoint-cycle decomposition}
+expresses $a(v)-a(u)>0$ as gains of individually feasible switches
+from $u$. One cycle has integer gain at least one.
 
 That cycle replaces at most one position of color $c$, losing at most
 one unit of bonus. The combined score therefore does not decrease,

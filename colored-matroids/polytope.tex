@@ -1,6 +1,6 @@
 \metatitle{Assignment polytopes}
-\metadescription{Faces and cycle edges of colored-matroid assignment polytopes,
-and lattice-path descriptions, flow optimization, and integer decomposition.}
+\metadescription{Faces, cycle directions and normal cones of assignment polytopes,
+with lattice-path descriptions, flow optimization, and integer decomposition.}
 
 \section[polytope]{The assignment-vector embedding}
 
@@ -16,7 +16,7 @@ For a word $u$ on $E$ with colors $[k]$, its \defin{assignment vector} is
 \[
  \defin{\chi(u)_{e,c}}\coloneqq
  \begin{cases}
-  1&\text{if }u(e)=c,\\
+  1&\text{if }u_e=c,\\
   0&\text{otherwise}.
  \end{cases}
 \]
@@ -28,12 +28,14 @@ The \defin{assignment polytope} of $\mathcal F$ is
 \end{definition}
 
 Its vertices are exactly the assignment vectors of the words. Indeed,
-$\chi(u)$ uniquely maximizes $\sum_e x_{e,u(e)}$ over these vectors. Every
+$\chi(u)$ uniquely maximizes $\sum_e x_{e,u_e}$ over these vectors. Every
 point of $P(\mathcal F)$ satisfies
 \[
- x_{e,c}\geq0,\qquad
+ \begin{gathered}
+ x_{e,c}\geq0,\\
  \sum_{c=1}^k x_{e,c}=1,\qquad
  \sum_{e\in E}x_{e,c}=r_c.
+ \end{gathered}
 \]
 The last two equations record one color at each position and the prescribed
 color quotas.
@@ -50,7 +52,7 @@ matroid $\mathcal H\subseteq\mathcal F$.
 
 \begin{proof}
 A linear functional $\sum_{e,c}a_{e,c}x_{e,c}$ gives the additive word score
-$\sum_e a_{e,u(e)}$. The words maximizing this score form a colored matroid
+$\sum_e a_{e,u_e}$. The words maximizing this score form a colored matroid
 by the \href{operations.htm#scoreMaximizers}{maximizer proposition}. Their
 assignment vectors are exactly the vertices of the face.
 \end{proof}
@@ -102,6 +104,38 @@ assignment polytope is a segment. Hence $P(\mathcal F)$ is a product of two
 segments, with the square exchange graph shown in the
 \href{exchange-graphs.htm#directSumGraphs}{direct-sum example}.
 \end{example}
+
+\section[cycleCones]{Cycle directions and normal cones}
+
+Fix $u\in\mathcal F$. Let $\mathcal D(u)$ consist of the vectors
+$\chi(w)-\chi(u)$ for neighbors $w$ of $u$ in the exchange graph.
+Write $\operatorname{cone}$ for nonnegative linear combinations.
+The \defin{normal cone} $N_P(u)$ consists of the score vectors whose
+maximum on $P=P(\mathcal F)$ is attained at $\chi(u)$.
+
+\begin{theorem}[Cycle directions]
+The feasible cycle directions determine the tangent cone and affine hull:
+\[
+ \begin{aligned}
+ \operatorname{cone}(P-\chi(u))&=\operatorname{cone}\mathcal D(u),\\
+ \operatorname{aff}P&=\chi(u)+\operatorname{span}\mathcal D(u).
+ \end{aligned}
+\]
+In particular, $\dim P=\dim\operatorname{span}\mathcal D(u)$, and
+\[
+ N_P(u)=\{a:a\cdot\delta\leq0\text{ for all }\delta\in\mathcal D(u)\}.
+\]
+\end{theorem}
+
+\begin{proof}
+The \href{exchange-graphs.htm#disjointCycles}{disjoint-cycle decomposition}
+expresses every $\chi(v)-\chi(u)$ as a sum of directions in
+$\mathcal D(u)$. Conversely, each direction in $\mathcal D(u)$ joins
+$\chi(u)$ to another vertex of $P$. Taking nonnegative combinations
+gives the cone equality, and taking spans gives the affine hull.
+A score is maximized at $\chi(u)$ precisely when it is nonpositive
+on every direction of this cone, giving the normal-cone formula.
+\end{proof}
 
 \section[polytopeDescriptions]{Inequality descriptions}
 
@@ -195,10 +229,10 @@ supplies, demands, and bounds multiplied by $t$. Write $\ell,u$ for
 finite integral arc bounds of the original network. We seek a flow $g$
 with the original supplies and demands satisfying, on every arc,
 \[
- \begin{aligned}
- \max\{\ell,f-(t-1)u\}&\leq g,\\
- g&\leq\min\{u,f-(t-1)\ell\}.
- \end{aligned}
+ \begin{gathered}
+ \max\{\ell,f-(t-1)u\}\leq g,\\
+ g\leq\min\{u,f-(t-1)\ell\}.
+ \end{gathered}
 \]
 The flow $f/t$ is feasible, and the bounds are integral, so flow
 integrality gives an integral choice of $g$. It records one admissible
@@ -208,15 +242,12 @@ the decomposition, starting from $t=1$.
 
 \subsection[generalPolytopeDescription]{The general case}
 
-A complete inequality description for arbitrary colored matroids remains
-open.
-
-\begin{question}
+\begin{question}[Coefficient bounds]
 Does every colored-matroid assignment polytope admit defining equations and
 inequalities whose coefficients all belong to $\{-1,0,1\}$?
 \end{question}
 
-The prefix-bound description answers this question for the lattice-path
-class. There is also an open converse to the edge theorem: if every edge of
-the assignment polytope of a nonempty fixed-quota family is a simple
-color-cycle move, must the family be a colored matroid?
+\begin{question}[Edge characterization]
+If every edge of the assignment polytope of a nonempty fixed-quota family
+is a simple color-cycle move, must the family be a colored matroid?
+\end{question}

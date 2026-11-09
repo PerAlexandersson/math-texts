@@ -1,6 +1,6 @@
 \metatitle{Distance and Tutte polynomials}
 \metadescription{A distance polynomial for colored matroids, its tropical
-minor recurrence, and its specialization to the classical Tutte polynomial.}
+minor recurrence, its joint-rank expression, and the classical Tutte polynomial.}
 
 \section[distanceAndTutte]{Distance and Tutte polynomials}
 
@@ -8,7 +8,7 @@ The color-indexed minors suggest looking for an analogue of the Tutte
 polynomial. Simply weighting the words of a colored matroid is too coarse:
 if the color quotas are $(r_1,\dotsc,r_k)$, then
 \[
- \sum_{u\in\mathcal F}\prod_{e\in E}x_{u(e)}
+ \sum_{u\in\mathcal F}\prod_{e\in E}x_{u_e}
  =|\mathcal F|x_1^{r_1}\dotsm x_k^{r_k}.
 \]
 To retain the geometry of the family, we instead measure the distance from
@@ -16,30 +16,60 @@ every coloring of $E$ to the allowed words.
 
 \subsection[distancePolynomial]{The distance polynomial}
 
-Let $\mathcal F$ be a colored matroid on $E$ with colors $[k]$. For
+Let $\mathcal F$ be a colored matroid on $E$, with $n=|E|$ and colors $[k]$. For
 $w\in[k]^E$, define its \defin{distance to $\mathcal F$} by
 \[
  \defin{d_{\mathcal F}(w)}
  \coloneqq
- \min_{u\in\mathcal F}|\{e\in E:w(e)\ne u(e)\}|.
+ \min_{u\in\mathcal F}|\{e\in E:w_e\ne u_e\}|.
 \]
+
+Write $\mathbf x=(x_1,\dotsc,x_k)$.
 
 \begin{definition}[Distance polynomial]
 The \defin{distance polynomial of $\mathcal F$} is
 \[
- \defin{D_{\mathcal F}(x_1,\dotsc,x_k;t)}
+ \defin{D_{\mathcal F}(\mathbf x;t)}
  \coloneqq
  \sum_{w\in[k]^E}
- t^{d_{\mathcal F}(w)}\prod_{e\in E}x_{w(e)}.
+ t^{d_{\mathcal F}(w)}\prod_{e\in E}x_{w_e}.
 \]
 The variables $x_1,\dotsc,x_k$ record the colors of $w$, while $t$ records
 the number of entries that must be changed to reach $\mathcal F$.
 \end{definition}
 
+\subsection[rankDistance]{Distance from joint rank}
+
+The \href{rank-flats.htm#jointRank}{joint rank} counts the largest number
+of prescribed assignments that a word of $\mathcal F$ can realize.
+Thus distance measures the assignments left unmatched.
+
+\begin{proposition}[Rank and distance]
+For every word $w\in[k]^E$, put $W_c=B(w,c)$. Then
+\[
+ d_{\mathcal F}(w)=n-R(W_1,\dotsc,W_k).
+\]
+Consequently, the distance polynomial is
+\[
+ \begin{gathered}
+ D_{\mathcal F}(\mathbf x;t)\\
+ =\sum_{w\in[k]^E}t^{\,n-R(W_1,\dotsc,W_k)}
+ \prod_{c=1}^k x_c^{|W_c|}.
+ \end{gathered}
+\]
+\end{proposition}
+
+\begin{proof}
+For each $u$, its number of disagreements with $w$ is $n$ minus its
+number of agreements. The latter is $\sum_c|B(u,c)\cap W_c|$.
+Minimizing disagreements therefore subtracts the maximum agreement
+count $R(W_1,\dotsc,W_k)$ from $n$.
+\end{proof}
+
 The minor operation gives a recurrence for the distance itself.
 
 \begin{proposition}[Tropical minor recurrence]
-Fix $e\in E$, let $w(e)=a$, and write $w'$ for the restriction of $w$ to
+Fix $e\in E$, let $w_e=a$, and write $w'$ for the restriction of $w$ to
 $E\setminus\{e\}$. Then
 \[
  d_{\mathcal F}(w)
@@ -53,7 +83,7 @@ where $\mathbf 1_{a\ne c}$ is $0$ if $a=c$ and $1$ otherwise.
 \end{proposition}
 
 \begin{proof}
-Partition the words $u\in\mathcal F$ according to the color $c=u(e)$. For
+Partition the words $u\in\mathcal F$ according to the color $c=u_e$. For
 such a word, its disagreement with $w$ at $e$ contributes
 $\mathbf 1_{a\ne c}$, and the remaining disagreements are measured by the
 minor $\mathcal F/(e,c)$. Taking the minimum over the nonempty branches gives
@@ -71,9 +101,9 @@ Then the distance polynomial has the following properties.
 \begin{enumerate}
 \item If $\mathcal F=\mathcal F_1\oplus\mathcal F_2$, then
 \[
- D_{\mathcal F}(x_1,\dotsc,x_k;t)
- =D_{\mathcal F_1}(x_1,\dotsc,x_k;t)
-  D_{\mathcal F_2}(x_1,\dotsc,x_k;t).
+ D_{\mathcal F}(\mathbf x;t)
+ =D_{\mathcal F_1}(\mathbf x;t)
+  D_{\mathcal F_2}(\mathbf x;t).
 \]
 \item Its two immediate specializations are
 \[
@@ -91,9 +121,11 @@ coefficient is $|\mathcal F|$, and the degree is
 $\max_{w\in[k]^E}d_{\mathcal F}(w)$.
 \item If every word in $\mathcal F$ has color $c$ at $e$, then
 \[
- D_{\mathcal F}(x_1,\dotsc,x_k;t)
+ \begin{gathered}
+ D_{\mathcal F}(\mathbf x;t)\\
  =\left(x_c+t\sum_{a\ne c}x_a\right)
-  D_{\mathcal F/(e,c)}(x_1,\dotsc,x_k;t).
+  D_{\mathcal F/(e,c)}(\mathbf x;t).
+ \end{gathered}
 \]
 \end{enumerate}
 \end{proposition}
@@ -124,10 +156,12 @@ For a binary word $w$, let $A$ be its set of color-$1$ positions. Then
 \]
 Consequently,
 \[
- D_{\mathcal F}(x_0,x_1;t)
+ \begin{gathered}
+ D_{\mathcal F}(x_0,x_1;t)\\
  =x_1^r x_0^{n-r}
  T_M\left(1+t\frac{x_0}{x_1},
            1+t\frac{x_1}{x_0}\right).
+ \end{gathered}
 \]
 Thus the two-color distance polynomial is a homogeneous form of the classical
 Tutte polynomial.
@@ -145,9 +179,11 @@ This is the sum of the corank $r-r_M(A)$ and the nullity
 $|A|-r_M(A)$. Substituting this expression in the definition of
 $D_{\mathcal F}$ and comparing with
 \[
- T_M(X,Y)
- =\sum_{A\subseteq E}
-  (X-1)^{r-r_M(A)}(Y-1)^{|A|-r_M(A)}
+ \begin{gathered}
+ T_M(X,Y)=\\
+ \sum_{A\subseteq E}
+  (X-1)^{r-r_M(A)}(Y-1)^{|A|-r_M(A)},
+ \end{gathered}
 \]
 gives the stated identity. This is the corank--nullity expansion of the Tutte
 polynomial; see Oxley \cite{Oxley2011}.
@@ -158,10 +194,10 @@ polynomial; see Oxley \cite{Oxley2011}.
 The classical Tutte polynomial has a linear deletion--contraction recurrence.
 The analogous identity
 \[
- D_{\mathcal F}(x_1,\dotsc,x_k;t)
+ D_{\mathcal F}(\mathbf x;t)
  \stackrel{?}{=}
  \sum_{\substack{c\in[k]\\\mathcal F/(e,c)\ne\varnothing}}
- x_cD_{\mathcal F/(e,c)}(x_1,\dotsc,x_k;t)
+ x_cD_{\mathcal F/(e,c)}(\mathbf x;t)
 \]
 does not hold for every colored matroid.
 
@@ -173,9 +209,11 @@ Take
 and remove position $e=2$. Each pair of words differs along a single color
 cycle, so this is a colored matroid. Its three minors at $e$ are
 \[
- \mathcal F/(2,1)=\{\mathtt{23}\},\qquad
- \mathcal F/(2,2)=\{\mathtt{13}\},\qquad
+ \begin{gathered}
+ \mathcal F/(2,1)=\{\mathtt{23}\},\\
+ \mathcal F/(2,2)=\{\mathtt{13}\},\\
  \mathcal F/(2,3)=\{\mathtt{12}\}.
+ \end{gathered}
 \]
 The coefficient of $x_2x_3^2t$ in $D_{\mathcal F}$ is $3$, contributed by
 $\mathtt{233}$, $\mathtt{323}$, and $\mathtt{332}$. The coefficient on the
@@ -186,7 +224,7 @@ $\mathcal F$ is $1$, attained by $\mathtt{132}$. If we insist on keeping its
 color $1$ at position $2$, the only available word is $\mathtt{213}$, and
 after removing position $2$ the distance from $\mathtt{12}$ to
 $\mathtt{23}$ is $2$. A nearest word need not lie in the minor selected by
-the color of $w(e)$.
+the color of $w_e$.
 \end{example}
 
 \begin{question}

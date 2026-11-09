@@ -1,38 +1,26 @@
-\metatitle{Color projections and M-convexity}
-\metadescription{M-convex count vectors of color projections, their rank description,
-and the Lorentzian conjecture for weighted completion polynomials.}
+\metatitle{M-convexity and completion polynomials}
+\metadescription{The general M-convexity theorem for one-color count vectors,
+completion polynomials, and their Lorentzian conjecture.}
 
-\section[rank]{Color projections}
+\section[rank]{M-convexity and completion polynomials}
+
+For every colored matroid, counting the positions of one color in parts
+of a partition gives an M-convex set of vectors. We prove this general
+result, then study the polynomials that count how many words give each
+vector.
 
 Let $\mathcal F$ be a colored matroid on $E$ with colors $1,\dotsc,k$ and
 quotas $r_1,\dotsc,r_k$. We write
 \[
- B(u,c)\coloneqq\{e\in E:u(e)=c\}.
+ B(u,c)\coloneqq\{e\in E:u_e=c\}.
 \]
 The \href{intro.htm}{color-projection proposition} shows that
 $\{B(u,c):u\in\mathcal F\}$ is the basis family of an ordinary matroid,
-which we denote by $M_c$. Thus retaining one color and merging all the
-others gives the two-color matroid associated with $M_c$ and its dual.
-The \href{rank-flats.htm}{rank and flats chapter} combines these ranks
-in a joint rank function that also records compatibility between colors.
-
-\subsection[mergingColors]{Merging colors}
-
-\begin{example}[Merging two colors can destroy exchange]
-The family
-\[
- \mathcal F=\{\mathtt{1324},\mathtt{3241}\}
-\]
-is a colored matroid: the disagreement is the single cycle
-$1\to3\to2\to4\to1$, and exchanging it interchanges the two words.
-After replacing every $4$ by $3$, we obtain
-\[
- \{\mathtt{1323},\mathtt{3231}\}.
-\]
-The disagreement now consists of the cycles $1\to3\to1$ and
-$3\to2\to3$. Exchanging either gives $\mathtt{3321}$ and
-$\mathtt{1233}$, neither of which belongs to the family.
-\end{example}
+which we denote by $M_c$.
+\label{mergingColors}
+Retaining color $c$ and merging all the others gives the two-color
+matroid associated with $M_c$ and its dual. More general
+\href{operations.htm#colorMerging}{color merging can destroy exchange}.
 
 \section[mConvexCounts]{M-convex count vectors}
 
@@ -40,7 +28,7 @@ Fix a color $c$ and a partition $E=D_1\sqcup\dotsb\sqcup D_m$.
 We record how many positions of each part receive color $c$:
 \[
  \defin{\mathcal V_c}\coloneqq
- \{(|B(u,c)\cap D_1|,\dotsc,|B(u,c)\cap D_m|):u\in\mathcal F\}.
+ \{(|B(u,c)\cap D_i|)_{i=1}^m:u\in\mathcal F\}.
 \]
 
 \begin{definition}[M-convexity]
@@ -49,9 +37,10 @@ constant coordinate sum is \defin{M-convex} if, whenever
 $\mathbf a,\mathbf b\in\mathcal V$ and $a_i>b_i$, there is an index $j$
 with $a_j<b_j$ such that
 \[
- \mathbf a-\mathbf e_i+\mathbf e_j\in\mathcal V,
- \qquad
+ \begin{gathered}
+ \mathbf a-\mathbf e_i+\mathbf e_j\in\mathcal V,\\
  \mathbf b+\mathbf e_i-\mathbf e_j\in\mathcal V.
+ \end{gathered}
 \]
 Here $\mathbf e_i$ is the $i$th unit vector.
 \end{definition}
@@ -59,7 +48,7 @@ Here $\mathbf e_i$ is the $i$th unit vector.
 This is symmetric basis exchange for integer vectors rather than just
 zero-one vectors \cite{Murota2003}.
 
-\begin{proposition}[Counts of a color projection]
+\begin{theorem}[M-convex count vectors]
 The set $\mathcal V_c$ is M-convex. More precisely, put
 \[
  f(J)\coloneqq\operatorname{rk}_{M_c}
@@ -74,7 +63,7 @@ $\mathbf a\in\mathbb Z_{\geq0}^m$ satisfying
  \sum_{i\in J}a_i\leq f(J)\qquad(J\subseteq[m]).
  \end{gathered}
 \]
-\end{proposition}
+\end{theorem}
 
 \begin{proof}
 We show that the displayed inequalities characterize the counts of bases
@@ -83,11 +72,11 @@ of $M_c$. Necessity follows from the definition of matroid rank.
 For sufficiency, take an integer vector $\mathbf a$ satisfying them.
 Let $N$ be the partition matroid in which an independent set contains at
 most $a_i$ elements of $D_i$. The matroid intersection theorem
-\cite{Oxley2011} gives a common independent set of size $r_c$ if
+\cite{Oxley2011} gives a common independent set of size $r_c$ if,
+for every $X\subseteq E$,
 \[
  \operatorname{rk}_{M_c}(X)+
- \sum_i\min(a_i,|D_i\setminus X|)\geq r_c
- \qquad(X\subseteq E).
+ \sum_i\min(a_i,|D_i\setminus X|)\geq r_c.
 \]
 To verify this, put $J=\{i:a_i>|D_i\setminus X|\}$. Then
 \[
@@ -110,27 +99,58 @@ Taking singleton parts recovers ordinary symmetric basis exchange.
 Taking $D_1=S$ and $D_2=E\setminus S$ shows that the possible values of
 $|B(u,c)\cap S|$ form an integer interval.
 
-\section[lorentzianConjecture]{The Lorentzian conjecture}
+\begin{example}[Counts and multiplicities]
+Take all two-color words on four positions with quotas $(2,2)$, and
+partition the positions as $\{1,2\}\sqcup\{3,4\}$. The color-$1$
+count vectors are
+\[
+ \mathcal V_1=\{(2,0),(1,1),(0,2)\}.
+\]
+Their multiplicities are $1,4,1$: a word either puts both $1$'s in
+one part or chooses one position from each part.
+\end{example}
 
-M-convexity describes which count vectors occur. We now also count how
-many words give each vector.
+\section[completionPolynomials]{Completion polynomials}
+
+The count-vector theorem describes which vectors occur. A completion
+polynomial also records their multiplicities.
 
 Fix a color $c$ and positive weights $w_{e,a}$ for the assignments with
 $a\ne c$. Define the \defin{weighted completion polynomial}
 \[
- \defin{Q_c(\mathbf x;\mathbf w)}\coloneqq
+ \begin{gathered}
+ \defin{Q_c(\mathbf x;\mathbf w)}\coloneqq\\
  \sum_{u\in\mathcal F}
- \left(\prod_{e:u(e)\ne c}w_{e,u(e)}\right)
- \prod_{e:u(e)=c}x_e.
+ \left(\prod_{e:u_e\ne c}w_{e,u_e}\right)
+ \prod_{e:u_e=c}x_e.
+ \end{gathered}
 \]
 It is homogeneous of degree $r_c$. When all weights are $1$, the
 coefficient of $\prod_{e\in B}x_e$ counts the words whose color-$c$
 class is $B$.
+For a polynomial with nonnegative coefficients, its \defin{exponent support}
+is the set of exponent vectors of monomials with positive coefficient.
+
+\begin{corollary}[M-convex support]
+For every positive choice of weights, identifying $x_e=z_i$ for
+$e\in D_i$ gives a polynomial whose exponent support is exactly
+$\mathcal V_c$, and is therefore M-convex.
+\end{corollary}
+
+\begin{proof}
+Every word contributes a positive coefficient to its count-vector
+monomial, so the support consists of all and only the vectors in
+$\mathcal V_c$.
+\end{proof}
+
+In the preceding example, the unweighted polynomial after identifying
+variables within each part is $z_1^2+4z_1z_2+z_2^2$.
+
+\section[lorentzianConjecture]{The Lorentzian conjecture}
 
 \begin{definition}[Lorentzian polynomial]
 Let $f$ be a nonzero homogeneous polynomial of degree $d$ with nonnegative
-coefficients. Its \defin{exponent support} is the set of vectors
-$\boldsymbol\alpha$ whose monomials have positive coefficient.
+coefficients.
 For $d\geq2$, we call $f$ \defin{Lorentzian} if its exponent support is
 M-convex and every partial derivative of total order $d-2$ has a Hessian
 with at most one positive eigenvalue. The Hessian is the matrix of second
@@ -159,11 +179,9 @@ color, then
 so the conjecture follows from the Lorentzian theorem for ordinary
 matroid basis polynomials \cite{BrandenHuh2020}.
 
-For the partition $D_1,\dotsc,D_m$, substituting $x_e=z_i$ for $e\in D_i$
-gives a polynomial with exponent support $\mathcal V_c$. Nonnegative
-linear substitutions preserve Lorentzianity, so the conjecture would also
-make these count polynomials Lorentzian. With two parts and all weights
-equal to $1$, write this polynomial as
+Nonnegative linear substitutions preserve Lorentzianity, so the conjecture
+would also make the partition-count polynomials Lorentzian. With two parts
+and all weights equal to $1$, write this polynomial as
 \[
  \sum_{j=0}^{r_c}a_j z_1^jz_2^{r_c-j}.
 \]

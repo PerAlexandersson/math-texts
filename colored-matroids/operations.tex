@@ -30,6 +30,27 @@ color-$1$ class is a basis $B$ of $M$, then after interchanging $0$ and $1$
 the color-$1$ class is $E\setminus B$, a basis of $M^*$. Thus color
 permutation is the many-color analogue of matroid duality.
 
+\subsection[colorMerging]{Merging colors}
+
+Retaining one color and merging all the others gives its ordinary
+projection matroid and its dual. General merging need not preserve
+symmetric cycle exchange.
+
+\begin{example}[Merging two colors can destroy exchange]
+The family
+\[
+ \mathcal F=\{\mathtt{1324},\mathtt{3241}\}
+\]
+is a colored matroid: its single disagreement cycle is
+$1\to3\to2\to4\to1$. Replacing $4$ by $3$ gives
+\[
+ \{\mathtt{1323},\mathtt{3231}\}.
+\]
+The disagreement now splits into $1\to3\to1$ and $3\to2\to3$.
+Switching either cycle gives $\mathtt{3321}$ and $\mathtt{1233}$,
+neither of which belongs to the new family.
+\end{example}
+
 \subsection[loopsAndColoops]{Loops and coloops}
 
 Let $\mathcal F$ be a colored matroid on $E$. For each color $c$, the sets
@@ -46,8 +67,10 @@ a loop or coloop, respectively, of $M(\mathcal F,c)$.
 \begin{example}
 Consider the seven-word colored matroid
 \[
- \mathcal F=\left\{\mathtt{1123},\mathtt{1213},\mathtt{1321},
- \mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\right\}.
+ \begin{aligned}
+ \mathcal F=\{&\mathtt{1123},\mathtt{1213},\mathtt{1321},\\
+ &\mathtt{2113},\mathtt{3121},\mathtt{2311},\mathtt{3211}\}.
+ \end{aligned}
 \]
 Color $2$ never occurs at position $4$, so position $4$ is a loop of color
 $2$. Similarly, position $3$ is a loop of color $3$.
@@ -64,9 +87,9 @@ Choose a set $L_e$ of allowed colors at each position $e$. The corresponding
 \[
  \mathcal F_L
  \coloneqq
- \{u\in\mathcal F:u(e)\in L_e\text{ for every }e\in E\}.
+ \{u\in\mathcal F:u_e\in L_e\text{ for every }e\in E\}.
 \]
-To \defin{pin} $(e,c)$ means to retain only the words with $u(e)=c$.
+To \defin{pin} $(e,c)$ means to retain only the words with $u_e=c$.
 \end{definition}
 
 \begin{proposition}[Restrictions]
@@ -86,7 +109,7 @@ the two words agree there, and the position does not occur in an exchange.
 Give each position--color pair $(e,c)$ a real score $a_{e,c}$. The
 \defin{additive score} of a word is
 \[
- a(u)\coloneqq\sum_{e\in E}a_{e,u(e)}.
+ a(u)\coloneqq\sum_{e\in E}a_{e,u_e}.
 \]
 
 \begin{proposition}[Maximizing words]
@@ -106,7 +129,7 @@ polytope}.
 
 \subsection[deletionAndContraction]{Deletion and contraction}
 
-Fix a position $e$ and a color $c$. We retain the words with $u(e)=c$ and
+Fix a position $e$ and a color $c$. We retain the words with $u_e=c$ and
 then remove position $e$. Since the removed color is fixed, the remaining
 words have a common quota vector.
 
@@ -115,7 +138,7 @@ The \defin{minor of $\mathcal F$ at $(e,c)$} is
 \[
  \defin{\mathcal F/(e,c)}
  \coloneqq
- \{u|_{E\setminus\{e\}}:u\in\mathcal F,\ u(e)=c\}.
+ \{u|_{E\setminus\{e\}}:u\in\mathcal F,\ u_e=c\}.
 \]
 When nonempty, its quota of color $c$ is $r_c-1$; the other quotas are
 unchanged.
@@ -215,9 +238,11 @@ Take
 \]
 Their direct sum is
 \[
- \mathcal F_1\oplus\mathcal F_2
+ \begin{gathered}
+ \mathcal F_1\oplus\mathcal F_2\\
  =\{\mathtt{12312},\mathtt{12321},
      \mathtt{23112},\mathtt{23121}\},
+ \end{gathered}
 \]
 the five-position colored matroid from the introduction.
 \end{example}
@@ -235,7 +260,7 @@ Conversely, every such direct sum admits two-cycle exchanges.
 \begin{proof}
 We first show that each position takes at most two colors across the family.
 Suppose a position $e$ takes three colors, which we rename $1,2,3$.
-Choose $u$ with $u(e)=1$. Exchange toward words having colors $2$ and $3$
+Choose $u$ with $u_e=1$. Exchange toward words having colors $2$ and $3$
 at $e$. The resulting words $v,w$ are obtained from $u$ by swapping $e$
 with distinct positions $f,g$, respectively. On these positions we have
 \[
