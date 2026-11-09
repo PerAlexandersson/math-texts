@@ -1,6 +1,7 @@
 \metatitle{Permutation matroids}
 \metadescription{Singleton color quotas, relative-cycle closure, reconstruction
-from one vertex, Birkhoff edges, enumeration, and permutation groups.}
+from one vertex, Hamming metric convexity, cycle crossover, Birkhoff edges,
+enumeration, and permutation groups.}
 
 \section[permutationMatroids]{Permutation matroids}
 
@@ -65,6 +66,79 @@ permutation matroids containing it; $S_n$ is one such family.
 
 One-sided cycle exchange also suffices: apply it to both ordered pairs
 $(u,v)$ and $(v,u)$. Uniqueness gives the two offspring of the same cycle.
+
+\subsection[cycleCrossover]{Cycle crossover}
+
+In evolutionary algorithms, \defin{cycle crossover} recombines two parent
+permutations by choosing which parent supplies each relative cycle.
+The operation goes back to I.~M.~Oliver, D.~J.~Smith and J.~R.~C.~Holland
+(1987); see the description and references in
+\href{https://eden.dei.uc.pt/~moraglio/ppsn-workshop.pdf}{Moraglio and
+coauthors}. Allowing every choice of parental cycles, relative-cycle
+closure says exactly that a nonempty family is a permutation matroid
+if and only if every cycle-crossover offspring remains feasible.
+
+\subsection[hammingConvexity]{Convexity in the permutation Hamming space}
+
+Let $d_H(u,v)=|\{e:u_e\ne v_e\}|$ be Hamming distance. The
+\defin{metric interval} between $u,v\in S_n$ is
+\[
+ \begin{gathered}
+ \defin{[u,v]_H}\coloneqq\{w\in S_n:\\
+ d_H(u,w)+d_H(w,v)=d_H(u,v)\}.
+ \end{gathered}
+\]
+A family $\mathcal F\subseteq S_n$ is \defin{metrically convex} if
+$[u,v]_H\subseteq\mathcal F$ for all $u,v\in\mathcal F$.
+
+\begin{proposition}[Metric convexity]
+If $u^{-1}v=c_1\dotsm c_r$ is the disjoint nontrivial cycle
+decomposition, then
+\[
+ [u,v]_H=
+ \left\{u\prod_{j\in J}c_j:J\subseteq[r]\right\}.
+\]
+Consequently, the nonempty metrically convex subsets of $S_n$ are
+exactly the permutation matroids.
+\end{proposition}
+
+\begin{proof}
+Equality in the Hamming triangle inequality holds precisely when
+$w_e\in\{u_e,v_e\}$ at every position. Since $w$ is a permutation,
+choosing the entry from $v$ at one disagreement position forces the
+same choice around its entire relative cycle. Conversely, choosing
+whole relative cycles gives a permutation satisfying the equality.
+The characterization now follows from relative-cycle closure.
+\end{proof}
+
+Thus the smallest permutation matroid containing a seed family is both
+its cycle-crossover closure and its metric convex hull in $S_n$.
+For the general connection between metric convexity and evolutionary
+search, see A.~Moraglio,
+\href{https://eden.dei.uc.pt/~moraglio/foga24e-moraglio.pdf}{Abstract
+Convex Evolutionary Search} (2011).
+
+\subsection[permutationLiterature]{Related structures and literature}
+
+For subgroup families, our condition is precisely the
+\href{#permutationGroups}{cycle-closed condition} studied by
+P.~J.~Cameron in 1996. His classification gives the group theorem below.
+
+\begin{remark}[Coxeter matroids]
+Coxeter matroids use root directions in a permutohedron; see
+\href{https://iris.univpm.it/bitstream/11566/294024/9/CaselliDadderioMariettiREVISED.pdf}{Caselli,
+D'Adderio and Marietti}. The two classes differ. The family
+$\{\mathtt{123},\mathtt{231}\}$ is a permutation matroid, but its
+one-line vectors span a segment with direction $(1,1,-2)$, which is
+not parallel to a type-$A$ root $e_i-e_j$.
+\end{remark}
+
+\begin{remark}[Literature TODO]
+We should study the literature on cycle-crossover closure and Hamming
+metric convexity further, checking existing terminology, enumeration,
+polyhedral characterizations, and stable-set realizations before
+assessing which results are new.
+\end{remark}
 
 \section[birkhoffEdges]{The polyhedral characterization}
 
