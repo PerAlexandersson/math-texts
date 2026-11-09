@@ -1,7 +1,7 @@
 \metatitle{Distance and Tutte polynomials}
 \metadescription{A distance polynomial for colored matroids, its tropical
 minor recurrence, the classical Tutte polynomial, permutation codes,
-and cyclic Latin-square transversals.}
+Latin transversals, independence polynomials, and matching polynomials.}
 
 \section[distanceAndTutte]{Distance and Tutte polynomials}
 
@@ -389,3 +389,156 @@ $v$. Then
 The optimal weight is the sum of $\max(a_v,b_v)$ over the roots.
 These recurrences also recover an optimizing stable set and hence
 a nearest permutation $\sigma_S$.
+
+\section[cycleEnumerators]{Cycle enumerators and graph polynomials}
+
+Let $\mathcal F\subseteq S_n$ be a permutation matroid. We count distances
+from a chosen feasible word to the other words of the family.
+Write $d(u,v)$ for the Hamming distance between two words.
+Relabel colors so that the chosen word is the identity.
+
+\subsection[cycleIndependence]{Independence polynomials and the hard-core model}
+
+Let $\mathcal C$ be the feasible root cycles. Join two cycles in $H$
+when their supports intersect, as in the
+\href{permutations.htm#rootCycles}{reconstruction theorem}.
+With variables $\mathbf z=(z_\gamma)_{\gamma\in\mathcal C}$, the
+\defin{multivariate independence polynomial} of $H$ is
+\[
+ \defin{I_H(\mathbf z)}\coloneqq
+ \sum_{S\text{ stable in }H}\prod_{\gamma\in S}z_\gamma.
+\]
+Write $I_H(z)$ when every variable has the same value $z$.
+
+\begin{proposition}[Distances from a feasible root]
+If $\ell_\gamma$ is the length of $\gamma$, then
+\[
+ \begin{gathered}
+ \sum_{\sigma\in\mathcal F}t^{d(\operatorname{id},\sigma)}\\
+ =I_H\bigl((t^{\ell_\gamma})_{\gamma\in\mathcal C}\bigr).
+ \end{gathered}
+\]
+In particular, $|\mathcal F|=I_H(1)$.
+\end{proposition}
+
+\begin{proof}
+Reconstruction gives one feasible permutation for each stable set of
+root cycles. Their supports are disjoint, so the number of moved
+positions is the sum of their lengths.
+\end{proof}
+
+For positive activities $z_\gamma$, giving a feasible permutation
+probability proportional to the product of its cycle activities yields
+the \href{https://arxiv.org/abs/1105.5131}{hard-core model} on $H$.
+Overlapping cycles cannot occur together, and $I_H(\mathbf z)$ is the
+normalizing constant, or \defin{partition function}.
+Thus reconstruction also translates weighted counting and random sampling
+of feasible permutations into stable-set counting and sampling.
+
+\subsection[forestMatchings]{Forest matchings and adjacency spectra}
+
+Let $T$ be a forest on $[n]$. For each matching $M$ of $T$, take the
+permutation that swaps the endpoints of every edge of $M$ and fixes
+the remaining positions:
+\[
+ \defin{\mathcal F_T}\coloneqq
+ \left\{\prod_{ij\in M}(ij):M\text{ a matching of }T\right\}.
+\]
+
+\begin{proposition}
+The family $\mathcal F_T$ is a permutation matroid. Let $m_k(T)$
+count its matchings of size $k$, and put
+\[
+ \begin{aligned}
+ \defin{R_T(z)}
+ &\coloneqq\sum_{\sigma\in\mathcal F_T}
+ z^{d(\operatorname{id},\sigma)/2}\\
+ &=\sum_k m_k(T)z^k.
+ \end{aligned}
+\]
+If $A_T$ is the adjacency matrix of $T$, then
+\[
+ \det(xI-A_T)=x^nR_T(-x^{-2}).
+\]
+\end{proposition}
+
+\begin{proof}
+The symmetric difference of two matchings is a disjoint union of
+alternating paths. Common edges cancel in the relative permutation.
+For each path, the \href{stable-sets.htm#contactConstruction}{lemma for
+cycles meeting in a tree} gives one relative cycle on its vertices.
+Switching this cycle
+exchanges the two matchings along the path and again gives matchings.
+Hence $\mathcal F_T$ satisfies symmetric cycle exchange.
+
+A matching of size $k$ moves exactly $2k$ positions, giving the formula
+for $R_T$. In the determinant expansion, a nonzero permutation term
+can have only fixed points and edge transpositions: any longer cycle
+would give a cycle in $T$. A matching of size $k$ contributes
+$(-1)^kx^{n-2k}$, proving the identity.
+\end{proof}
+
+The usual \defin{matching polynomial} is
+$\mu_T(x)=\sum_k(-1)^km_k(T)x^{n-2k}$. Thus the distance statistic
+recovers the characteristic polynomial of the forest. For the classical
+matching-polynomial connection, see C.~D.~Godsil and I.~Gutman,
+\href{https://doi.org/10.1002/jgt.3190050203}{On the theory of the
+matching polynomial}.
+
+\subsection[graphPermutationCodes]{Permutation codes from graphs}
+
+Let $G$ be an even-hole-free graph with at least one vertex. In the
+\href{stable-sets.htm#contactConstruction}{contact construction}, choose
+an integer $L\ge\max(2,\Delta(G))$, where $\Delta(G)$ is the maximum
+degree. Give every generator support $Y_v$ exactly $L$ positions,
+using one contact per incident edge and $L-\deg_G(v)$ private positions.
+The same construction proof gives a permutation matroid $\mathcal F_G$.
+The \defin{minimum distance} of a code is the smallest Hamming distance
+between two distinct codewords.
+
+\begin{proposition}[Code parameters and pair distances]
+For stable sets $S,T$ of $G$, put $U=S\triangle T$, and let $c(G[U])$
+be the number of connected components of $G[U]$, with $c(G[\varnothing])=0$.
+Then
+\[
+ d(\sigma_S,\sigma_T)=(L-1)|U|+c(G[U]).
+\]
+The code has parameters
+\[
+ \begin{aligned}
+ \text{length}&=L|V(G)|-|E(G)|,\\
+ \text{size}&=I_G(1),\\
+ \text{minimum distance}&=L,
+ \end{aligned}
+\]
+and its distances from the identity satisfy
+\[
+ \sum_{\sigma\in\mathcal F_G}
+ t^{d(\operatorname{id},\sigma)}=I_G(t^L).
+\]
+\end{proposition}
+
+\begin{proof}
+Generators common to $S$ and $T$ act on supports disjoint from all
+generators in $U$, and hence give no disagreements. Every position in
+$\bigcup_{v\in U}Y_v$ gives a disagreement. At a contact shared by two
+selected generators, their images are distinct: a shared image would
+give a second shared support position. Counting this union gives
+\[
+ d(\sigma_S,\sigma_T)=L|U|-|E(G[U])|.
+\]
+The graph $G[U]$ is bipartite, and even-hole-freeness makes it a forest.
+Thus $|E(G[U])|=|U|-c(G[U])$, proving the distance formula.
+
+Each graph edge identifies one pair of support positions, giving
+$L|V(G)|-|E(G)|$ positions in total. Codewords are indexed by stable
+sets, so their number is $I_G(1)$. For $U\ne\varnothing$, the distance
+formula is at least $L$, attained between the identity and any single
+generator. Finally, a stable set $S$ moves $L|S|$ positions, proving
+the enumerator identity.
+\end{proof}
+
+By the triangle inequality, a received word within
+$\lfloor(L-1)/2\rfloor$ substitutions of a codeword cannot be that close
+to any other codeword. Thus these codes uniquely correct up to that
+many substitution errors.
