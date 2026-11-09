@@ -1,0 +1,393 @@
+\metatitle{Reductions of the Lorentzian conjecture}
+\metadescription{Exact binary encodings, reduction of positive weights to
+unweighted completion counts, and an equivalent rank-two counting conjecture.}
+
+\section[completionReductions]{Reductions of the Lorentzian conjecture}
+
+The \href{rank.htm#lorentzianConjecture}{Lorentzian conjecture} concerns
+weighted completion polynomials of colored matroids. We show that its
+universal weighted and unweighted forms are equivalent. It also suffices
+to consider families in which each position has at most two possible
+colors, and a counting inequality for a distinguished color of quota two.
+
+Let $\mathcal F$ be a colored matroid on $E$, and distinguish a color $c$.
+We use the completion polynomial
+\[
+ \begin{gathered}
+ Q_c(\mathbf x;\mathbf w)=\\
+ \sum_{u\in\mathcal F}
+ \left(\prod_{e:u(e)\ne c}w_{e,u(e)}\right)
+ \prod_{e:u(e)=c}x_e.
+ \end{gathered}
+\]
+Here the weights $w_{e,a}$ are positive. Its degree is the quota $r_c$.
+At unit weights, each word contributes
+once, so its coefficients count completions of a color-$c$ set.
+
+\section[binaryLists]{Binary lists and exact encodings}
+
+The \defin{actual color list} at a position is
+\[
+ L_e\coloneqq\{u(e):u\in\mathcal F\}.
+\]
+We call $\mathcal F$ a \defin{binary-list family} if $|L_e|\leq2$ at
+every position. This condition concerns the possible colors at a position;
+it imposes no representability condition on the projection matroids.
+
+After pinning and deleting positions with a single possible color, we can
+view such a family as orientations of a multigraph. Its vertices are
+colors, and position $e$ is an edge joining the two colors in $L_e$.
+We orient it toward the color assigned by the word. Quotas prescribe
+indegrees, and symmetric cycle exchange reverses a directed simple cycle
+in both words. The family retains its restrictions on which orientations
+occur.
+
+We now replace each position by several positions with binary lists.
+Choose positive integers $m_{e,a}$ for $a\in L_e$. Let $E_e$ consist
+of the positions $(e,a,j)$ with $a\in L_e$ and $1\leq j\leq m_{e,a}$,
+and put $M_e=|E_e|$.
+Introduce a new color $p_e$ for each $e$, distinct from all original
+colors and from the other new colors. To expand a word $u$, choose one
+position $(e,u(e),j)$ in each $E_e$, give it color $u(e)$, and give every
+other position of $E_e$ color $p_e$. Let $\widehat{\mathcal F}$ consist
+of all these expansions of all words in $\mathcal F$.
+
+\begin{proposition}[Expansion by private colors]
+The family $\widehat{\mathcal F}$ is a binary-list colored matroid.
+Original colors retain their quotas, and $p_e$ has quota $M_e-1$.
+Its color graph is bipartite, with original colors on one side and
+private colors on the other. On $E_e$, the projection of $p_e$ is
+$U_{M_e-1,M_e}$; it has loops elsewhere.
+Private colors of quota zero may be omitted.
+
+More generally, for any nonempty fixed-quota family $\mathcal F$, this
+construction satisfies symmetric cycle exchange if and only if
+$\mathcal F$ does. If every $m_{e,a}=1$, expansion is a bijection.
+\end{proposition}
+
+\begin{proof}
+The unique entry of $E_e$ different from $p_e$ recovers $u(e)$.
+Thus the image and quotas have the stated descriptions. Every position
+of $E_e$ can be the chosen position, which gives the uniform projection.
+
+Take two expanded words and prescribe a disagreement in $E_e$.
+If their decoded entries agree, say both equal $a$, they chose different
+positions. Those positions form the two-cycle $a\to p_e\to a$.
+Switching them exchanges the choices and leaves the decoded words fixed.
+
+If their decoded entries are $a\ne b$, the two disagreement positions
+of $E_e$ form the path
+\[
+ a\longrightarrow p_e\longrightarrow b.
+\]
+Take an original exchange cycle through $e$, and replace each of its
+arrows by the corresponding two-arrow path. The original colors are
+distinct, and the inserted private colors are distinct and new. The
+expanded cycle is therefore simple. Its two offspring are expansions
+of the two original offspring, and it contains either prescribed
+disagreement position in $E_e$.
+
+For the converse, choose one fixed representative $(e,a,1)$ for every
+original assignment. Lift two original words using these representatives.
+Each differing position contributes a path through $p_e$, while agreeing
+positions contribute no arrows. A cycle meeting $p_e$ must use both
+arrows of its path. Contracting these paths in an expanded exchange gives
+a simple original exchange with both offspring in $\mathcal F$.
+\end{proof}
+
+\subsection[slotCounting]{Counting the expansions}
+
+Distinguish an original color $c$. Give its new positions variables
+$x_{e,c,j}$. The unweighted completion polynomial of the expanded family
+is
+\[
+ \sum_{u\in\mathcal F}
+ \left(\prod_{e:u(e)\ne c}m_{e,u(e)}\right)
+ \prod_{e:u(e)=c}
+ \left(\sum_{j=1}^{m_{e,c}}x_{e,c,j}\right).
+\]
+Indeed, at a position with a different color, there are exactly
+$m_{e,u(e)}$ choices. At a color-$c$ position, the sum records its
+possible chosen positions. Choices at different original positions
+are independent once the original word is fixed.
+
+The condition that the decoded word belongs to $\mathcal F$ is part
+of the construction. In particular, the expansion may be a proper
+subfamily of the orientations with its lists and quotas. The
+\href{series-parallel.htm#listStability}{stability theorem for
+full allowed-color families} concerns the larger class with every
+quota-compatible word included.
+
+\section[weightsToCounts]{Replacing weights by completion counts}
+
+\begin{theorem}[Weighted and unweighted forms]
+The following universal assertions are equivalent.
+\begin{enumerate}
+\item Every colored matroid has Lorentzian completion polynomials
+for every distinguished color and every choice of positive weights.
+\item Every colored matroid has Lorentzian unweighted completion
+polynomials for every distinguished color.
+\item Every binary-list colored matroid with bipartite color graph
+has Lorentzian unweighted completion polynomials for every color on
+one side, when each color on the other side has projection
+$U_{d-1,d}$ on its $d$ possible positions.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The first assertion implies the second, and the second implies the third.
+We prove that the third implies the first by realizing weights as
+numbers of distinct expansions.
+
+First suppose that all weights are positive integers. In the expansion
+above, take $m_{e,c}=1$ and $m_{e,a}=w_{e,a}$ for $a\ne c$.
+Identify the variable of $(e,c,1)$ with $x_e$. The displayed counting
+formula is then exactly $Q_c(\mathbf x;\mathbf w)$.
+
+For positive rational weights, choose a positive integer $d_e$ clearing
+the denominators at position $e$. Set
+\[
+ m_{e,c}=1,\qquad m_{e,a}=d_e w_{e,a}\quad(a\ne c).
+\]
+At positions allowing only $c$, take $d_e=1$. If $G$ is the unweighted
+expanded completion polynomial and $D=\prod_{e\in E}d_e$, then
+\[
+ G(\mathbf x)=D\,Q_c((x_e/d_e)_{e\in E};\mathbf w).
+\]
+A word with color-$c$ set $B$ acquires the factor
+$\prod_{e\notin B}d_e=D/\prod_{e\in B}d_e$, which proves the identity
+term by term. The third assertion applies to the expansion. Positive
+scalar multiplication and invertible positive diagonal substitutions
+preserve Lorentzianity in both directions.
+
+Finally, approximate positive real weights by positive rational weights.
+The coefficients converge, and the Lorentzian cone is closed. These
+closure and substitution properties follow from
+\cite[Theorems~2.10 and 2.25]{BrandenHuh2020}.
+\end{proof}
+
+\begin{example}[Seventeen unweighted words]
+Start with the six words on four positions having quotas $(2,2)$.
+Distinguish color $1$, and give the color-$2$ assignments weights
+$(2,3,1,1)$. Their completion polynomial is
+\[
+ \begin{aligned}
+ Q_1(\mathbf x;\mathbf w)
+ ={}&x_1x_2+3x_1x_3+3x_1x_4\\
+ &+2x_2x_3+2x_2x_4+6x_3x_4.
+ \end{aligned}
+\]
+Use one color-$1$ position and respectively $2,3,1,1$ color-$2$
+positions in the four expanded sets. Label their private colors
+$3,4,5,6$. The expansion has eleven positions, quotas
+$(2,2,2,3,1,1)$, and seventeen distinct words.
+For instance, target set $\{3,4\}$ has six completions, from the two
+choices for color $2$ in $E_1$ and three choices in $E_2$.
+Its unweighted completion polynomial is exactly the displayed polynomial.
+\end{example}
+
+\section[quadraticCounting]{An equivalent rank-two counting conjecture}
+
+Every nonzero quadratic coordinate derivative of $Q_c$ is again a
+completion polynomial. More precisely, if $|T|=r_c-2$, then
+$\partial_T Q_c$ comes from restricting to words with $u(e)=c$ for
+$e\in T$ and deleting those positions. Such restrictions preserve
+symmetric cycle exchange: pinned positions agree in every pair and
+cannot occur in a disagreement cycle. Derivatives with repeated
+coordinates vanish because $Q_c$ is multiaffine.
+
+The support of $Q_c$ is the basis family of the color projection matroid.
+Consequently the quadratic-derivative characterization of Lorentzian
+polynomials \cite[Theorem~2.25]{BrandenHuh2020} reduces the conjecture to
+distinguished quota two. Degrees zero and one already satisfy the
+definition.
+
+\begin{conjecture}[Rank-two completion counts]
+Let $\mathcal F$ be a binary-list colored matroid with a distinguished
+color $c$ of quota two. For any $S\subseteq E$ and $j=0,1,2$, put
+\[
+ N_j\coloneqq\#\{u\in\mathcal F:|B(u,c)\cap S|=j\}.
+\]
+Then $N_1^2\geq4N_0N_2$.
+\end{conjecture}
+
+\begin{theorem}[Counting equivalence]
+The rank-two counting conjecture is equivalent to the full weighted
+Lorentzian conjecture. It suffices to require the counting inequality
+for bipartite binary-list families with the distinguished color on
+one side and corank-one projections on the other side.
+\end{theorem}
+
+\begin{proof}
+Lorentzianity implies the counting inequality by substituting $x_e=s$
+on $S$ and $x_e=t$ elsewhere. The resulting polynomial is
+$N_2s^2+N_1st+N_0t^2$; its Hessian has at most one positive eigenvalue
+exactly when $N_1^2\geq4N_0N_2$.
+
+Conversely, let $Q_c$ have degree two and positive rational weights.
+Choose positive rational vectors $\mathbf a,\mathbf b$. At position $e$,
+choose an integer $d_e$ so that $d_ea_e$, $d_eb_e$, and all $d_ew_{e,h}$
+are integers. Where $c\in L_e$, use $d_e(a_e+b_e)$ positions designated
+for color $c$, marking $d_ea_e$ of them. For every other allowed color
+$h$, use $d_ew_{e,h}$ positions.
+
+The marked unweighted enumerator of this family is
+\[
+ D\,Q_c(s\mathbf a+t\mathbf b;\mathbf w),
+ \qquad D=\prod_{e\in E}d_e.
+\]
+Write $Q_c(\mathbf x;\mathbf w)=\tfrac12\mathbf x^{\mathsf T}H\mathbf x$.
+The counting inequality gives
+\[
+ (\mathbf a^{\mathsf T}H\mathbf b)^2\geq
+ (\mathbf a^{\mathsf T}H\mathbf a)
+ (\mathbf b^{\mathsf T}H\mathbf b).
+\]
+Continuity extends this to positive real weights and vectors.
+
+We show that $H$ has at most one positive eigenvalue. If it had two,
+fix $\mathbf a>0$. Nonnegativity and nonzeroness give
+$\mathbf a^{\mathsf T}H\mathbf a>0$. A two-dimensional positive
+subspace meets the hyperplane $\mathbf a^{\mathsf T}H\mathbf z=0$
+in a nonzero vector $\mathbf z$ with $\mathbf z^{\mathsf T}H\mathbf z>0$.
+For sufficiently small nonzero $\varepsilon$, the vector
+$\mathbf b=\mathbf a+\varepsilon\mathbf z$ is positive. Then
+\[
+ \begin{aligned}
+ \mathbf a^{\mathsf T}H\mathbf b
+ &=\mathbf a^{\mathsf T}H\mathbf a,\\
+ \mathbf b^{\mathsf T}H\mathbf b
+ &=\mathbf a^{\mathsf T}H\mathbf a
+   +\varepsilon^2\mathbf z^{\mathsf T}H\mathbf z,
+ \end{aligned}
+\]
+contradicting the preceding inequality. Pinning target positions now
+gives the required Hessian condition for all quadratic derivatives in
+higher degree.
+\end{proof}
+
+Thus the remaining counting problem concerns words, including every
+completion of each target pair. Parallel elements in the target
+projection are allowed in the statement.
+
+\section[fixedPalette]{Keeping the palette fixed}
+
+The private-color construction increases the palette. A different
+construction proves a stronger reduction when the number of colors
+is bounded: an ordinary matroid can replace a binary position.
+
+Let $e$ have actual list $\{a,b\}$. Let $N$ be a rank-$r$ ordinary
+matroid on $Z\sqcup\{*\}$, where $*$ is neither a loop nor a coloop,
+and put $n=|Z|$. Replace $e$ by $Z$. Above a word with $u(e)=a$, use
+any basis of $N$ avoiding $*$ as the color-$a$ set in $Z$. Above a
+word with $u(e)=b$, use $B\setminus\{*\}$ for any basis $B$ containing
+$*$. All other positions in $Z$ have color $b$.
+
+\begin{proposition}[Matroid substitution at a binary position]
+The family of all these expansions is a colored matroid on the same
+palette. The quotas of $a$ and $b$ increase by $r-1$ and $n-r$,
+respectively. The old entry is recovered from whether $Z$ contains
+$r$ or $r-1$ entries of color $a$.
+\end{proposition}
+
+\begin{proof}
+Associate each expanded word with its decoded word and its local basis
+of $N$. Suppose a prescribed new disagreement is $a\to b$ at $z\in Z$.
+Symmetric basis exchange through $z$ gives an element $t$ in the other
+local basis for which both exchanged sets are bases.
+
+If $t\in Z$, switching $z,t$ is an $a,b$ two-cycle. Both decoded words
+stay fixed. If $t=*$, the decoded entries at $e$ are $a,b$. Take an
+original exchange through $e$ and replace its arrow by the arrow at
+$z$. The local symmetric basis exchange supplies valid local offspring,
+and the original exchange supplies valid decoded offspring.
+
+For a prescribed disagreement outside $Z$, take an original exchange
+there. If it uses $e$, symmetric basis exchange through $*$ supplies
+a position of $Z$ to replace that arrow. Otherwise the original cycle
+works unchanged. Reversing the parents handles a disagreement $b\to a$.
+\end{proof}
+
+Suppose that neither $a$ nor $b$ is the distinguished color. To realize
+positive integer weights $(s,t)$ at $e$, take $N=U_{t,s+t}$. The two
+numbers of local expansions are
+\[
+ \begin{gathered}
+ \binom{s+t-1}{t}=sC,\\
+ \binom{s+t-1}{t-1}=tC,\\
+ C=\frac{(s+t-1)!}{s!\,t!}>0.
+ \end{gathered}
+\]
+The unweighted completion polynomial after substitution is therefore
+$C$ times the original polynomial with weights $(s,t)$ at $e$.
+Each coefficient counts distinct words on the new positions.
+
+\subsection[quadraticCompatibility]{Pairwise compatibility}
+
+The other ingredient removes positions with more than two colors.
+
+\begin{lemma}[Compatibility of quadratic forms]
+Let $H_1,\dotsc,H_m$ be nonzero symmetric matrices with nonnegative
+entries. Suppose every nonnegative combination of every pair has at
+most one positive eigenvalue. Then every nonnegative combination of
+all the matrices has at most one positive eigenvalue.
+\end{lemma}
+
+\begin{proof}
+Suppose $H=\sum_i\alpha_iH_i$ has two positive eigenvalues, with
+$\alpha_i\geq0$ and $\sum_i\alpha_i=1$. Choose $\mathbf v>0$ and
+$\mathbf y$ with $\mathbf v^{\mathsf T}H\mathbf y=0$ and
+$\mathbf y^{\mathsf T}H\mathbf y>0$, as in the preceding proof.
+
+Over the simplex $\beta_i\geq0$, $\sum_i\beta_i=1$, impose the linear
+constraint $\sum_i\beta_i\mathbf v^{\mathsf T}H_i\mathbf y=0$.
+Maximize $\sum_i\beta_i\mathbf y^{\mathsf T}H_i\mathbf y$.
+This feasible compact polytope has an extreme maximizer with at most
+two nonzero coordinates: three active coordinates would admit a
+nonzero perturbation preserving both linear equalities.
+The maximum is positive since $\boldsymbol\alpha$ is feasible.
+For $K=\sum_i\beta_iH_i$ at this maximizer, we have
+\[
+ \begin{gathered}
+ \mathbf v^{\mathsf T}K\mathbf v>0,\qquad
+ \mathbf v^{\mathsf T}K\mathbf y=0,\\
+ \mathbf y^{\mathsf T}K\mathbf y>0.
+ \end{gathered}
+\]
+Thus $K$ is positive definite on the span of $\mathbf v,\mathbf y$,
+contradicting the pairwise hypothesis.
+\end{proof}
+
+\begin{theorem}[Fixed-palette reduction]
+Fix $k\geq2$. The weighted Lorentzian conjecture for all colored
+matroids with at most $k$ colors is equivalent to unweighted
+Lorentzianity for all binary-list colored matroids with at most $k$
+colors and distinguished quota two.
+\end{theorem}
+
+\begin{proof}
+The forward implication is immediate. For the converse, first restore
+all weights for binary-list families of distinguished quota two.
+At a position allowing two other colors, matroid substitution realizes
+any positive rational weight ratio without changing the target
+variables or palette. A common factor in those two weights contributes
+the same positive scalar to every word.
+At a position with list $\{c,a\}$, extract $w_{e,a}$ and replace
+$x_e$ by $x_e/w_{e,a}$. A forced assignment of a different color
+contributes a scalar. Approximation and closedness handle real weights.
+
+We next remove the binary-list condition by induction on
+$\sum_e\max(|L_e|-2,0)$. At a position allowing at least three colors,
+decompose the quadratic completion polynomial by its entry there.
+Restricting that position to any one or two of its colors gives
+a colored matroid with smaller induction parameter. All nonnegative
+combinations of its two sector polynomials have at most one positive
+Hessian eigenvalue: positive coefficients are implemented by assignment
+weights, or by scaling $x_e$ for the distinguished-color sector;
+zero coefficients follow by limits. The compatibility lemma applies
+to the nonzero sector Hessians and proves the same condition for
+their sum. Its support is already matroidal.
+
+Finally, pinning distinguished-color positions reduces all higher
+degrees to these quadratic families without enlarging the palette.
+\end{proof}
