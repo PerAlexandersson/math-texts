@@ -1,0 +1,334 @@
+\metatitle{Rank functions and flats}
+\metadescription{Joint rank, ordinary matroid ranks in each color,
+conditional flats, common contractions, and best-completion valuations.}
+
+\section[jointRank]{Rank functions and flats}
+
+A color projection records which sets can receive one color. To retain
+the compatibility between colors, we allow a separate set of positions
+for each color and ask how many listed assignments a word can realize.
+Fix a colored matroid $\mathcal F$ on $E$, with $n=|E|$ and quotas
+$r_1,\dotsc,r_k$. We use $B(u,c)=\{e:u_e=c\}$ as in the
+\href{intro.htm#coloredMatroids}{introduction}.
+
+\begin{definition}[Joint rank]
+For sets $S_1,\dotsc,S_k\subseteq E$, the \defin{joint rank} is
+\[
+ \defin{R(S_1,\dotsc,S_k)}\coloneqq
+ \max_{u\in\mathcal F}\sum_{c=1}^k|B(u,c)\cap S_c|.
+\]
+The sets $S_c$ may overlap.
+\end{definition}
+
+With only the color-$c$ argument nonempty, this is the ordinary rank
+of the projection matroid $M_c$. More generally, the joint rank
+determines the entire family:
+\[
+ \begin{gathered}
+ w\in\mathcal F\quad\Longleftrightarrow\\
+ R(B(w,1),\dotsc,B(w,k))=n.
+ \end{gathered}
+\]
+Indeed, the rank counts agreements with $w$, and $n$ agreements force
+equality.
+
+For a \href{independence.htm#independenceAndCircuits}{partial assignment}
+$\tau$, put $T_c=\{e:(e,c)\in\tau\}$ and
+$\rho(\tau)=R(T_1,\dotsc,T_k)$. Then $\rho(\tau)$ is the largest size
+of an independent subset of $\tau$. In particular, $\tau$ is independent
+if and only if $\rho(\tau)=|\tau|$, and a circuit $C$ has rank $|C|-1$.
+
+\subsection[twoColorRank]{Two colors}
+
+When colors $1$ and $0$ record a basis of $M$ and its complement,
+the joint rank has the classical expression
+\[
+ \begin{aligned}
+ R(A,B)={}&|A\cap B|+\operatorname{rk}_M(A\setminus B)\\
+ &+\operatorname{rk}_{M^*}(B\setminus A).
+ \end{aligned}
+\]
+Every position in $A\cap B$ contributes one. On the disjoint sets
+$A\setminus B$ and $B\setminus A$, maximize the independent color-$1$
+and color-$0$ prescriptions. They extend simultaneously by the
+\href{independence.htm#twoColorIndependence}{two-color independence
+criterion}.
+
+\section[matroidRankSlices]{An ordinary rank in each color}
+
+The key fact is that a unit bonus for one color can be optimized within
+the maximizers of an integer score. Recall that
+\href{operations.htm#scoreMaximizers}{score-maximizing words form a
+colored matroid}.
+
+\begin{proposition}[Adding a unit bonus]
+Give every assignment an integer score $a_{e,d}$, and put
+\[
+ a(u)=\sum_{e\in E}a_{e,u_e},\qquad
+ h=\max_{u\in\mathcal F}a(u).
+\]
+Let $M$ be the color-$c$ projection of the maximizing family. Then
+for every $S\subseteq E$,
+\[
+ \begin{gathered}
+ \max_{u\in\mathcal F}\bigl(a(u)+|B(u,c)\cap S|\bigr)\\
+ =h+\operatorname{rk}_M(S).
+ \end{gathered}
+\]
+\end{proposition}
+
+\begin{proof}
+Choose a word $u$ maximizing the combined score, with $a(u)$ largest
+among ties. Suppose $a(u)<h$, and choose $v$ with $a(v)=h$.
+
+Keep $u$ fixed and apply symmetric cycle exchange to $u,v$. The word
+obtained from $v$ now agrees with $u$ on the exchanged positions.
+Repeat with that word. This partitions the original disagreement into
+disjoint cycles, each of which can be switched individually from $u$.
+Their total score gain is $a(v)-a(u)>0$, so one has integer gain at
+least one.
+
+That cycle replaces at most one position of color $c$, losing at most
+one unit of bonus. The combined score therefore does not decrease,
+while $a(u)$ increases, contradicting the choice of $u$.
+Thus an optimum lies among the words with $a(u)=h$, where the largest
+bonus is $\operatorname{rk}_M(S)$.
+\end{proof}
+
+Now fix all arguments of $R$ except the color-$c$ argument, and write
+\[
+ R_c(S)=R(S_1,\dotsc,S_{c-1},S,S_{c+1},\dotsc,S_k).
+\]
+
+\begin{theorem}[Matroid rank slices]
+There is an ordinary rank-$r_c$ matroid $M$ on $E$ such that
+\[
+ R_c(S)-R_c(\varnothing)=\operatorname{rk}_M(S).
+\]
+It is the color-$c$ projection of the words maximizing
+$\sum_{d\ne c}|B(u,d)\cap S_d|$.
+\end{theorem}
+
+\begin{proof}
+Apply the unit-bonus proposition to that integer score, whose maximum
+is $R_c(\varnothing)$.
+\end{proof}
+
+In particular, $R$ is submodular in each argument separately. In a
+fixed context, its ordinary matroid \defin{closure} is
+\[
+ \operatorname{cl}(S)=
+ \{e\in E:R_c(S\cup\{e\})=R_c(S)\}.
+\]
+A \defin{flat} is a set $X$ with $\operatorname{cl}(X)=X$.
+The flats form the usual geometric lattice $\mathcal L(M)$, with
+intersection as meet and $\operatorname{cl}(X\cup Y)$ as join
+\cite{Oxley2011}. Empty sets in the other color arguments recover
+the flats of the original projection $M_c$.
+
+\subsection[jointSubmodularity]{Joint submodularity fails}
+
+Separate submodularity does not extend to assignments of several colors.
+Take $\mathcal F=\{\mathtt{123},\mathtt{231}\}$ and the partial assignments
+\[
+ \begin{aligned}
+ A&=\{(1,1),(3,1)\},\\
+ B&=\{(2,2),(3,1)\}.
+ \end{aligned}
+\]
+The two words differ on one three-color cycle, so this is a colored
+matroid. We have
+\[
+ \begin{gathered}
+ \rho(A)=\rho(B)=\rho(A\cap B)=1,\\
+ \rho(A\cup B)=2.
+ \end{gathered}
+\]
+Thus joint submodularity fails even when the combined prescriptions
+have no conflicting colors at a position. On subsets of the prescribed
+word $\mathtt{121}$, the maximal independent sets are $\{1,2\}$ and
+$\{3\}$. The zero-rank-increment rule sends $\{3\}$ to all three
+positions but sends $\{1,3\}$ to itself, so it is not a monotone closure.
+
+\section[conditionalRankFlats]{Pinning and conditional flats}
+
+Let $\tau$ be an independent partial assignment, put
+$T_d=\{e:(e,d)\in\tau\}$, and let $U$ be the unpinned positions.
+Write $M_c^\tau$ for the color-$c$ projection after pinning $\tau$
+and deleting its positions. Its rank is $r_c-|T_c|$.
+
+\begin{theorem}[Conditional ranks]
+For every $S\subseteq U$,
+\[
+ \begin{gathered}
+ \operatorname{rk}_{M_c^\tau}(S)\\
+ =R(T_1,\dotsc,T_c\cup S,\dotsc,T_k)-|\tau|.
+ \end{gathered}
+\]
+\end{theorem}
+
+\begin{proof}
+First pin only the other colors. These words maximize the score
+$\sum_{d\ne c}|B(u,d)\cap T_d|$, with maximum $|\tau|-|T_c|$.
+The slice theorem gives their color-$c$ projection rank after
+subtracting this maximum from $R$.
+
+In that projection, $T_c$ is independent because $\tau$ extends to
+a word. Pinning color $c$ on $T_c$ contracts it, subtracting $|T_c|$
+from the rank on $T_c\cup S$. The other pinned positions are loops
+of the projection and can be removed.
+\end{proof}
+
+Thus the joint rank also determines all conditional flats. If $I$ is
+independent in $M_c^\tau$, pinning color $c$ on $I$ gives
+\[
+ M_c^{\tau\cup(I\times\{c\})}=M_c^\tau/I.
+\]
+Its flats correspond to the flats of $M_c^\tau$ containing
+$\operatorname{cl}_{M_c^\tau}(I)$: the usual contraction interval in
+the lattice of flats. Mixed circuits become
+\href{independence.htm#conditionalCircuits}{ordinary circuits after
+the other colors are pinned}.
+
+\section[branchQuotients]{Color branches and a common contraction}
+
+With two colors, pinning a position gives ordinary deletion or
+contraction in its color projection. With more colors, the deletion
+side splits into several branches sharing one contraction.
+
+Fix a position $e$ allowing color $c$ and at least one other color.
+On $U=E\setminus\{e\}$, put
+\[
+ \begin{aligned}
+ K&=M_c(\mathcal F/(e,c)),\\
+ N_a&=M_c(\mathcal F/(e,a))\qquad(a\ne c),
+ \end{aligned}
+\]
+using only nonempty \href{operations.htm#deletionAndContraction}{minors}.
+The ranks are $r_c-1$ and $r_c$, respectively.
+
+\begin{theorem}[Common contraction]
+Let $D$ be a nonempty set of other colors possible at $e$. The union
+\[
+ \mathcal B(N_D)=\bigcup_{a\in D}\mathcal B(N_a)
+\]
+is the basis family of an ordinary matroid $N_D$. There is a matroid
+$Q_D$ on $E$, with $e$ neither a loop nor a coloop, such that
+\[
+ Q_D\setminus e=N_D,\qquad Q_D/e=K.
+\]
+Thus $K$ is an \defin{elementary quotient} of every $N_D$.
+\end{theorem}
+
+\begin{proof}
+Restrict the color at $e$ to $\{c\}\cup D$ and take the color-$c$
+projection, calling it $Q_D$. Its bases avoiding $e$ are exactly the
+displayed union. Its bases containing $e$, with $e$ removed, are
+the bases of $K$. Both kinds occur by hypothesis.
+\end{proof}
+
+For every $S\subseteq U$, ordinary deletion and contraction give
+\[
+ \begin{gathered}
+ \operatorname{rk}_{N_D}(S)=\max_{a\in D}\operatorname{rk}_{N_a}(S),\\
+ \operatorname{rk}_K(S)\leq\operatorname{rk}_{N_D}(S)
+ \leq\operatorname{rk}_K(S)+1.
+ \end{gathered}
+\]
+Their closures satisfy $\operatorname{cl}_{N_D}(S)\subseteq
+\operatorname{cl}_K(S)$, so
+\[
+ \mathcal L(K)\subseteq\mathcal L(N_D).
+\]
+This inclusion preserves intersections. The map
+$X\mapsto\operatorname{cl}_K(X)$ is a surjection in the other
+direction and preserves joins. These statements follow from the
+closure formulas in $Q_D$: deletion uses $S$, while contraction uses
+$S\cup\{e\}$. In particular, every $K$-flat is an $N_D$-flat, and
+closing a union in $K$ computes the image of a join.
+
+\begin{example}[The seven-word family]
+Use the \href{independence.htm#mixedCircuits}{seven-word family} and
+distinguish color $1$. Branch at position $1$, leaving
+$U=\{2,3,4\}$. The remaining color-$1$ bases are
+\[
+ \begin{array}{c|c}
+ u_1&\text{bases on }U\\ \hline
+ 1&\{2\},\{3\},\{4\}\\
+ 2&\{2,3\},\{3,4\}\\
+ 3&\{2,4\},\{3,4\}
+ \end{array}
+\]
+The common contraction is $K=U_{1,3}$, while the union of the other
+two basis families is $U_{2,3}$. In the color-$2$ branch, $3$ is a
+coloop and $2,4$ are parallel; in the color-$3$ branch, $4$ is a
+coloop and $2,3$ are parallel. Thus
+\[
+ \begin{aligned}
+ \mathcal L(N_2)&=\{\varnothing,\{3\},\{2,4\},U\},\\
+ \mathcal L(N_3)&=\{\varnothing,\{4\},\{2,3\},U\},\\
+ \mathcal L(K)&=\{\varnothing,U\}.
+ \end{aligned}
+\]
+The branch flats differ, while the flats of $K$ occur in both.
+\end{example}
+
+\section[valuatedCompletions]{Best completion scores}
+
+Fix a color $c$ and real scores $a_{e,d}$ for $d\ne c$.
+For a basis $B$ of $M_c$, define its \defin{best completion score}
+\[
+ \nu(B)\coloneqq
+ \max_{\substack{u\in\mathcal F\\B(u,c)=B}}
+ \sum_{e:u_e\ne c}a_{e,u_e}.
+\]
+Set $\nu(B)=-\infty$ on $r_c$-subsets with no completion.
+
+\begin{theorem}[Valuated color projections]
+The function $\nu$ is a \defin{valuated matroid} in the maximum
+convention: for bases $B,C$ and $e\in B\setminus C$, some
+$f\in C\setminus B$ satisfies
+\[
+ \begin{gathered}
+ \nu(B)+\nu(C)\\
+ \leq\nu(B-e+f)+\nu(C-f+e).
+ \end{gathered}
+\]
+\end{theorem}
+
+\begin{proof}
+Choose best completions of $B,C$ and apply symmetric cycle exchange
+through $e$. The cycle returns to color $c$ at a unique position
+$f\in C\setminus B$. Its two resulting words have color-$c$ sets
+$B-e+f$ and $C-f+e$. The total score is preserved, since each
+position retains the same pair of entries across the two words.
+Their scores are at most the best completion scores of their new
+color classes, giving the inequality.
+\end{proof}
+
+Adding scores $b_e$ for color $c$, the bases maximizing
+$\nu(B)+\sum_{e\in B}b_e$ form an ordinary matroid: project the
+words maximizing the complete assignment score. These are the
+\defin{initial matroids} of the valuation. For valuated-matroid
+background, see D.~Speyer,
+\href{https://arxiv.org/html/math/0410455v1}{\emph{Tropical Linear
+Spaces}, Section 2}, using $-\nu$ to pass to the minimum convention.
+
+For two colors, completions are unique and
+$\nu(B)=\sum_{e\notin B}a_{e,d}$ for the other color $d$.
+With more colors, the valuation can contain more information than
+additive element weights. For example, take all words on four
+positions with quotas $(2,1,1)$. Give score one to color $2$ at
+positions $3,4$ and zero to all other assignments outside color $1$.
+Then $\nu(\{3,4\})=0$ and every other color-$1$ basis has score one.
+The three complementary pair sums are $1,2,2$, whereas additive
+element weights would make them equal.
+
+These best scores concern maxima over completions. The
+\href{rank.htm#lorentzianConjecture}{completion-polynomial conjecture}
+concerns sums over those completions and remains open.
+
+\begin{question}[Rank axioms]
+Which additional relations between color arguments characterize
+the joint rank functions of colored matroids?
+\end{question}
