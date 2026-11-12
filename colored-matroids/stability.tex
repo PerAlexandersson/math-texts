@@ -1,0 +1,204 @@
+\metatitle{Simple vertices, stability and matching polynomials}
+\metadescription{One simple assignment vertex gives stable weighted completion
+polynomials, a matching representation, and real-rooted counting polynomials.}
+
+\section[simpleVertexStability]{From one simple vertex to real stability}
+
+The geometry of one assignment vertex can control every weighted color
+completion. The resulting representation connects colored matroids with
+bipartite matchings and the classical real-rootedness of rook polynomials.
+
+Let $\mathcal F$ be a colored matroid on $E$, fix a target color $c$, and
+give every hidden cell $(e,a)$, $a\ne c$, a positive weight $w_{e,a}$.
+Write
+\[
+ \defin{\omega(u)}\coloneqq\prod_{e:u_e\ne c}w_{e,u_e},\qquad
+ Q_c(\mathbf x;\mathbf w)
+ =\sum_{u\in\mathcal F}\omega(u)\prod_{e\in B(u,c)}x_e.
+\]
+This is the \href{rank.htm#completionPolynomials}{weighted completion
+polynomial}. For a set $T\subseteq E$ of size $r_c$, let $q_T$ denote
+the coefficient of $\prod_{e\in T}x_e$ in $Q_c$.
+
+Recall that a nonzero real polynomial is
+\href{series-parallel.htm#seriesParallelLift}{real stable} if it does
+not vanish when every variable has positive imaginary part.
+
+\begin{definition}[Relatively simple vertex]
+A vertex of a polytope of affine dimension $d$ is
+\defin{relatively simple} if exactly $d$ edges contain it.
+We call $u\in\mathcal F$ a \defin{simple root} when its assignment vector
+is relatively simple in $P(\mathcal F)$.
+\end{definition}
+
+The dimension is relative to the affine hull, not the full space of cells.
+The \href{polytope.htm#polytopeEdges}{cycle-edge theorem} identifies the
+incident edges with the feasible cyclic exchanges at $u$.
+
+\begin{theorem}[Simple-vertex stability and matching representation]
+Suppose that $\mathcal F$ has a simple root $u$. Put
+$B=B(u,c)$ and $A=E\setminus B$. Then $q_B>0$, and
+\[
+ \begin{gathered}
+ \defin{W_{ba}}\coloneqq\frac{q_{(B\setminus\{b\})\cup\{a\}}}{q_B}
+ \qquad(b\in B,\ a\in A),\\
+ Q_c(\mathbf x;\mathbf w)
+ =q_B\sum_M\left(\prod_{(b,a)\in M}W_{ba}\right)
+       \prod_{e\in(B\setminus B(M))\cup A(M)}x_e.
+ \end{gathered}
+\]
+Here $M$ ranges over bipartite matchings between $B$ and $A$, and
+$B(M),A(M)$ are their endpoint sets. An entry $W_{ba}$ is zero if that
+single replacement has no completion. In particular, $Q_c$ is real stable.
+\end{theorem}
+
+\begin{proof}[Sketch]
+At a simple root the incident cycle directions are linearly independent.
+Root coordinates express each word uniquely as a position-disjoint
+selection of feasible root exchanges. The exchanges touching the target
+color remove one position from $B$ and add one from $A$; their compatible
+selections form bipartite matchings.
+
+The remaining exchanges use hidden colors only. Their connected conflict
+components have clique boundaries among the target exchanges. Thus a
+matching meets each such boundary at most once. Summing the hidden
+choices component by component gives a positive common factor and a
+nonnegative activity for each target edge. The empty matching has
+coefficient $q_B$, and the one-edge matchings give the displayed ratios.
+
+To see stability from the representation, introduce a hidden color $h_a$
+of quota one for each $a\in A$. At $b\in B$, allow $c$ and the colors
+$h_a$ with $W_{ba}>0$, giving the latter weight $W_{ba}$. At $a\in A$,
+allow only $c,h_a$, with hidden weight one. Give $c$ quota $|B|$.
+These assignments are in weight-preserving bijection with the matchings:
+$h_a$ moves from $a$ to $b$ precisely when $(b,a)\in M$.
+The \href{series-parallel.htm#listStability}{allowed-list stability
+proposition} proves stability of this completion polynomial. Multiplying
+by $q_B>0$ proves the claim.
+\end{proof}
+
+\begin{remark}[Formalization status]
+% Related Lean: ColoredMatroids/SimpleVertex/Stability.lean,
+% marginal_isStable_ne_zero_of_simple and marginal_eq_matching_fullList.
+E.~Barkeling reports a Lean formalization of the simple-vertex
+criterion and matching representation. The supplied exposition marks its
+statement review against the formalization as pending. The corollaries
+below are paper deductions; no formalization of those deductions is
+asserted here.
+\end{remark}
+
+Consequently the weighted completion polynomial is Lorentzian
+\cite[Proposition~2.2]{BrandenHuh2020}. This proves the
+\href{rank.htm#lorentzianConjecture}{completion-polynomial conjecture}
+for families with one simple assignment vertex, with no bound on the
+number of colors or their quotas. For nonnegative hidden weights, the
+same conclusions follow by limits whenever the polynomial is nonzero.
+
+\section[stableIntersectionCounts]{Real-rooted intersection counts}
+
+Fix $S\subseteq E$. We count how many target positions lie in $S$, rather
+than only which target sets occur.
+
+\begin{corollary}[Intersection-count polynomials]
+Under the simple-root hypothesis and positive hidden weights, the polynomial
+\[
+ \defin{F_S(t)}\coloneqq
+ \sum_{v\in\mathcal F}\omega(v)t^{|B(v,c)\cap S|}
+\]
+is nonzero and has only real nonpositive zeros.
+\end{corollary}
+
+\begin{proof}
+Set $x_e=t$ for $e\in S$ and $x_e=1$ otherwise. Specialization at a real
+constant and identification of variables preserve stability or give zero.
+Positive weights exclude zero. A real univariate stable polynomial has
+only real zeros, and nonnegative coefficients exclude positive zeros.
+\end{proof}
+
+In particular, if $d=\deg F_S$, its coefficients are ultra-log-concave
+of order $d$ with no internal zeros, by Newton's inequalities.
+After normalization, $F_S(t)/F_S(1)$ is a product of factors
+$1-p+pt$, $0\leq p\leq1$. Thus the intersection count has the same
+distribution as a sum of independent Bernoulli variables; the individual
+target-position indicators need not be independent.
+
+For the complement $A$ of the root target set, the representation gives
+\[
+ F_A(t)=q_B\sum_M\left(\prod_{(b,a)\in M}W_{ba}\right)t^{|M|}.
+\]
+The number of target positions moved away from the root is therefore
+enumerated by a weighted matching polynomial.
+
+\section[rookPolynomialCorollary]{The classical matching and rook corollary}
+
+We can also go in the other direction: start with a bipartite graph and
+recover its matching polynomial from a simple assignment vertex.
+
+Let $G$ have parts $L,R$, with a nonnegative edge weight $a_{\ell r}$.
+Define its \defin{matching generating polynomial} by
+\[
+ \defin{R_G(t)}\coloneqq
+ \sum_{M\text{ matching in }G}
+       \left(\prod_{\ell r\in M}a_{\ell r}\right)t^{|M|}.
+\]
+This is the size-generating convention, rather than the alternating
+matching-defect polynomial.
+
+\begin{corollary}[Weighted bipartite matching polynomials]
+Every zero of $R_G$ is real and strictly negative.
+\end{corollary}
+
+\begin{proof}
+First take positive weights. Use the
+\href{stable-sets.htm#matchingPolytopes}{bipartite matching construction}
+with positions $L\sqcup R$, target color $c$ of quota $|L|$, and a hidden
+color $h_r$ of quota one for every $r\in R$. At $\ell\in L$, allow $c$
+and the colors $h_r$ of its neighbors; at $r\in R$, allow $c,h_r$.
+Give cell $(\ell,h_r)$ weight $a_{\ell r}$ and $(r,h_r)$ weight one.
+
+The root word has target color on all of $L$ and color $h_r$ at $r$.
+It corresponds to the empty matching. In edge coordinates the matching
+polytope has full dimension $|E(G)|$, since it contains zero and every
+single-edge indicator. Its tangent cone at zero is the nonnegative
+orthant: all its points have nonnegative coordinates, and every
+coordinate ray occurs. Thus zero has exactly $|E(G)|$ incident edges
+and is simple. The affine matching construction transfers this property
+to the assignment root.
+
+For the word corresponding to $M$, the target class is
+\[
+ (L\setminus L(M))\cup R(M),
+\]
+and its hidden weight is $\prod_{\ell r\in M}a_{\ell r}$.
+Set $x_\ell=1$ for $\ell\in L$ and $x_r=t$ for $r\in R$.
+The intersection-count corollary gives real nonpositive zeros of $R_G$.
+Its constant term is one, so zero is not a root. Edges of weight zero
+can be deleted, proving the nonnegative case.
+\end{proof}
+
+A board is a bipartite graph whose two vertex classes are its rows and
+columns, with one edge for each allowed square. Matchings are precisely
+nonattacking rook placements, so the corollary recovers real-rootedness
+of weighted rook polynomials; see A.~Nijenhuis \cite{Nijenhuis1976}.
+
+\begin{example}[The two-by-two board]
+For the full two-by-two board with all weights one, there is one empty
+placement, four one-rook placements and two two-rook placements. Hence
+\[
+ R_{K_{2,2}}(t)=1+4t+2t^2,
+\]
+whose zeros are $-1\pm1/\sqrt2$.
+Its matching polytope has dimension four and a simple empty-matching
+vertex, although it has no permutation-matroid realization by the
+\href{stable-sets.htm#evenHoleObstruction}{even-hole obstruction}.
+Repeated color quotas are essential to this realization.
+\end{example}
+
+\begin{remark}[Relation to the classical theorem]
+This recovers the bipartite case of the classical matching theorem,
+not the arbitrary-graph Heilmann--Lieb theorem. The proof of the
+simple-vertex criterion already uses allowed-list stability, which
+also proves this matching specialization directly. The geometric
+criterion explains a common structure; it is not an independent new
+proof of the classical result.
+\end{remark}
