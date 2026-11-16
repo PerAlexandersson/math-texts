@@ -79,3 +79,113 @@ graph independence, and bipartite matching polytopes.
 finite relations as projections of permutation-matroid simplices, and
 unbounded integer coefficients in three retained columns.
 \end{enumerate}
+
+\section[mainProblems]{Main problems}
+
+We collect seven open problems below. Each heading has a permanent link;
+the chapter links give definitions and established constructions.
+
+\subsection[problem1]{1. Lorentzian color projections}
+
+Let $\mathcal F$ be a colored matroid on positions $E$, fix a color $c$,
+and put $B(u,c)=\{e:u(e)=c\}$. For positive cell weights $w_{e,d}$, consider
+\[
+ \begin{gathered}
+ Q_{\mathcal F,c}(\mathbf x;\mathbf w)\\
+ =\sum_{u\in\mathcal F}
+   \left(\prod_{e:u(e)\ne c}w_{e,u(e)}\right)
+   \prod_{e\in B(u,c)}x_e.
+ \end{gathered}
+\]
+Is this polynomial Lorentzian for every choice of the weights?
+Each full word contributes separately, so the coefficients retain all
+hidden completions. The target quota-two case asks that the corresponding
+quadratic Hessian have at most one positive eigenvalue.
+See \href{rank.htm#lorentzianConjecture}{completion polynomials} and
+\href{reductions.htm}{the reductions}.
+
+\subsection[problem2]{2. Realizing $P$-Eulerian polynomials}
+
+For a naturally labeled poset $P$, write
+$W_P(t)=\sum_{\pi\in\mathcal L(P)}t^{\operatorname{des}(\pi)}$, where
+$\mathcal L(P)$ is its set of linear extensions. Which posets admit a
+colored matroid $\mathcal F$, a color $c$, marked positions $S$, and a
+bijection $\pi\mapsto u_\pi$ onto $\mathcal F$ such that
+\[
+ \operatorname{des}(\pi)=|B(u_\pi,c)\cap S|?
+\]
+More generally, can we use a word family whose selected-color projection
+is Lorentzian at every positive hidden cell weighting, which we call the
+selected-color PIL property? Determine the attainable target quota and
+preserve the full coefficients under the specialization $x_e=t$ on $S$
+and $x_e=1$ elsewhere. The
+\href{series-parallel.htm#seriesParallelLift}{series-parallel construction}
+and \href{log-concavity.htm}{width-three models} provide starting cases.
+
+\subsection[problem3]{3. Describing assignment polytopes}
+
+Does every colored-matroid assignment polytope have a complete description
+by affine equations and inequalities with coefficients in $\{-1,0,1\}$?
+The coordinates are the original position--color cells, and a complete
+description must include the affine hull as well as the relative facets.
+See \href{polytope.htm#generalPolytopeDescription}{the coefficient question};
+\href{projections.htm}{retaining only some color columns} gives a different
+problem, for which integer coefficient sizes are unbounded.
+
+\subsection[problem4]{4. Equivalence of the exchange axioms}
+
+Suppose a fixed-quota word family satisfies prescribed one-sided cycle
+exchange: for every two words and every prescribed disagreement position,
+some simple color cycle through that position gives a feasible first
+offspring. Must it satisfy symmetric cycle exchange, with a choice of cycle
+for which both offspring are feasible?
+See \href{intro.htm#cyclicExchange}{the two exchange axioms} and the related
+\href{polytope.htm#generalPolytopeDescription}{cycle-edge characterization}.
+
+\subsection[problem5]{5. Intrinsic rank axioms}
+
+For a colored matroid with colors $1,\dotsc,m$ and sets $X_c\subseteq E$,
+its joint rank is
+\[
+ \begin{gathered}
+ R(X_1,\dotsc,X_m)\\
+ =\max_{u\in\mathcal F}\sum_{c=1}^m|B(u,c)\cap X_c|.
+ \end{gathered}
+\]
+Which intrinsic axioms characterize the functions arising this way?
+In particular, which compatibility relations between different color
+arguments supplement the ordinary matroid rank properties of the individual
+slices? See \href{rank-flats.htm#jointRank}{joint rank} and the
+\href{rank-flats.htm#valuatedCompletions}{rank-axiom question}.
+
+\subsection[problem6]{6. Multiple symmetric exchange}
+
+Take two words $u,v$ of a colored matroid, a color $c$, and a prescribed
+subset $I\subseteq B(u,c)\setminus B(v,c)$. Must there be a set
+$J\subseteq B(v,c)\setminus B(u,c)$ with $|J|=|I|$ and two feasible words
+$u',v'$ such that
+\[
+ \begin{gathered}
+ B(u',c)=(B(u,c)\setminus I)\cup J,\\
+ B(v',c)=(B(v,c)\setminus J)\cup I,
+ \end{gathered}
+\]
+and the unordered pair of letters at each position is unchanged?
+The requirement concerns compatible full words, beyond multiple basis
+exchange in the projection matroid. A first case to address has four
+positions in $B(u,c)\setminus B(v,c)$ and two in $I$.
+See \href{exchange-graphs.htm}{cycle exchanges} and
+\href{rank-flats.htm#valuatedCompletions}{best completion scores}.
+
+\subsection[problem7]{7. Bruhat intervals and cycle closure}
+
+Let $[u,v]$ be an interval in the strong Bruhat order on permutations.
+Its support board consists of the cells $(i,\sigma(i))$ occurring in at
+least one $\sigma\in[u,v]$. Write $\mathcal R$ for all permutations
+supported on this board. Is $[u,v]$ a colored matroid exactly when
+$[u,v]=\mathcal R$? More strongly, does its closure under individual
+relative-cycle exchanges always equal $\mathcal R$?
+A related recognition problem asks which boards occur as supports of
+Bruhat intervals. See
+\href{permutations.htm#relativeCycles}{relative-cycle closure} for the
+quota-one exchange condition.
