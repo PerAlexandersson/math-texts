@@ -320,3 +320,102 @@ varying one row independently would change the quotas. Thus a nontrivial
 fixed-quota family cannot have a Lorentzian full cell polynomial.
 The completion-polynomial conjecture instead fixes the hidden cell
 weights and retains the positions of one selected color.
+
+\subsection[jointColorPositions]{Which colors can we retain together?}
+
+Let $\mathcal F$ be a nonempty word family with fixed color quotas.
+For a set $T$ of colors, keep the variable of every cell whose color lies
+in $T$. Give every other cell its own positive weight. We ask when the
+resulting position polynomial is Lorentzian for every choice of weights.
+
+Partition the rows into the finest factors on which words can be chosen
+independently. For a colored matroid these are the
+\href{exchange-graphs.htm#components}{components of the exchange graph
+on positions}. A color occurs in a factor if some word uses it there.
+
+\begin{theorem}[Simultaneous color projections]
+The joint position polynomial for $T$ is Lorentzian at every positive
+hidden weighting if and only if both of the following conditions hold.
+\begin{itemize}
+\item Each color in $T$ has a Lorentzian position polynomial on its own
+at every positive hidden weighting.
+\item Each row factor contains at most one color from $T$.
+\end{itemize}
+The same equivalence holds for real stability.
+\end{theorem}
+
+\begin{proof}
+Write $P=P_{\mathcal F}$ for the full cell polynomial. Its irreducible
+factors over the rationals give exactly the row factors. Indeed, the
+least and greatest degrees in each row add under multiplication. Since
+$P$ has degree exactly one in each row, that row belongs to just one
+irreducible factor. The supports on disjoint rows multiply freely.
+Conversely, independent choices on row sets give a product of their
+word polynomials, since each word has coefficient one.
+
+Suppose the joint projection has the stated property. Its degrees in
+the retained color blocks are fixed. Block factorization therefore gives
+\[
+ P P_{xy}=P_xP_y
+\]
+for cells $x,y$ of distinct retained colors, at every positive hidden
+weighting. Subscripts denote partial derivatives. This identity holds
+in the full polynomial ring since the hidden weights vary independently
+over an open set. If an irreducible factor $p$ used both cells, the other
+factors would use neither. Cancellation gives $p p_{xy}=p_xp_y$.
+But $p$ is prime and both nonzero derivatives have smaller total degree.
+This proves the second condition. Evaluating the other retained color
+factors at positive weights leaves a positive multiple of the remaining
+color factor, which proves the first.
+
+Conversely, consider a row factor containing a retained color $c$.
+It has a fixed $c$-quota because the row factors recombine freely.
+In the global one-color projection for $c$, differentiate by a supported
+monomial from each of the other row factors. Their fixed degrees leave a
+positive scalar times the projection on the chosen factor. Derivatives
+preserve the stated property. Taking the product over all row factors
+now gives the joint projection. This argument applies to both properties.
+\end{proof}
+
+\begin{corollary}[Permutation colored matroids]
+When each color occurs once, draw the bipartite graph of occurring
+row--color cells. A set of colors has a Lorentzian joint position
+polynomial for every positive hidden weighting exactly when its colors
+lie in distinct connected components. The same sets give real-stable
+joint polynomials. In particular, the largest such set has one color
+per component.
+\end{corollary}
+
+\begin{proof}
+Each individual projection is a positive linear form on the possible
+rows of its color. These rows are the nonloops of a rank-one matroid,
+so they form one matroid component. Joining them for every color gives
+exactly the row partition of the bipartite graph. By the
+\href{exchange-graphs.htm#components}{component decomposition}, this
+is the partition into row factors. The theorem applies.
+\end{proof}
+
+In particular, if a Bruhat interval consists of all perfect matchings
+on its occurring board, we can read off its jointly retainable colors
+from that board. Indeed, exchanging a relative cycle between two
+perfect matchings gives two more perfect matchings on the same board.
+
+\begin{example}[Disjoint menus can still interact]
+Take all permutations $u$ on four rows with $|u(i)-i|\leq1$. Switching
+a relative cycle preserves the board, so this family satisfies symmetric
+cycle exchange. Color $1$ can use rows $1,2$, and color $4$ can use rows
+$4,3$. In those orders, their joint coefficient matrix at unit weights is
+\[
+ \begin{pmatrix}2&1\\1&1\end{pmatrix}.
+\]
+When both colors stay home, rows $2$ and $3$ may either stay home or
+exchange places. Each other pair of choices has a unique completion.
+The determinant is one. A Lorentzian polynomial of bidegree $(1,1)$
+would factor into two linear forms and have coefficient matrix of rank
+one. Here the hidden colors couple the two visible choices.
+\end{example}
+
+\begin{remark}[Proof status]
+The joint-color criterion and its permutation corollary have written
+proofs. Independent review and formalization are pending.
+\end{remark}
