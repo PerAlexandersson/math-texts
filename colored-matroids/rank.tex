@@ -1,6 +1,6 @@
 \metatitle{M-convexity and completion polynomials}
 \metadescription{The general M-convexity theorem for one-color count vectors,
-completion polynomials, and their Lorentzian conjecture.}
+completion polynomials, their Lorentzian conjecture, and block factorization.}
 
 \section[rank]{M-convexity and completion polynomials}
 
@@ -196,3 +196,127 @@ Thus the conjecture strengthens the integer-interval statement to
 ultra-log-concavity. The \href{log-concavity.htm}{width-three poset chapter}
 proves Lorentzianity for the complement of two disjoint matroid bases and
 applies it to descent counts.
+
+\section[blockFactorization]{Fixed block degrees force factorization}
+
+We record an observation about Lorentzian polynomials that is useful when
+choosing a refinement of a completion polynomial. Fixed degrees in separate
+blocks of variables leave no room for interaction between those blocks.
+
+Partition the variables into disjoint blocks $X_1,\dotsc,X_m$. We say that
+$f$ has \defin{fixed block degrees} $(d_1,\dotsc,d_m)$ if every monomial
+of $f$ has total degree $d_a$ in the variables of $X_a$, for every $a$.
+
+\begin{theorem}[Block factorization]
+Let $f\ne0$ be Lorentzian with fixed block degrees $(d_1,\dotsc,d_m)$.
+Then
+\[
+ f=C\prod_{a=1}^m f_a(X_a),\qquad C>0,
+\]
+where each $f_a$ is a nonzero Lorentzian polynomial of degree $d_a$.
+The factors are unique up to positive scalar multiples. Conversely, every
+such product is Lorentzian. Degree-zero blocks contribute constants.
+\end{theorem}
+
+\begin{proof}
+We first show that the support is a product, then factor the coefficients.
+Let $\mathcal S$ be the exponent support and $\mathcal S_a$ its projection
+to block $X_a$. An M-convex exchange from a surplus coordinate in $X_a$
+must end in $X_a$, since an exchange between blocks would change their
+fixed degrees. Repeated exchanges can therefore replace one block of a
+supported vector by the same block of any other supported vector, keeping
+all other blocks fixed. Consequently
+\[
+ \mathcal S=\mathcal S_1\times\dotsb\times\mathcal S_m.
+\]
+Each $\mathcal S_a$ is M-convex, and its graph of unit exchanges is connected.
+
+Write the coefficients in factorial-normalized form,
+\[
+ f=\sum_{\alpha\in\mathcal S}a_\alpha\frac{x^\alpha}{\alpha!},
+ \qquad a_\alpha>0.
+\]
+Choose adjacent vectors $p,p'$ in one projected support and $q,q'$ in
+another, and fix the remaining blocks at a supported tuple $\eta$.
+Differentiate by the coordinatewise minima of the adjacent pairs in
+these two blocks, and by $\eta$ elsewhere. The derivative has bidegree
+$(1,1)$ and hence Hessian
+\[
+ \begin{pmatrix}0&M\\M^{\mathsf T}&0\end{pmatrix}.
+\]
+This matrix has one positive eigenvalue for each nonzero singular value
+of $M$. Lorentzianity therefore forces $\operatorname{rank}M\leq1$.
+The four chosen terms give the identity
+\[
+ a_{p,q,\eta}a_{p',q',\eta}
+ =a_{p',q,\eta}a_{p,q',\eta}.
+\]
+The entries are precisely the normalized coefficients: each surviving
+term has exponent one in each of the two remaining blocks.
+
+Thus a coefficient ratio along an exchange edge in one block is
+independent of the other blocks. Following paths in their connected
+exchange graphs gives
+\[
+ a_\alpha=C\prod_a h_a(\alpha|_{X_a})
+\]
+for positive functions $h_a$. Since $\alpha!$ also factors by blocks,
+this proves the asserted polynomial factorization and its uniqueness.
+Differentiating by a supported monomial in every other block leaves a
+positive multiple of $f_a$, so each factor is Lorentzian. The converse
+is closure under products. We use the support and derivative criteria
+and product closure from \cite{BrandenHuh2020}.
+\end{proof}
+
+\begin{remark}[Proof status]
+The argument above is a written proof. Independent review and formal
+verification have not yet been completed.
+\end{remark}
+
+\subsection[stableBlockFactorization]{Stable polynomials}
+
+A nonzero polynomial with complex coefficients is \defin{stable} if it
+does not vanish when all variables have positive imaginary part. It is
+\defin{real stable} when its coefficients are real.
+
+\begin{corollary}[Stable block factorization]
+If $f$ is stable with fixed block degrees, then
+\[
+ f=c\prod_a f_a(X_a),\qquad c\in\mathbb C\setminus\{0\},
+\]
+where the $f_a$ are real stable with nonnegative coefficients and have
+the prescribed block degrees. In particular, the block-factorization
+theorem applies to real-stable polynomials with fixed block degrees
+after a possible overall change of sign.
+\end{corollary}
+
+\begin{proof}
+Fixed block degrees imply homogeneity. The same-phase theorem of
+Y.-B.~Choe, J.~Oxley, A.~Sokal and D.~Wagner
+\cite[Theorem~6.1]{ChoeOxleySokalWagner2004} permits multiplication by
+a nonzero scalar so that all coefficients are nonnegative. Their theorem
+uses the right half-plane; rotating every variable by $i$ gives the
+upper-half-plane convention, with only an overall scalar for a homogeneous
+polynomial. The resulting polynomial is Lorentzian
+\cite[Proposition~2.2]{BrandenHuh2020}, so the theorem gives its factors.
+Each factor must be stable: a zero with all its variables in the upper
+half-plane would give such a zero of the product.
+\end{proof}
+
+\subsection[cellVariableBoundary]{Why we project the cell variables}
+
+For a nonempty word family $\mathcal F$, retain a variable for every cell:
+\[
+ P_{\mathcal F}(\mathbf z)=\sum_{u\in\mathcal F}\prod_{e\in E}z_{e,u(e)}.
+\]
+This polynomial has degree one in each row's block of variables. The
+theorem shows that it is Lorentzian exactly when $\mathcal F$ is a
+Cartesian product of row menus. Indeed, product support is precisely
+independent choice of the letters at the rows; conversely such a family
+gives a product of nonnegative linear forms, which is even real stable.
+
+If all color quotas are fixed, this can happen only for a single word:
+varying one row independently would change the quotas. Thus a nontrivial
+fixed-quota family cannot have a Lorentzian full cell polynomial.
+The completion-polynomial conjecture instead fixes the hidden cell
+weights and retains the positions of one selected color.
